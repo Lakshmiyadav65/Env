@@ -5229,7 +5229,7 @@ async function insertScopeTwo(client: any, data: any, sgiq_id: string, product_b
                 payload: p
             });
 
-            return [pseu_id, stide_id, p.process_specific_energy_type, p.quantity_consumed, p.unit, p.support_from_enviguide ?? false, p.bom_id, p.material_number, p.energy_type, annual_reporting_period,
+            return [pseu_id, stide_id, p.process_specific_energy_type, p.quantity_consumed, p.unit, p.support_from_enviraan ?? false, p.bom_id, p.material_number, p.energy_type, annual_reporting_period,
                 own_emission_id
             ];
         });
@@ -5237,7 +5237,7 @@ async function insertScopeTwo(client: any, data: any, sgiq_id: string, product_b
         childInserts.push(bulkInsert(
             client,
             'process_specific_energy_usage_questions',
-            ['pseu_id', 'stide_id', 'process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviguide', 'bom_id', 'material_number', 'energy_type', 'annual_reporting_period',
+            ['pseu_id', 'stide_id', 'process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviraan', 'bom_id', 'material_number', 'energy_type', 'annual_reporting_period',
                 'own_emission_id'
             ],
             rows
@@ -5788,21 +5788,21 @@ async function insertScopeThree(client: any, data: any, sgiq_id: string, product
     // Insert parent
     await client.query(
         `INSERT INTO scope_three_other_indirect_emissions_questions (
-            stoie_id, sgiq_id, raw_materials_contact_enviguide_support,
+            stoie_id, sgiq_id, raw_materials_contact_enviraan_support,
             grade_of_metal_used, msds_link_or_upload_document,
             use_of_recycled_secondary_materials, percentage_of_pre_post_consumer_material_used_in_product,
             do_you_use_recycle_mat_for_packaging, percentage_of_recycled_content_used_in_packaging,
             do_you_use_electricity_for_packaging, energy_con_included_total_energy_pur_sec_two_qsixtysix,
             internal_or_external_waste_material_per_recycling, any_by_product_generated,
             do_you_track_emission_from_transport, mode_of_transport_used_for_transportation,
-            mode_of_transport_enviguide_support, iso_14001_or_iso_50001_certified,
+            mode_of_transport_enviraan_support, iso_14001_or_iso_50001_certified,
             standards_followed_iso_14067_GHG_catena_etc, do_you_report_to_cdp_sbti_or_other,
             measures_to_reduce_carbon_emissions_in_production, renewable_energy_initiatives_or_recycling_programs,
             your_company_info ,own_emission_id
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`,
         [
             stoie_id, sgiq_id,
-            data.raw_materials_contact_enviguide_support ?? false,
+            data.raw_materials_contact_enviraan_support ?? false,
             data.grade_of_metal_used,
             data.msds_link_or_upload_document,
             data.use_of_recycled_secondary_materials ?? false,
@@ -5815,7 +5815,7 @@ async function insertScopeThree(client: any, data: any, sgiq_id: string, product
             data.any_by_product_generated ?? false,
             data.do_you_track_emission_from_transport ?? false,
             data.mode_of_transport_used_for_transportation ?? false,
-            data.mode_of_transport_enviguide_support ?? false,
+            data.mode_of_transport_enviraan_support ?? false,
             data.iso_14001_or_iso_50001_certified ?? false,
             data.standards_followed_iso_14067_GHG_catena_etc ?? false,
             data.do_you_report_to_cdp_sbti_or_other ?? false,

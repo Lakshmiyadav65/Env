@@ -35,7 +35,7 @@ export interface PdfGenerationInput {
 }
 
 // ============================================================
-// Brand colors — EnviGuide
+// Brand colors — Enviraan
 // White header (logo needs white bg) + lime green accents
 // ============================================================
 const COLORS = {
@@ -277,14 +277,14 @@ export const generateQuestionnairePdfBuffer = (
             doc
               .fillColor(COLORS.text)
               .fontSize(14)
-              .text("enviguide", PAGE_MARGIN, logoY + 10, { lineBreak: false });
+              .text("enviraan", PAGE_MARGIN, logoY + 10, { lineBreak: false });
           }
         } else {
           fontBold();
           doc
             .fillColor(COLORS.text)
             .fontSize(14)
-            .text("enviguide", PAGE_MARGIN, logoY + 10, { lineBreak: false });
+            .text("enviraan", PAGE_MARGIN, logoY + 10, { lineBreak: false });
         }
 
         // Page number (right)

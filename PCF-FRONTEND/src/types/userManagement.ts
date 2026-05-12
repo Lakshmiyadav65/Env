@@ -176,7 +176,7 @@ export interface RolePermission {
 }
 
 // User Types for different categories
-export type UserType = 'enviguide' | 'manufacturer' | 'supplier';
+export type UserType = 'enviraan' | 'manufacturer' | 'supplier';
 
 // API Response Types
 export interface OnboardingListResponse<T> {

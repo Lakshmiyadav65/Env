@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-EnviGuide Frontend is an environmental management suite for tracking Product Carbon Footprints (PCF), supplier questionnaires, and data quality ratings. Built with React 19, TypeScript, Vite, Tailwind CSS, and Ant Design.
+Enviraan Frontend is an environmental management suite for tracking Product Carbon Footprints (PCF), supplier questionnaires, and data quality ratings. Built with React 19, TypeScript, Vite, Tailwind CSS, and Ant Design.
 
 ## Commands
 
@@ -33,7 +33,7 @@ No test framework is currently configured.
 
 **Authentication**: Uses React Context (`useAuth()` hook) backed by `authService`. Token stored in localStorage. MFA flow redirects to `/mfa-verification` when required.
 
-**API Services**: Located in `src/lib/`. Services use Axios with Bearer token auth. Base URL: `https://enviguide.nextechltd.in/api`. Standard response format: `{ status: boolean; message: string; code: number; data: T }`.
+**API Services**: Located in `src/lib/`. Services use Axios with Bearer token auth. Base URL: `https://enviraan.nextechltd.in/api`. Standard response format: `{ status: boolean; message: string; code: number; data: T }`.
 
 **Routing**: React Router v7 with `createBrowserRouter`. Protected routes wrap content with `ProtectedRoute` component. Data setup pages use dynamic routes with tabs defined in `src/config/dataSetupGroups.ts`.
 

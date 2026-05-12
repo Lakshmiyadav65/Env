@@ -74,7 +74,7 @@ const MFAVerification: React.FC = () => {
   }, [mfaData?.manualCode, userEmail, isSetupDone]);
 
   const buildOtpAuthUri = (secret: string, email: string): string => {
-    const issuer = "EnviGuide";
+    const issuer = "Enviraan";
     // Use a simpler label format that Google Authenticator prefers
     const label = `${issuer}:${email}`;
 
@@ -200,7 +200,7 @@ const MFAVerification: React.FC = () => {
         <Logo className="mb-8" variant="dark" />
         <div className="text-center text-white">
           <h1 className="text-2xl font-bold mb-4">
-            Welcome to EnviGuide Management Suite
+            Welcome to Enviraan Management Suite
           </h1>
           <p className="text-slate-300 text-lg">
             Manage your work, track progress, and collaborate with your team
@@ -350,7 +350,7 @@ const MFAVerification: React.FC = () => {
                     <p>3. Choose "Enter a setup key"</p>
                     <p>
                       4. Enter account name:{" "}
-                      <strong>EnviGuide:{userEmail}</strong>
+                      <strong>Enviraan:{userEmail}</strong>
                     </p>
                     <p>5. Enter the key above</p>
                     <p>6. Choose "Time based"</p>

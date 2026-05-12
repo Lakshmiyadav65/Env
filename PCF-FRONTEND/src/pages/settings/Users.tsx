@@ -60,14 +60,14 @@ const SORT_OPTIONS = [
   { value: "user_role", label: "Role" },
 ];
 
-type TabKey = "enviguide" | "manufacturer" | "supplier";
+type TabKey = "enviraan" | "manufacturer" | "supplier";
 
 const UsersPage: React.FC = () => {
   const navigate = useNavigate();
   const { canCreate, canUpdate, canDelete } = usePermissions();
-  const [activeTab, setActiveTab] = useState<TabKey>("enviguide");
+  const [activeTab, setActiveTab] = useState<TabKey>("enviraan");
 
-  // EnviGuide Team State
+  // Enviraan Team State
   const [users, setUsers] = useState<BackendUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -154,7 +154,7 @@ const UsersPage: React.FC = () => {
   // Only depend on values that should trigger a re-fetch (not `total`)
   }, [pagination.current, pagination.pageSize, filters, quickSearch]);
 
-  // Load EnviGuide Users
+  // Load Enviraan Users
   const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -279,7 +279,7 @@ const UsersPage: React.FC = () => {
   }, [supplierPagination.current, supplierPagination.pageSize, supplierSearch]);
 
   useEffect(() => {
-    if (activeTab === "enviguide") {
+    if (activeTab === "enviraan") {
       loadUsers();
     } else if (activeTab === "manufacturer") {
       loadManufacturers();
@@ -329,7 +329,7 @@ const UsersPage: React.FC = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    if (activeTab === "enviguide") {
+    if (activeTab === "enviraan") {
       await loadUsers();
     } else if (activeTab === "manufacturer") {
       await loadManufacturers();
@@ -340,7 +340,7 @@ const UsersPage: React.FC = () => {
   };
 
   const handlePageChange = (page: number) => {
-    if (activeTab === "enviguide") {
+    if (activeTab === "enviraan") {
       setPagination((prev) => ({ ...prev, current: page }));
     } else if (activeTab === "manufacturer") {
       setManufacturerPagination((prev) => ({ ...prev, current: page }));
@@ -350,7 +350,7 @@ const UsersPage: React.FC = () => {
   };
 
   const handlePageSizeChange = (size: number) => {
-    if (activeTab === "enviguide") {
+    if (activeTab === "enviraan") {
       setPagination((prev) => ({ ...prev, current: 1, pageSize: size }));
     } else if (activeTab === "manufacturer") {
       setManufacturerPagination((prev) => ({ ...prev, current: 1, pageSize: size }));
@@ -487,7 +487,7 @@ const UsersPage: React.FC = () => {
   };
 
   const getCurrentPagination = () => {
-    if (activeTab === "enviguide") return pagination;
+    if (activeTab === "enviraan") return pagination;
     if (activeTab === "manufacturer") return manufacturerPagination;
     return supplierPagination;
   };
@@ -579,8 +579,8 @@ const UsersPage: React.FC = () => {
     );
   };
 
-  // EnviGuide Team Tab Content
-  const renderEnviGuideTab = () => {
+  // Enviraan Team Tab Content
+  const renderEnviraanTab = () => {
     if (loading) {
       return (
         <div className="bg-white rounded-lg shadow p-12">
@@ -1479,14 +1479,14 @@ const UsersPage: React.FC = () => {
 
   const tabItems = [
     {
-      key: "enviguide",
+      key: "enviraan",
       label: (
         <span className="flex items-center gap-2">
           <Building2 className="h-4 w-4" />
-          EnviGuide Team
+          Enviraan Team
         </span>
       ),
-      children: renderEnviGuideTab(),
+      children: renderEnviraanTab(),
     },
     {
       key: "manufacturer",
@@ -1522,7 +1522,7 @@ const UsersPage: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
-                <p className="text-gray-500">Manage EnviGuide team, clients, and suppliers</p>
+                <p className="text-gray-500">Manage Enviraan team, clients, and suppliers</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1534,7 +1534,7 @@ const UsersPage: React.FC = () => {
                 <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
                 <span>Refresh</span>
               </button>
-              {activeTab === "enviguide" && canCreate("manage users") && (
+              {activeTab === "enviraan" && canCreate("manage users") && (
                 <Link
                   to="/settings/users/create"
                   className="bg-green-600 text-white px-5 py-2.5 rounded-xl hover:bg-green-700 flex items-center gap-2 shadow-lg shadow-green-600/20 transition-colors"

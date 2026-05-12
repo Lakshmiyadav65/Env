@@ -3729,7 +3729,7 @@ export async function generatePcfReportPdf(req: any, res: any) {
                 .replace(/^_|_$/g, "")
                 .slice(0, 60);
             const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
-            const filename = `EnviGuide_PCF_${pcf.code || "Report"}_${sanitizedProduct}_${dateStr}.pdf`;
+            const filename = `Enviraan_PCF_${pcf.code || "Report"}_${sanitizedProduct}_${dateStr}.pdf`;
 
             res.setHeader("Content-Type", "application/pdf");
             res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);

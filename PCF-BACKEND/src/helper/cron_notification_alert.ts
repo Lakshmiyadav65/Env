@@ -65,7 +65,7 @@ const transactionTablesMap: Record<string, string[]> = {
 //         port: 587,
 //         secure: false,
 //         auth: {
-//           user: 'support@enviguide.info',
+//           user: 'support@enviraan.info',
 //           pass: 'Maaran@7890',
 //         },
 //         tls: {
@@ -74,7 +74,7 @@ const transactionTablesMap: Record<string, string[]> = {
 //       });
 
 //       await transporter.sendMail({
-//         from: "support@enviguide.info",
+//         from: "support@enviraan.info",
 //         to,
 //         subject,
 //         // html,
@@ -135,7 +135,7 @@ async function generateInvoiceSqlPDF(
       try {
         function getLabelForColumn(column: string, tables: string[]): string {
           if (column.endsWith("_data")) {
-            return "Enviguide Data";
+            return "Enviraan Data";
           }
 
           for (const table of tables) {
@@ -185,7 +185,7 @@ async function generateInvoiceSqlPDF(
 // ✅ Label Formatter
 function formatLabel(col: string): string {
   if (col.endsWith("_data")) {
-    return "Enviguide Data";  // Force this label
+    return "Enviraan Data";  // Force this label
   }
   return col
     .replace(/_/g, ' ')           // Replace underscores with spaces
@@ -247,7 +247,7 @@ export async function scheduleNotifications() {
         // const requiredColumns = parsedConditions.map((c) => c.col);
         let requiredColumns = parsedConditions.map(c => c.col);
 
-        // ✅ Add Enviguide Data column dynamically
+        // ✅ Add Enviraan Data column dynamically
         const invoiceCol = joinKey.replace(/_id$/, "_data");
         if (!requiredColumns.includes(invoiceCol)) {
           requiredColumns.unshift(invoiceCol);
@@ -387,7 +387,7 @@ export async function scheduleNotifications() {
 
                   const pdfBuffer = await generateInvoicePDF(rows, requiredColumns);
                   attachmentsArray.push({
-                    filename: 'enviguide-data.pdf',
+                    filename: 'enviraan-data.pdf',
                     content: pdfBuffer,
                     contentType: 'application/pdf'
                   });
@@ -551,9 +551,9 @@ export async function scheduleNotifications() {
 
     // Helper to get label name for a column
     function getLabelForColumn(column: string, tables: string[]): string {
-      // Force "Enviguide Data" if column ends with _data
+      // Force "Enviraan Data" if column ends with _data
       if (column.endsWith("_data")) {
-        return "Enviguide Data";
+        return "Enviraan Data";
       }
 
       // Check if label exists in columnConfig
@@ -1162,7 +1162,7 @@ export async function sendNotificationImmediate(ntf_id: string) {
 
         const pdfBuffer = await generateInvoicePDF(rows, requiredColumns);
         attachmentsArray.push({
-          filename: 'enviguide-data.pdf',
+          filename: 'enviraan-data.pdf',
           content: pdfBuffer,
           contentType: 'application/pdf'
         });
@@ -1292,9 +1292,9 @@ export async function sendNotificationImmediate(ntf_id: string) {
 
     // Helper to get label name for a column
     function getLabelForColumn(column: string, tables: string[]): string {
-      // Force "Enviguide Data" if column ends with _data
+      // Force "Enviraan Data" if column ends with _data
       if (column.endsWith("_data")) {
-        return "Enviguide Data";
+        return "Enviraan Data";
       }
 
       // Check if label exists in columnConfig
@@ -1442,7 +1442,7 @@ export async function sendNotificationSqlQueryImmediate(ntf_id: string) {
         const pdfBuffer = await generateInvoiceSqlPDF(queryResults, columns, queryTables);
 
         attachmentsArray.push({
-          filename: 'enviguide-data.pdf',
+          filename: 'enviraan-data.pdf',
           content: pdfBuffer,
           contentType: 'application/pdf'
         });
@@ -1495,7 +1495,7 @@ export async function sendNotificationSqlQueryImmediate(ntf_id: string) {
 
     function getLabelForColumn(column: string, tables: string[]): string {
       if (column.endsWith("_data")) {
-        return "Enviguide Data";
+        return "Enviraan Data";
       }
       for (const table of tables) {
         if (columnConfig[table]) {
@@ -1704,7 +1704,7 @@ export async function scheduleSqlQueryNotifications() {
                 const pdfBuffer = await generateInvoiceSqlPDF(queryResults, columns, queryTables);
 
                 attachmentsArray.push({
-                  filename: 'enviguide-data.pdf',
+                  filename: 'enviraan-data.pdf',
                   content: pdfBuffer,
                   contentType: 'application/pdf'
                 });
@@ -1788,7 +1788,7 @@ export async function scheduleSqlQueryNotifications() {
 
     function getLabelForColumn(column: string, tables: string[]): string {
       if (column.endsWith("_data")) {
-        return "Enviguide Data";
+        return "Enviraan Data";
       }
       for (const table of tables) {
         if (columnConfig[table]) {

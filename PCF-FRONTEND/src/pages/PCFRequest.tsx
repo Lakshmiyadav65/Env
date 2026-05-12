@@ -62,7 +62,7 @@ const PCFRequest: React.FC = () => {
   const isSuperAdmin =
     user?.role?.toLowerCase() === "superadmin" ||
     user?.role?.toLowerCase() === "super admin" ||
-    user?.role?.toLowerCase() === "enviguide" ||
+    user?.role?.toLowerCase() === "enviraan" ||
     user?.role?.toLowerCase() === "admin";
   const [pageSize, setPageSize] = useState(10);
   const [pcfRequests, setPcfRequests] = useState<PCFRequestItem[]>([]);

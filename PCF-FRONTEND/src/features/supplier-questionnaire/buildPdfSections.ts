@@ -73,7 +73,7 @@ const cleanTableRows = (rows: any[]): any[] => {
   );
 };
 
-// Columns that EnviGuide auto-populates from BOM/products — not supplier-entered data
+// Columns that Enviraan auto-populates from BOM/products — not supplier-entered data
 const AUTO_POPULATED_COLUMNS = new Set([
   "mpn",
   "component_name",
@@ -179,7 +179,7 @@ export const buildPdfSections = (
         if (rows.length === 0 || !field.columns) continue;
 
         // For auto-populated tables, skip if supplier didn't enter any real data
-        // beyond the EnviGuide-prefilled MPN/component name columns.
+        // beyond the Enviraan-prefilled MPN/component name columns.
         const autoPopulated = !!field.autoPopulateFromProducts;
         if (!hasUserEnteredData(rows, autoPopulated)) continue;
 

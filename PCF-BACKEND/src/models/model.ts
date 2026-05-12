@@ -897,7 +897,7 @@ ADD COLUMN IF NOT EXISTS platform VARCHAR(255);
             energy_type VARCHAR(255),
             quantity_consumed NUMERIC(10,2),
             unit VARCHAR(50),
-            support_from_enviguide BOOLEAN DEFAULT false,
+            support_from_enviraan BOOLEAN DEFAULT false,
             annual_reporting_period VARCHAR(255),
             update_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
             created_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -1102,7 +1102,7 @@ ADD COLUMN IF NOT EXISTS platform VARCHAR(255);
         `CREATE TABLE IF NOT EXISTS scope_three_other_indirect_emissions_questions (
             stoie_id VARCHAR(255) PRIMARY KEY,
             sgiq_id VARCHAR(255),
-            raw_materials_contact_enviguide_support BOOLEAN DEFAULT false,
+            raw_materials_contact_enviraan_support BOOLEAN DEFAULT false,
             grade_of_metal_used VARCHAR(255),
             msds_link_or_upload_document TEXT[], -- array of document links or file references Q54
             use_of_recycled_secondary_materials BOOLEAN DEFAULT false, -- Q55
@@ -1115,7 +1115,7 @@ ADD COLUMN IF NOT EXISTS platform VARCHAR(255);
             any_by_product_generated BOOLEAN DEFAULT false, --Q70
             do_you_track_emission_from_transport BOOLEAN DEFAULT false, -- Q72
             mode_of_transport_used_for_transportation BOOLEAN DEFAULT false, -- Q74
-            mode_of_transport_enviguide_support BOOLEAN DEFAULT false, -- Q74
+            mode_of_transport_enviraan_support BOOLEAN DEFAULT false, -- Q74
             iso_14001_or_iso_50001_certified BOOLEAN DEFAULT false, --Q76
             standards_followed_iso_14067_GHG_catena_etc BOOLEAN DEFAULT false, --Q77
             do_you_report_to_cdp_sbti_or_other BOOLEAN DEFAULT false, --Q78

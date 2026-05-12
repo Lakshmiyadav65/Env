@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
       port: 587,
       secure: false,
       auth: {
-        user: 'support@enviguide.info',
+        user: 'support@enviraan.info',
         pass: 'maaran@7890',
       },
       tls: { minVersion: 'TLSv1.2', rejectUnauthorized: true },

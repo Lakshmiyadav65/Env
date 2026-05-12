@@ -80,8 +80,8 @@ export async function signup(req: any, res: any) {
                         TOKEN_SECRET,
                         { expiresIn: "24h" }
                     );
-                    const setupLink = `https://enviguide.nextechltd.in/reset-password?token=${token}&setup=1`;
-                    const subject = "Welcome to EnviGuide — Set up your account";
+                    const setupLink = `https://enviraan.nextechltd.in/reset-password?token=${token}&setup=1`;
+                    const subject = "Welcome to Enviraan — Set up your account";
                     const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -94,7 +94,7 @@ export async function signup(req: any, res: any) {
     <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
         <p>Hello ${adminObj.user_name || "there"},</p>
 
-        <p>An EnviGuide account has been created for you. To get started, please set your password using the link below.</p>
+        <p>An Enviraan account has been created for you. To get started, please set your password using the link below.</p>
 
         <p style="margin: 20px 0;">
             <a href="${setupLink}"
@@ -112,12 +112,12 @@ export async function signup(req: any, res: any) {
         <p>If you were not expecting this email, please ignore it.</p>
 
         <p>Best regards,<br>
-           <strong>Team EnviGuide</strong></p>
+           <strong>Team Enviraan</strong></p>
     </div>
 
     <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-        <p>This is an automated message from EnviGuide. Please do not reply to this email.</p>
-        <p>If you have any questions, please contact our support team at support@enviguide.info</p>
+        <p>This is an automated message from Enviraan. Please do not reply to this email.</p>
+        <p>If you have any questions, please contact our support team at support@enviraan.info</p>
     </div>
 </body>
 </html>
@@ -189,7 +189,7 @@ export async function login(req: any, res: any) {
             if (!existingSecret) {
                 // Generate new MFA secret
                 const secret = speakeasy.generateSecret({
-                    name: `Enviguide portal (${user_email})`,
+                    name: `Enviraan portal (${user_email})`,
                 });
 
                 if (!secret.otpauth_url) {
@@ -861,8 +861,8 @@ export async function forgotPassword(req: any, res: any) {
         }
         const token = generateAccessToken({ user_email: findUser.rows[0].user_email });
 
-        const resetLink = `https://enviguide.nextechltd.in/reset-password?token=${token}`;
-        const subject = "Password Reset Request - Enviguide";
+        const resetLink = `https://enviraan.nextechltd.in/reset-password?token=${token}`;
+        const subject = "Password Reset Request - Enviraan";
 
         const html = `
 <!DOCTYPE html>
@@ -876,7 +876,7 @@ export async function forgotPassword(req: any, res: any) {
     <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
         <p>Hello,</p>
         
-        <p>We received a request to reset your password for your Enviguide account.</p>
+        <p>We received a request to reset your password for your Enviraan account.</p>
         
         <p>Please use the following link to reset your password:</p>
         
@@ -896,13 +896,13 @@ export async function forgotPassword(req: any, res: any) {
         <p>If you did not request a password reset, please ignore this email or contact our support team if you have concerns.</p>
         
         <p>Best regards,<br>
-           <strong>Team Enviguide</strong><br>
+           <strong>Team Enviraan</strong><br>
         </p>
     </div>
     
     <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-        <p>This is an automated message from Enviguide. Please do not reply to this email.</p>
-        <p>If you have any questions, please contact our support team at support@enviguide.info</p>
+        <p>This is an automated message from Enviraan. Please do not reply to this email.</p>
+        <p>If you have any questions, please contact our support team at support@enviraan.info</p>
     </div>
 </body>
 </html>
@@ -1006,8 +1006,8 @@ export async function forgotMFA(req: any, res: any) {
             return res.status(400).send(generateResponse(false, 'User with this email does not exist', 400, null));
         }
         const token = generateAccessTokenForResetPassAndMFA({ user_email: findUser.rows[0].user_email });
-        const resetLink = `https://enviguide.nextechltd.in/reset-mfa?token=${token}`;
-        const subject = "Reset Your Enviguide MFA";
+        const resetLink = `https://enviraan.nextechltd.in/reset-mfa?token=${token}`;
+        const subject = "Reset Your Enviraan MFA";
 
         const to = req.body.user_email;
         const html = `
@@ -1022,7 +1022,7 @@ export async function forgotMFA(req: any, res: any) {
     <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
         <p>Hello,</p>
         
-        <p>We received a request to reset your Multi-Factor Authentication (MFA) for your Enviguide account.</p>
+        <p>We received a request to reset your Multi-Factor Authentication (MFA) for your Enviraan account.</p>
         
         <p>Please use the following link to reset your MFA settings:</p>
         
@@ -1042,13 +1042,13 @@ export async function forgotMFA(req: any, res: any) {
         <p>If you did not request an MFA reset, please ignore this email or contact our support team immediately if you have security concerns.</p>
         
         <p>Best regards,<br>
-           <strong>Team Enviguide</strong><br>
+           <strong>Team Enviraan</strong><br>
         </p>
     </div>
     
     <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-        <p>This is an automated message from Enviguide. Please do not reply to this email.</p>
-        <p>If you have any questions, please contact our support team at support@enviguide.info</p>
+        <p>This is an automated message from Enviraan. Please do not reply to this email.</p>
+        <p>If you have any questions, please contact our support team at support@enviraan.info</p>
     </div>
 </body>
 </html>
@@ -1092,7 +1092,7 @@ export async function resetMFA(req: any, res: any) {
 
         // Generate new MFA secret
         const secret = speakeasy.generateSecret({
-            name: `Enviguide portal (${user.user_email})`
+            name: `Enviraan portal (${user.user_email})`
         });
 
         if (!secret.otpauth_url) {

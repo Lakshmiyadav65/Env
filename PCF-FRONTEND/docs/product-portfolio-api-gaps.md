@@ -3,21 +3,21 @@
 ## API Endpoints
 
 ### List Products
-**URL:** `https://enviguide.nextechltd.in/api/product/list`
+**URL:** `https://enviraan.nextechltd.in/api/product/list`
 **Method:** GET
 **Query Parameters:** pageNumber, pageSize, start_date, end_date, category_name, pcf_status, sub_category_name, product_name, search
 
 ### Get Product by ID
-**URL:** `https://enviguide.nextechltd.in/api/product/get-by-id`
+**URL:** `https://enviraan.nextechltd.in/api/product/get-by-id`
 **Method:** GET
 **Query Parameters:** id
 
 ### Create Product
-**URL:** `https://enviguide.nextechltd.in/api/product/add`
+**URL:** `https://enviraan.nextechltd.in/api/product/add`
 **Method:** POST
 
 ### Update Product
-**URL:** `https://enviguide.nextechltd.in/api/product/update`
+**URL:** `https://enviraan.nextechltd.in/api/product/update`
 **Method:** POST
 
 ---

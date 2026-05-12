@@ -296,7 +296,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //     UPDATE material_composition_questions
 //     SET
 //         main_raw_materials_used = $1,
-//         contact_enviguide_support = $2,
+//         contact_enviraan_support = $2,
 //         has_recycled_material_usage = $3,
 //         percentage_recycled_material = $4,
 //         knows_material_breakdown = $5,
@@ -334,7 +334,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //     WHERE sgiq_id = $35;
 // `, [
 //                     JSON.stringify(material_composition.main_raw_materials_used),  // FIX HERE
-//                     material_composition.contact_enviguide_support,
+//                     material_composition.contact_enviraan_support,
 //                     material_composition.has_recycled_material_usage,
 //                     material_composition.percentage_recycled_material,
 //                     material_composition.knows_material_breakdown,
@@ -378,7 +378,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //             //         UPDATE material_composition_questions
 //             //         SET
 //             //             main_raw_materials_used = $1,
-//             //             contact_enviguide_support = $2,
+//             //             contact_enviraan_support = $2,
 //             //             has_recycled_material_usage = $3,
 //             //             percentage_recycled_material = $4,
 //             //             knows_material_breakdown = $5,
@@ -434,7 +434,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //                         energy_calculation_method_details = $6,
 //                         energy_intensity_per_unit = $7,
 //                         process_specific_energy_usage = $8,
-//                         enviguide_support = $9,
+//                         enviraan_support = $9,
 //                         uses_abatement_systems = $10,
 //                         abatement_system_energy_consumption = $11,
 //                         water_consumption_and_treatment_details = $12,
@@ -454,7 +454,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //                     UPDATE packaging_questions
 //                     SET
 //                         packaging_materials_used = $1,
-//                         enviguide_support = $2,
+//                         enviraan_support = $2,
 //                         packaging_weight_per_unit = $3,
 //                         packaging_size = $4,
 //                         uses_recycled_packaging = $5,
@@ -475,7 +475,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //                 //     UPDATE transportation_logistics_questions
 //                 //     SET
 //                 //         transport_modes_used = $1,
-//                 //         enviguide_support = $2,
+//                 //         enviraan_support = $2,
 //                 //         uses_certified_logistics_provider = $3,
 //                 //         logistics_provider_details = $4,
 //                 //         updated_by = $5,
@@ -495,7 +495,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //         UPDATE transportation_logistics_questions
 //         SET
 //             transport_modes_used = $1,
-//             enviguide_support = $2,
+//             enviraan_support = $2,
 //             uses_certified_logistics_provider = $3,
 //             logistics_provider_details = $4,
 //             updated_by = $5,
@@ -507,7 +507,7 @@ export async function getSupplierSustainabilityDataById(req: any, res: any) {
 //         WHERE sgiq_id = $10;
 //     `, [
 //                         transportation_logistics.transport_modes_used,         // $1 (TEXT[])
-//                         transportation_logistics.enviguide_support,            // $2
+//                         transportation_logistics.enviraan_support,            // $2
 //                         transportation_logistics.uses_certified_logistics_provider, // $3
 //                         transportation_logistics.logistics_provider_details,   // $4 (TEXT[])
 //                         updated_by,                                            // $5
@@ -1794,8 +1794,8 @@ async function insertScopeTwo(client: any, data: any, sgiq_id: string, annual_re
     //     {
     //         data: data.process_specific_energy_usage_questions,
     //         table: 'process_specific_energy_usage_questions',
-    //         columns: ['pseu_id', 'stide_id', 'process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviguide'],
-    //         mapper: (p: any) => [ulid(), stide_id, p.process_specific_energy_type, p.quantity_consumed, p.unit, p.support_from_enviguide ?? false]
+    //         columns: ['pseu_id', 'stide_id', 'process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviraan'],
+    //         mapper: (p: any) => [ulid(), stide_id, p.process_specific_energy_type, p.quantity_consumed, p.unit, p.support_from_enviraan ?? false]
     //     },
     //     {
     //         data: data.abatement_systems_used_questions,
@@ -2019,13 +2019,13 @@ async function insertScopeTwo(client: any, data: any, sgiq_id: string, annual_re
                 payload: p
             });
 
-            return [pseu_id, stide_id, p.process_specific_energy_type, p.quantity_consumed, p.unit, p.support_from_enviguide ?? false, p.bom_id, p.material_number, p.energy_type, annual_reporting_period];
+            return [pseu_id, stide_id, p.process_specific_energy_type, p.quantity_consumed, p.unit, p.support_from_enviraan ?? false, p.bom_id, p.material_number, p.energy_type, annual_reporting_period];
         });
 
         childInserts.push(bulkInsert(
             client,
             'process_specific_energy_usage_questions',
-            ['pseu_id', 'stide_id', 'process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviguide', 'bom_id', 'material_number', 'energy_type', 'annual_reporting_period'],
+            ['pseu_id', 'stide_id', 'process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviraan', 'bom_id', 'material_number', 'energy_type', 'annual_reporting_period'],
             rows
         ));
 
@@ -2620,21 +2620,21 @@ async function insertScopeThree(client: any, data: any, sgiq_id: string, annual_
     // Insert parent
     await client.query(
         `INSERT INTO scope_three_other_indirect_emissions_questions (
-            stoie_id, sgiq_id, raw_materials_contact_enviguide_support,
+            stoie_id, sgiq_id, raw_materials_contact_enviraan_support,
             grade_of_metal_used, msds_link_or_upload_document,
             use_of_recycled_secondary_materials, percentage_of_pre_post_consumer_material_used_in_product,
             do_you_use_recycle_mat_for_packaging, percentage_of_recycled_content_used_in_packaging,
             do_you_use_electricity_for_packaging, energy_con_included_total_energy_pur_sec_two_qsixtysix,
             internal_or_external_waste_material_per_recycling, any_by_product_generated,
             do_you_track_emission_from_transport, mode_of_transport_used_for_transportation,
-            mode_of_transport_enviguide_support, iso_14001_or_iso_50001_certified,
+            mode_of_transport_enviraan_support, iso_14001_or_iso_50001_certified,
             standards_followed_iso_14067_GHG_catena_etc, do_you_report_to_cdp_sbti_or_other,
             measures_to_reduce_carbon_emissions_in_production, renewable_energy_initiatives_or_recycling_programs,
             your_company_info
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
         [
             stoie_id, sgiq_id,
-            data.raw_materials_contact_enviguide_support ?? false,
+            data.raw_materials_contact_enviraan_support ?? false,
             data.grade_of_metal_used,
             data.msds_link_or_upload_document,
             data.use_of_recycled_secondary_materials ?? false,
@@ -2647,7 +2647,7 @@ async function insertScopeThree(client: any, data: any, sgiq_id: string, annual_
             data.any_by_product_generated ?? false,
             data.do_you_track_emission_from_transport ?? false,
             data.mode_of_transport_used_for_transportation ?? false,
-            data.mode_of_transport_enviguide_support ?? false,
+            data.mode_of_transport_enviraan_support ?? false,
             data.iso_14001_or_iso_50001_certified ?? false,
             data.standards_followed_iso_14067_GHG_catena_etc ?? false,
             data.do_you_report_to_cdp_sbti_or_other ?? false,
@@ -4240,7 +4240,7 @@ export async function geocodeSearch(req: any, res: any) {
 
         const response = await axios.get(url, {
             headers: {
-                'User-Agent': 'EnviGuide-PCF/1.0',
+                'User-Agent': 'Enviraan-PCF/1.0',
                 'Accept-Language': 'en'
             }
         });

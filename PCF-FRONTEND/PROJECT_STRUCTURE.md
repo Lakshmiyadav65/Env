@@ -1,12 +1,12 @@
-# EnviGuide Frontend - Complete Project Structure
+# Enviraan Frontend - Complete Project Structure
 
 ## Overview
 
-**EnviGuide** is a comprehensive environmental management platform focused on Product Carbon Footprint (PCF) tracking, supplier questionnaires, data quality assessment, and sustainability reporting. The frontend is built as a modern React application using TypeScript, Vite, and Tailwind CSS.
+**Enviraan** is a comprehensive environmental management platform focused on Product Carbon Footprint (PCF) tracking, supplier questionnaires, data quality assessment, and sustainability reporting. The frontend is built as a modern React application using TypeScript, Vite, and Tailwind CSS.
 
 **Status**: In active development
 
-**Base API URL**: `https://enviguide.nextechltd.in`
+**Base API URL**: `https://enviraan.nextechltd.in`
 
 ---
 
@@ -660,11 +660,11 @@ headers: {
 
 ## Environment Configuration
 
-**API Base URL**: Hardcoded in service files (currently `https://enviguide.nextechltd.in`)
+**API Base URL**: Hardcoded in service files (currently `https://enviraan.nextechltd.in`)
 
 **Future Enhancement**: Should use environment variables:
 ```bash
-VITE_API_BASE_URL=https://enviguide.nextechltd.in
+VITE_API_BASE_URL=https://enviraan.nextechltd.in
 ```
 
 ---

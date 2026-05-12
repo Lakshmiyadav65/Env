@@ -16,7 +16,7 @@ const DashboardRouter: React.FC = () => {
   const isSuperAdmin =
     user?.role?.toLowerCase() === "superadmin" ||
     user?.role?.toLowerCase() === "super admin" ||
-    user?.role?.toLowerCase() === "enviguide" ||
+    user?.role?.toLowerCase() === "enviraan" ||
     user?.role?.toLowerCase() === "admin";
 
   // Show client dashboard when drilling down into a specific client

@@ -9,7 +9,7 @@ export async function sendSupplierTaskEmail(payload: {
 
     const subject = 'Supplier Questionnaire Request'
     const link =
-        `https://enviguide.nextechltd.in/supplier-questionnaire` +
+        `https://enviraan.nextechltd.in/supplier-questionnaire` +
         `?bom_pcf_id=${payload.bom_pcf_id}` +
         `&sup_id=${payload.supplier_id}`;
 
@@ -25,7 +25,7 @@ export async function sendSupplierTaskEmail(payload: {
     <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
         <p>Hello,</p>
         
-        <p>You have been requested to complete a supplier questionnaire for Enviguide.</p>
+        <p>You have been requested to complete a supplier questionnaire for Enviraan.</p>
         
         <p style="margin: 20px 0;">
             <a href="${link}" 
@@ -41,12 +41,12 @@ export async function sendSupplierTaskEmail(payload: {
         <p>If you have any questions, please contact our support team.</p>
         
         <p>Best regards,<br>
-           <strong>Team Enviguide</strong><br>
+           <strong>Team Enviraan</strong><br>
       </p>
     </div>
     
     <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-        <p>This is an automated message from Enviguide. Please do not reply to this email.</p>
+        <p>This is an automated message from Enviraan. Please do not reply to this email.</p>
     </div>
 </body>
 </html>

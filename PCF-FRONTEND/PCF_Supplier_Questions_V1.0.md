@@ -331,7 +331,7 @@ Example display all four energy sources default as shown below:
 * others  
 * \[Open Text\]   
 * Table format \[Process-specific energy type, Quantity Consumed per product (Numerical value), Unit of measure (energy\_Unit)\]    
-* Support from Enviguide   
+* Support from Enviraan   
 
    
 
@@ -464,7 +464,7 @@ Example display all four energy sources default as shown below:
 
 # **5.1 Materials Details**
 
-52. **Please select or write all the raw materials used in your component manufacturing? If you don’t know the detailed compositions please select Enviguide support to connect \* \[Mandatory\] \[DQR Rating Required\]**  
+52. **Please select or write all the raw materials used in your component manufacturing? If you don’t know the detailed compositions please select Enviraan support to connect \* \[Mandatory\] \[DQR Rating Required\]**  
 * Aluminum     
 * Steel     
 * Copper     
@@ -475,7 +475,7 @@ Example display all four energy sources default as shown below:
 * Others   
 * \[Open Text to enter material name\]    
 * Table format \[MPN ,Material selected above will be default, input for % material composition of total component weight percentage\]  
-* **Contact Enviguide for support **
+* **Contact Enviraan for support **
 
 53. **What is the grade of metal used in the manufacture of this component? \[Mandatory\] \[DQR Rating Required\]**   
 * \[Open Text\] 
@@ -587,7 +587,7 @@ Example display all four energy sources default as shown below:
 * Ship    
 * Air Freight  
   * Table format \[Mode of Transport (Truck/Rail/Air/Ship), weight transported (Tons), Source Point, Drop Point, Distance (KMS) to be auto populated as we discussed with Avinash as realistic supply chain route may be AI functionality\]  
-* **Support from Enviguide **
+* **Support from Enviraan **
 
 ** **  
 

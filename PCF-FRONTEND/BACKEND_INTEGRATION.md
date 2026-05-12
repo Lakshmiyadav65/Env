@@ -1,13 +1,13 @@
 # Backend Integration Guide
 
-This document describes the backend integration for the EnviGuide frontend application, specifically for user authentication and management.
+This document describes the backend integration for the Enviraan frontend application, specifically for user authentication and management.
 
 ## API Endpoints
 
 ### Base URL
 
 ```
-https://enviguide.nextechltd.in
+https://enviraan.nextechltd.in
 ```
 
 ### Authentication Endpoints
@@ -144,10 +144,10 @@ The API base URL can be configured using environment variables:
 
 ```bash
 # .env file
-VITE_API_BASE_URL=https://enviguide.nextechltd.in
+VITE_API_BASE_URL=https://enviraan.nextechltd.in
 ```
 
-If not set, it defaults to `https://enviguide.nextechltd.in`.
+If not set, it defaults to `https://enviraan.nextechltd.in`.
 
 ## Data Flow
 

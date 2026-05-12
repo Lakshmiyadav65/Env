@@ -151,7 +151,7 @@ export interface SupplierQuestionnaireData {
         energy_type_name?: string; // Store display name for combining
         quantity: number;
         unit: string;
-        support_from_enviguide?: boolean;
+        support_from_enviraan?: boolean;
       }[];
       abatement_systems: boolean;
       abatement_energy_consumption?: {
@@ -378,7 +378,7 @@ export interface SupplierQuestionnaireData {
         destination: string;
         distance: number;
       }[];
-      enviguide_support?: boolean;
+      enviraan_support?: boolean;
       destination_plant?: {
         country: string;
         state: string;
@@ -680,7 +680,7 @@ interface SupplierQuestionnaireApiPayload {
             process_specific_energy_type: string;
             quantity_consumed: number;
             unit: string;
-            support_from_enviguide: boolean;
+            support_from_enviraan: boolean;
         }[];
         do_you_use_any_abatement_systems: boolean;
         abatement_systems_used_questions: {
@@ -784,7 +784,7 @@ interface SupplierQuestionnaireApiPayload {
             material_name: string;
             percentage: number;
         }[];
-        raw_materials_contact_enviguide_support: boolean;
+        raw_materials_contact_enviraan_support: boolean;
         grade_of_metal_used: string;
         msds_link_or_upload_document: string[];
         use_of_recycled_secondary_materials: boolean;
@@ -856,7 +856,7 @@ interface SupplierQuestionnaireApiPayload {
             drop_point: string;
             distance: string;
         }[];
-        mode_of_transport_enviguide_support: boolean;
+        mode_of_transport_enviraan_support: boolean;
         destination_plant_component_transportation_questions: {
             country: string;
             state: string;
@@ -1125,7 +1125,7 @@ class SupplierQuestionnaireService {
                           ...(combinedEnergyType && { energy_type: combinedEnergyType }),
                           quantity_consumed: item.quantity,
                           unit: item.unit,
-                          support_from_enviguide: this.convertToBoolean(item.support_from_enviguide || false)
+                          support_from_enviraan: this.convertToBoolean(item.support_from_enviraan || false)
                       };
                   }),
               do_you_use_any_abatement_systems: this.convertToBoolean(data.scope_2?.manufacturing_process_specific_energy?.abatement_systems || false),
@@ -1288,7 +1288,7 @@ class SupplierQuestionnaireService {
                           percentage: item.composition_percent
                       }));
               })(),
-              raw_materials_contact_enviguide_support: this.convertToBoolean(data.scope_3?.materials?.raw_materials_contact_support || false),
+              raw_materials_contact_enviraan_support: this.convertToBoolean(data.scope_3?.materials?.raw_materials_contact_support || false),
               grade_of_metal_used: data.scope_3?.materials?.metal_grade || '',
               msds_link_or_upload_document: Array.isArray(data.scope_3?.materials?.msds) ? data.scope_3?.materials.msds : (data.scope_3?.materials?.msds ? [data.scope_3?.materials.msds] : []),
               use_of_recycled_secondary_materials: this.convertToBoolean(data.scope_3?.materials?.recycled_materials_used || false),
@@ -1440,7 +1440,7 @@ class SupplierQuestionnaireService {
                           distance: item.distance
                       }));
               })(),
-              mode_of_transport_enviguide_support: this.convertToBoolean(data.scope_3?.logistics?.enviguide_support || false),
+              mode_of_transport_enviraan_support: this.convertToBoolean(data.scope_3?.logistics?.enviraan_support || false),
               destination_plant_component_transportation_questions: this.ensureArray(data.scope_3?.logistics?.destination_plant)
                   .filter(item => item.country && item.state && item.city)
                   .map(item => ({
@@ -1608,7 +1608,7 @@ class SupplierQuestionnaireService {
                       process_type: item.process_specific_energy_type,
                       quantity: item.quantity_consumed,
                       unit: item.unit,
-                      support_from_enviguide: item.support_from_enviguide
+                      support_from_enviraan: item.support_from_enviraan
                   })),
                   // Convert boolean to Yes/No for radio button field
                   abatement_systems: this.convertToBoolean(scope2.do_you_use_any_abatement_systems),
@@ -1733,7 +1733,7 @@ class SupplierQuestionnaireService {
                       composition_percent: item.percentage
                   })),
                   // Convert boolean to Yes/No for radio button field
-                  raw_materials_contact_support: this.convertToBoolean(scope3.raw_materials_contact_enviguide_support),
+                  raw_materials_contact_support: this.convertToBoolean(scope3.raw_materials_contact_enviraan_support),
                   metal_grade: scope3.grade_of_metal_used,
                   msds: scope3.msds_link_or_upload_document,
                   // Convert boolean to Yes/No for radio button field
@@ -1841,7 +1841,7 @@ class SupplierQuestionnaireService {
                       distance: item.distance
                   })),
                   // Convert boolean to Yes/No for radio button field
-                  enviguide_support: this.convertToBoolean(scope3.mode_of_transport_enviguide_support),
+                  enviraan_support: this.convertToBoolean(scope3.mode_of_transport_enviraan_support),
                   destination_plant: (scope3.destination_plant_component_transportation_questions || []).map((item: any) => ({
                       country: item.country,
                       state: item.state,

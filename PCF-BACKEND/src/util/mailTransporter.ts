@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getGraphAccessToken } from "../util/azureToken.js";
 
-const SENDER_EMAIL = 'support@enviguide.info';
+const SENDER_EMAIL = 'support@enviraan.info';
 
 interface SendMailPayload {
     to: string[];

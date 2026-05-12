@@ -256,7 +256,7 @@ async function updateScopeTwo(client: any, d: any) {
         'process_specific_energy_usage_questions',
         'pseu_id',
         d.process_specific_energy_usage_questions,
-        ['process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviguide', 'energy_type', 'bom_id']
+        ['process_specific_energy_type', 'quantity_consumed', 'unit', 'support_from_enviraan', 'energy_type', 'bom_id']
     );
 
     await updateByArray(
@@ -385,7 +385,7 @@ async function updateScopeThree(client: any, d: any) {
 
     await client.query(
         `UPDATE scope_three_other_indirect_emissions_questions SET
-            raw_materials_contact_enviguide_support =$1,
+            raw_materials_contact_enviraan_support =$1,
             grade_of_metal_used=$2, 
             msds_link_or_upload_document=$3,
             use_of_recycled_secondary_materials=$4,
@@ -398,7 +398,7 @@ async function updateScopeThree(client: any, d: any) {
              any_by_product_generated=$11,
             do_you_track_emission_from_transport=$12,
              mode_of_transport_used_for_transportation=$13,
-            mode_of_transport_enviguide_support=$14, 
+            mode_of_transport_enviraan_support=$14, 
             iso_14001_or_iso_50001_certified=$15,
             standards_followed_iso_14067_GHG_catena_etc=$16,
              do_you_report_to_cdp_sbti_or_other=$17,
@@ -409,7 +409,7 @@ async function updateScopeThree(client: any, d: any) {
         `,
         [
 
-            d.raw_materials_contact_enviguide_support ?? false,
+            d.raw_materials_contact_enviraan_support ?? false,
             d.grade_of_metal_used,
             d.msds_link_or_upload_document,
             d.use_of_recycled_secondary_materials ?? false,
@@ -422,7 +422,7 @@ async function updateScopeThree(client: any, d: any) {
             d.any_by_product_generated ?? false,
             d.do_you_track_emission_from_transport ?? false,
             d.mode_of_transport_used_for_transportation ?? false,
-            d.mode_of_transport_enviguide_support ?? false,
+            d.mode_of_transport_enviraan_support ?? false,
             d.iso_14001_or_iso_50001_certified ?? false,
             d.standards_followed_iso_14067_GHG_catena_etc ?? false,
             d.do_you_report_to_cdp_sbti_or_other ?? false,

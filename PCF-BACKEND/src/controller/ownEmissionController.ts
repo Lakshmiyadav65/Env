@@ -441,7 +441,7 @@ export async function addOwnEmissionSupportingTeam(req: any, res: any) {
             ]);
 
             return res.send(
-                generateResponse(true, "Our Enviguide support team will contact soon", 200, result.rows[0])
+                generateResponse(true, "Our Enviraan support team will contact soon", 200, result.rows[0])
             );
         } catch (error: any) {
             return res.send(generateResponse(false, error.message, 400, null));

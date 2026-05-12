@@ -1522,7 +1522,7 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
       {
         name: "scope_3.materials.raw_materials",
         label:
-          "52. Please select or write all the raw materials used in your component manufacturing? If you don't know the detailed compositions please select Enviguide support to connect",
+          "52. Please select or write all the raw materials used in your component manufacturing? If you don't know the detailed compositions please select Enviraan support to connect",
         type: "table",
         addButtonLabel: "Add Row",
         required: true,
@@ -1554,7 +1554,7 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
       {
         name: "scope_3.materials.raw_materials_contact_support",
         label:
-          "52.1 Would you like EnviGuide support to help identify material compositions?",
+          "52.1 Would you like Enviraan support to help identify material compositions?",
         type: "radio",
         options: ["Yes", "No"],
         required: false,
@@ -2095,9 +2095,9 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
         ],
       },
       {
-        name: "scope_3.logistics.enviguide_support",
+        name: "scope_3.logistics.enviraan_support",
         label:
-          "74.1 Would you like EnviGuide support to help calculate transport emissions?",
+          "74.1 Would you like Enviraan support to help calculate transport emissions?",
         type: "radio",
         options: ["Yes", "No"],
         required: false,

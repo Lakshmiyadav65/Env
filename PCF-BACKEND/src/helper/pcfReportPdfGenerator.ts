@@ -78,7 +78,7 @@ export interface PcfReportInput {
 }
 
 // ============================================================
-// Brand colors — EnviGuide
+// Brand colors — Enviraan
 // ============================================================
 const COLORS = {
   brand: "#A3E635",
@@ -273,12 +273,12 @@ export const generatePcfReportPdfBuffer = (
           } catch {
             fontBold();
             doc.fillColor(COLORS.text).fontSize(14)
-              .text("enviguide", PAGE_MARGIN, logoY + 10, { lineBreak: false });
+              .text("enviraan", PAGE_MARGIN, logoY + 10, { lineBreak: false });
           }
         } else {
           fontBold();
           doc.fillColor(COLORS.text).fontSize(14)
-            .text("enviguide", PAGE_MARGIN, logoY + 10, { lineBreak: false });
+            .text("enviraan", PAGE_MARGIN, logoY + 10, { lineBreak: false });
         }
 
         // Title in header (right side)
@@ -416,7 +416,7 @@ function drawCover(
   const noticeTop = infoTop + infoHeight + 30;
   fontItalic();
   doc.fillColor(COLORS.lightText).fontSize(9)
-    .text("This report is confidential. It is intended for the named client and must not be redistributed without written consent from EnviGuide.",
+    .text("This report is confidential. It is intended for the named client and must not be redistributed without written consent from Enviraan.",
       PAGE_MARGIN, noticeTop, { width: contentWidth, align: "center" });
 }
 
