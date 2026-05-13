@@ -43,6 +43,7 @@ const DataSetup = lazy(() => import("../pages/settings/DataSetup"));
 const DataSetupTabs = lazy(() => import("../pages/settings/DataSetupTabs"));
 const MasterDataSetupTabs = lazy(() => import("../pages/settings/MasterDataSetupTabs"));
 const EcoInventSetupTabs = lazy(() => import("../pages/settings/EcoInventSetupTabs"));
+const MaterialsEmissionFactors = lazy(() => import("../pages/settings/MaterialsEmissionFactors"));
 
 // Public pages
 const PublicManufacturerOnboarding = lazy(() => import("../pages/PublicManufacturerOnboarding"));
@@ -493,22 +494,35 @@ export const router = createBrowserRouter([
           </PermissionRoute>
         ),
       })),
-      // ECOInvent Emission Factor pages (uses /api/ecoinvent-emission-factor-data-setup)
-      ...ecoInventSetupGroups.map((group) => ({
-        path: `settings/ecoinvent-setup/${group.key}/:tab?`,
+      // Materials Emission Factors — static read-only dataset (overrides generic ECOInvent route)
+      {
+        path: "settings/ecoinvent-setup/materials-ef/:tab?",
         element: (
           <PermissionRoute permissionKey="eco invent emission factors">
             <S>
-              <EcoInventSetupTabs
-                title={group.title}
-                description={group.description}
-                tabs={group.tabs}
-                defaultTab={group.tabs[0]?.key || ""}
-              />
+              <MaterialsEmissionFactors />
             </S>
           </PermissionRoute>
         ),
-      })),
+      },
+      // ECOInvent Emission Factor pages (uses /api/ecoinvent-emission-factor-data-setup)
+      ...ecoInventSetupGroups
+        .filter((group) => group.key !== "materials-ef")
+        .map((group) => ({
+          path: `settings/ecoinvent-setup/${group.key}/:tab?`,
+          element: (
+            <PermissionRoute permissionKey="eco invent emission factors">
+              <S>
+                <EcoInventSetupTabs
+                  title={group.title}
+                  description={group.description}
+                  tabs={group.tabs}
+                  defaultTab={group.tabs[0]?.key || ""}
+                />
+              </S>
+            </PermissionRoute>
+          ),
+        })),
       {
         path: "data-quality-rating",
         element: (
