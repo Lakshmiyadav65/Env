@@ -1,13 +1,32 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Leaf, Search } from "lucide-react";
-import { Input, Select, Table, Tag } from "antd";
+import {
+  ArrowLeft,
+  Download,
+  Edit,
+  Leaf,
+  Plus,
+  Search,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import {
+  App,
+  Button,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Table,
+  Tag,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
-  materialsEmissionFactors,
+  materialsEmissionFactors as seedRows,
   type MaterialEFRow,
   type Region,
 } from "../../data/materialsEmissionFactors";
+import { usePermissions } from "../../contexts/PermissionContext";
 
 const { Option } = Select;
 
@@ -17,11 +36,71 @@ const REGION_COLORS: Record<Region, string> = {
   GLOBAL: "green",
 };
 
+const SCOPE_DEFAULT = "Scope 3";
+const UNIT_DEFAULT = "KgCo2e/per kg";
+const DATA_SOURCE_DEFAULT = "Secondary literature / avg";
+const CATEGORY_DEFAULT = "Packaging";
+
 const distinct = (values: string[]): string[] =>
   Array.from(new Set(values)).sort((a, b) => a.localeCompare(b));
 
+const emptyRow = (): MaterialEFRow => ({
+  id: "",
+  scope: SCOPE_DEFAULT,
+  layer1: "",
+  layer2: "",
+  layer3: "",
+  layer4: "",
+  region: "EU",
+  year: new Date().getFullYear(),
+  efValue: 0,
+  unit: UNIT_DEFAULT,
+  dataSource: DATA_SOURCE_DEFAULT,
+  category: CATEGORY_DEFAULT,
+});
+
+const nextId = (rows: MaterialEFRow[]): string => {
+  let max = 0;
+  for (const r of rows) {
+    const m = /^EF_(\d+)$/.exec(r.id);
+    if (m) {
+      const n = parseInt(m[1], 10);
+      if (!Number.isNaN(n) && n > max) max = n;
+    }
+  }
+  return `EF_${String(max + 1).padStart(6, "0")}`;
+};
+
+const parseCsvLine = (line: string): string[] => {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out.map((s) => s.trim());
+};
+
 const MaterialsEmissionFactors: React.FC = () => {
   const navigate = useNavigate();
+  const { message, modal } = App.useApp();
+  const { canCreate, canUpdate, canDelete } = usePermissions();
+
+  const [rows, setRows] = useState<MaterialEFRow[]>(seedRows);
 
   const [search, setSearch] = useState("");
   const [layer1Filter, setLayer1Filter] = useState<string | undefined>();
@@ -29,22 +108,28 @@ const MaterialsEmissionFactors: React.FC = () => {
   const [layer4Filter, setLayer4Filter] = useState<string | undefined>();
   const [regionFilter, setRegionFilter] = useState<Region | undefined>();
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newItem, setNewItem] = useState<MaterialEFRow>(emptyRow());
+
+  const [editingRow, setEditingRow] = useState<MaterialEFRow | null>(null);
+  const [editItem, setEditItem] = useState<MaterialEFRow>(emptyRow());
+
   const layer1Options = useMemo(
-    () => distinct(materialsEmissionFactors.map((r) => r.layer1)),
-    []
+    () => distinct(rows.map((r) => r.layer1).filter(Boolean)),
+    [rows]
   );
   const layer3Options = useMemo(
-    () => distinct(materialsEmissionFactors.map((r) => r.layer3)),
-    []
+    () => distinct(rows.map((r) => r.layer3).filter(Boolean)),
+    [rows]
   );
   const layer4Options = useMemo(
-    () => distinct(materialsEmissionFactors.map((r) => r.layer4)),
-    []
+    () => distinct(rows.map((r) => r.layer4).filter(Boolean)),
+    [rows]
   );
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return materialsEmissionFactors.filter((row) => {
+    return rows.filter((row) => {
       if (layer1Filter && row.layer1 !== layer1Filter) return false;
       if (layer3Filter && row.layer3 !== layer3Filter) return false;
       if (layer4Filter && row.layer4 !== layer4Filter) return false;
@@ -59,7 +144,7 @@ const MaterialsEmissionFactors: React.FC = () => {
         row.region.toLowerCase().includes(q)
       );
     });
-  }, [search, layer1Filter, layer3Filter, layer4Filter, regionFilter]);
+  }, [rows, search, layer1Filter, layer3Filter, layer4Filter, regionFilter]);
 
   const handleExport = () => {
     const headers = [
@@ -76,7 +161,7 @@ const MaterialsEmissionFactors: React.FC = () => {
       "Data Source",
       "Category",
     ];
-    const rows = filteredRows.map((r) => [
+    const data = filteredRows.map((r) => [
       r.id,
       r.scope,
       r.layer1,
@@ -90,7 +175,7 @@ const MaterialsEmissionFactors: React.FC = () => {
       r.dataSource,
       r.category,
     ]);
-    const csv = [headers, ...rows]
+    const csv = [headers, ...data]
       .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
       .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -102,6 +187,148 @@ const MaterialsEmissionFactors: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleImport = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) {
+        message.error("CSV must have a header row and at least one data row");
+        return;
+      }
+      const headers = parseCsvLine(lines[0]).map((h) => h.toLowerCase());
+      const idx = (name: string) =>
+        headers.findIndex((h) => h === name.toLowerCase());
+
+      const iId = idx("id");
+      const iScope = idx("scope");
+      const iL1 = idx("layer1");
+      const iL2 = idx("layer2");
+      const iL3 = idx("layer3");
+      const iL4 = idx("layer4");
+      const iRegion = idx("region");
+      const iYear = idx("year");
+      const iEf = headers.findIndex(
+        (h) => h === "ef value" || h === "efvalue" || h === "ef_value"
+      );
+      const iUnit = idx("unit");
+      const iSrc = headers.findIndex(
+        (h) => h === "data source" || h === "datasource" || h === "data_source"
+      );
+      const iCat = idx("category");
+
+      if (iL2 < 0 || iRegion < 0 || iEf < 0) {
+        message.error(
+          "CSV must contain at least Layer2, Region, and EF Value columns"
+        );
+        return;
+      }
+
+      const imported: MaterialEFRow[] = [];
+      const existingIds = new Set(rows.map((r) => r.id));
+      let nextNumeric = (() => {
+        let max = 0;
+        for (const r of rows) {
+          const m = /^EF_(\d+)$/.exec(r.id);
+          if (m) max = Math.max(max, parseInt(m[1], 10));
+        }
+        return max;
+      })();
+
+      for (let i = 1; i < lines.length; i++) {
+        const cells = parseCsvLine(lines[i]);
+        const region = (cells[iRegion] || "EU").toUpperCase() as Region;
+        if (region !== "EU" && region !== "IN" && region !== "GLOBAL") continue;
+        let id = iId >= 0 ? cells[iId] : "";
+        if (!id || existingIds.has(id)) {
+          nextNumeric += 1;
+          id = `EF_${String(nextNumeric).padStart(6, "0")}`;
+        }
+        existingIds.add(id);
+        imported.push({
+          id,
+          scope: iScope >= 0 ? cells[iScope] || SCOPE_DEFAULT : SCOPE_DEFAULT,
+          layer1: iL1 >= 0 ? cells[iL1] || "" : "",
+          layer2: cells[iL2] || "",
+          layer3: iL3 >= 0 ? cells[iL3] || "" : "",
+          layer4: iL4 >= 0 ? cells[iL4] || "" : "",
+          region,
+          year:
+            iYear >= 0 ? parseInt(cells[iYear], 10) || new Date().getFullYear()
+              : new Date().getFullYear(),
+          efValue: parseFloat(cells[iEf]) || 0,
+          unit: iUnit >= 0 ? cells[iUnit] || UNIT_DEFAULT : UNIT_DEFAULT,
+          dataSource:
+            iSrc >= 0 ? cells[iSrc] || DATA_SOURCE_DEFAULT : DATA_SOURCE_DEFAULT,
+          category:
+            iCat >= 0 ? cells[iCat] || CATEGORY_DEFAULT : CATEGORY_DEFAULT,
+        });
+      }
+
+      if (imported.length === 0) {
+        message.warning("No valid rows found in CSV");
+        return;
+      }
+      setRows((prev) => [...prev, ...imported]);
+      message.success(`Imported ${imported.length} row${imported.length === 1 ? "" : "s"}`);
+    };
+    input.click();
+  };
+
+  const openAddModal = () => {
+    setNewItem({ ...emptyRow(), id: nextId(rows) });
+    setShowAddModal(true);
+  };
+
+  const handleAdd = () => {
+    if (!newItem.layer2.trim()) {
+      message.warning("Please enter Layer2 (material name)");
+      return;
+    }
+    const id =
+      newItem.id && !rows.some((r) => r.id === newItem.id)
+        ? newItem.id
+        : nextId(rows);
+    setRows((prev) => [...prev, { ...newItem, id }]);
+    setShowAddModal(false);
+    message.success("Row added");
+  };
+
+  const openEditModal = (row: MaterialEFRow) => {
+    setEditingRow(row);
+    setEditItem({ ...row });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingRow) return;
+    if (!editItem.layer2.trim()) {
+      message.warning("Please enter Layer2 (material name)");
+      return;
+    }
+    setRows((prev) =>
+      prev.map((r) => (r.id === editingRow.id ? { ...editItem } : r))
+    );
+    setEditingRow(null);
+    message.success("Row updated");
+  };
+
+  const handleDelete = (row: MaterialEFRow) => {
+    modal.confirm({
+      title: "Delete this row?",
+      content: `${row.id} — ${row.layer2} (${row.region}) will be removed.`,
+      okText: "Delete",
+      okButtonProps: { danger: true },
+      onOk: () => {
+        setRows((prev) => prev.filter((r) => r.id !== row.id));
+        message.success("Row deleted");
+      },
+    });
   };
 
   const columns: ColumnsType<MaterialEFRow> = [
@@ -116,18 +343,8 @@ const MaterialsEmissionFactors: React.FC = () => {
         <span className="font-mono text-xs text-gray-700">{v}</span>
       ),
     },
-    {
-      title: "Scope",
-      dataIndex: "scope",
-      key: "scope",
-      width: 90,
-    },
-    {
-      title: "Layer1",
-      dataIndex: "layer1",
-      key: "layer1",
-      width: 170,
-    },
+    { title: "Scope", dataIndex: "scope", key: "scope", width: 90 },
+    { title: "Layer1", dataIndex: "layer1", key: "layer1", width: 170 },
     {
       title: "Layer2",
       dataIndex: "layer2",
@@ -138,18 +355,8 @@ const MaterialsEmissionFactors: React.FC = () => {
         <span className="font-medium text-gray-900">{v}</span>
       ),
     },
-    {
-      title: "Layer3",
-      dataIndex: "layer3",
-      key: "layer3",
-      width: 170,
-    },
-    {
-      title: "Layer4",
-      dataIndex: "layer4",
-      key: "layer4",
-      width: 200,
-    },
+    { title: "Layer3", dataIndex: "layer3", key: "layer3", width: 170 },
+    { title: "Layer4", dataIndex: "layer4", key: "layer4", width: 200 },
     {
       title: "Region",
       dataIndex: "region",
@@ -161,12 +368,7 @@ const MaterialsEmissionFactors: React.FC = () => {
         </Tag>
       ),
     },
-    {
-      title: "Year",
-      dataIndex: "year",
-      key: "year",
-      width: 80,
-    },
+    { title: "Year", dataIndex: "year", key: "year", width: 80 },
     {
       title: "EF Value",
       dataIndex: "efValue",
@@ -177,25 +379,175 @@ const MaterialsEmissionFactors: React.FC = () => {
         <span className="font-semibold text-gray-900">{v}</span>
       ),
     },
-    {
-      title: "Unit",
-      dataIndex: "unit",
-      key: "unit",
-      width: 140,
-    },
+    { title: "Unit", dataIndex: "unit", key: "unit", width: 140 },
     {
       title: "Data Source",
       dataIndex: "dataSource",
       key: "dataSource",
       width: 200,
     },
+    { title: "Category", dataIndex: "category", key: "category", width: 110 },
     {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
+      title: "Actions",
+      key: "actions",
       width: 110,
+      fixed: "right",
+      align: "center",
+      render: (_, row) => (
+        <div className="flex items-center justify-center gap-1">
+          {canUpdate("eco invent emission factors") && (
+            <button
+              onClick={() => openEditModal(row)}
+              className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-all"
+              title="Edit"
+            >
+              <Edit className="h-4 w-4" />
+            </button>
+          )}
+          {canDelete("eco invent emission factors") && (
+            <button
+              onClick={() => handleDelete(row)}
+              className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all"
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      ),
     },
   ];
+
+  const renderEditableFields = (
+    item: MaterialEFRow,
+    setItem: (v: MaterialEFRow) => void
+  ) => (
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <div className="col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          ID
+        </label>
+        <Input
+          value={item.id}
+          onChange={(e) => setItem({ ...item, id: e.target.value })}
+          placeholder="EF_xxxxxx"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Scope
+        </label>
+        <Input
+          value={item.scope}
+          onChange={(e) => setItem({ ...item, scope: e.target.value })}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Region <span className="text-red-500">*</span>
+        </label>
+        <Select
+          className="w-full"
+          value={item.region}
+          onChange={(v) => setItem({ ...item, region: v as Region })}
+        >
+          <Option value="EU">EU</Option>
+          <Option value="IN">IN</Option>
+          <Option value="GLOBAL">GLOBAL</Option>
+        </Select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Layer1
+        </label>
+        <Input
+          value={item.layer1}
+          onChange={(e) => setItem({ ...item, layer1: e.target.value })}
+          placeholder="e.g., Material Emissions"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Layer3
+        </label>
+        <Input
+          value={item.layer3}
+          onChange={(e) => setItem({ ...item, layer3: e.target.value })}
+          placeholder="e.g., Polymer"
+        />
+      </div>
+      <div className="col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Layer2 (Material Name) <span className="text-red-500">*</span>
+        </label>
+        <Input
+          value={item.layer2}
+          onChange={(e) => setItem({ ...item, layer2: e.target.value })}
+          placeholder="e.g., Polypropylene (PP)"
+        />
+      </div>
+      <div className="col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Layer4
+        </label>
+        <Input
+          value={item.layer4}
+          onChange={(e) => setItem({ ...item, layer4: e.target.value })}
+          placeholder="e.g., Plastic & Resin"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Year
+        </label>
+        <InputNumber
+          className="w-full"
+          value={item.year}
+          onChange={(v) =>
+            setItem({ ...item, year: v ?? new Date().getFullYear() })
+          }
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          EF Value
+        </label>
+        <InputNumber
+          className="w-full"
+          value={item.efValue}
+          step={0.01}
+          onChange={(v) => setItem({ ...item, efValue: v ?? 0 })}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Unit
+        </label>
+        <Input
+          value={item.unit}
+          onChange={(e) => setItem({ ...item, unit: e.target.value })}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Category
+        </label>
+        <Input
+          value={item.category}
+          onChange={(e) => setItem({ ...item, category: e.target.value })}
+        />
+      </div>
+      <div className="col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Data Source
+        </label>
+        <Input
+          value={item.dataSource}
+          onChange={(e) => setItem({ ...item, dataSource: e.target.value })}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -218,7 +570,7 @@ const MaterialsEmissionFactors: React.FC = () => {
                   Materials Emission Factors
                 </h1>
                 <p className="text-gray-500">
-                  Categorized EF database — read-only reference data
+                  Categorized EF database
                 </p>
               </div>
             </div>
@@ -230,6 +582,22 @@ const MaterialsEmissionFactors: React.FC = () => {
                 <Download className="h-4 w-4" />
                 <span>Export</span>
               </button>
+              <button
+                onClick={handleImport}
+                className="px-4 py-2.5 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                <span>Import CSV</span>
+              </button>
+              {canCreate("eco invent emission factors") && (
+                <button
+                  onClick={openAddModal}
+                  className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-green-600/20"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add New</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -300,7 +668,7 @@ const MaterialsEmissionFactors: React.FC = () => {
               <span className="font-semibold text-gray-800">
                 {filteredRows.length}
               </span>{" "}
-              of {materialsEmissionFactors.length} rows
+              of {rows.length} rows
             </div>
           </div>
 
@@ -310,7 +678,7 @@ const MaterialsEmissionFactors: React.FC = () => {
               columns={columns}
               dataSource={filteredRows}
               size="middle"
-              scroll={{ x: 1700 }}
+              scroll={{ x: 1810 }}
               pagination={{
                 pageSize: 25,
                 showSizeChanger: true,
@@ -322,6 +690,70 @@ const MaterialsEmissionFactors: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <Plus className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900">
+                Add Emission Factor
+              </div>
+              <div className="text-sm text-gray-500 font-normal">
+                Enter the details for the new row
+              </div>
+            </div>
+          </div>
+        }
+        open={showAddModal}
+        onCancel={() => setShowAddModal(false)}
+        width={680}
+        footer={[
+          <Button key="cancel" onClick={() => setShowAddModal(false)}>
+            Cancel
+          </Button>,
+          <Button key="add" type="primary" onClick={handleAdd}>
+            Add
+          </Button>,
+        ]}
+      >
+        {renderEditableFields(newItem, setNewItem)}
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <Edit className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900">
+                Edit Emission Factor
+              </div>
+              <div className="text-sm text-gray-500 font-normal">
+                {editingRow?.id}
+              </div>
+            </div>
+          </div>
+        }
+        open={!!editingRow}
+        onCancel={() => setEditingRow(null)}
+        width={680}
+        footer={[
+          <Button key="cancel" onClick={() => setEditingRow(null)}>
+            Cancel
+          </Button>,
+          <Button key="save" type="primary" onClick={handleSaveEdit}>
+            Save
+          </Button>,
+        ]}
+      >
+        {renderEditableFields(editItem, setEditItem)}
+      </Modal>
     </div>
   );
 };
