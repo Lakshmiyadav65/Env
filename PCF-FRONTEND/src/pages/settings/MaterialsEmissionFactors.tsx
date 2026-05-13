@@ -374,7 +374,6 @@ const MaterialsEmissionFactors: React.FC = () => {
       key: "dataSource",
       width: 200,
     },
-    { title: "Category", dataIndex: "category", key: "category", width: 110 },
     {
       title: "Actions",
       key: "actions",
@@ -616,7 +615,7 @@ const MaterialsEmissionFactors: React.FC = () => {
               columns={columns}
               dataSource={filteredRows}
               size="middle"
-              scroll={{ x: 1810 }}
+              scroll={{ x: 1700 }}
               pagination={false}
               locale={{
                 emptyText: (
