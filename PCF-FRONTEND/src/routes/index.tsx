@@ -43,7 +43,18 @@ const DataSetup = lazy(() => import("../pages/settings/DataSetup"));
 const DataSetupTabs = lazy(() => import("../pages/settings/DataSetupTabs"));
 const MasterDataSetupTabs = lazy(() => import("../pages/settings/MasterDataSetupTabs"));
 const EcoInventSetupTabs = lazy(() => import("../pages/settings/EcoInventSetupTabs"));
-const MaterialsEmissionFactors = lazy(() => import("../pages/settings/MaterialsEmissionFactors"));
+const CategorizedEmissionFactorsTable = lazy(
+  () => import("../pages/settings/CategorizedEmissionFactorsTable")
+);
+
+const CATEGORIZED_EF_PAGE_KEYS = new Set([
+  "materials-ef",
+  "electricity-ef",
+  "fuel-ef",
+  "packaging-ef",
+  "vehicle-ef",
+  "waste-ef",
+]);
 
 // Public pages
 const PublicManufacturerOnboarding = lazy(() => import("../pages/PublicManufacturerOnboarding"));
@@ -494,20 +505,25 @@ export const router = createBrowserRouter([
           </PermissionRoute>
         ),
       })),
-      // Materials Emission Factors — static read-only dataset (overrides generic ECOInvent route)
-      {
-        path: "settings/ecoinvent-setup/materials-ef/:tab?",
-        element: (
-          <PermissionRoute permissionKey="eco invent emission factors">
-            <S>
-              <MaterialsEmissionFactors />
-            </S>
-          </PermissionRoute>
-        ),
-      },
-      // ECOInvent Emission Factor pages (uses /api/ecoinvent-emission-factor-data-setup)
+      // ECOInvent Emission Factor pages — dynamic frontend tables (no backend)
       ...ecoInventSetupGroups
-        .filter((group) => group.key !== "materials-ef")
+        .filter((group) => CATEGORIZED_EF_PAGE_KEYS.has(group.key))
+        .map((group) => ({
+          path: `settings/ecoinvent-setup/${group.key}/:tab?`,
+          element: (
+            <PermissionRoute permissionKey="eco invent emission factors">
+              <S>
+                <CategorizedEmissionFactorsTable
+                  title={group.title}
+                  description={group.description}
+                />
+              </S>
+            </PermissionRoute>
+          ),
+        })),
+      // Any remaining ECOInvent groups (none today) keep the legacy backend-driven flow
+      ...ecoInventSetupGroups
+        .filter((group) => !CATEGORIZED_EF_PAGE_KEYS.has(group.key))
         .map((group) => ({
           path: `settings/ecoinvent-setup/${group.key}/:tab?`,
           element: (

@@ -26,7 +26,7 @@ import { usePermissions } from "../../contexts/PermissionContext";
 
 export type Region = "EU" | "IN" | "GLOBAL";
 
-export interface MaterialEFRow {
+export interface EmissionFactorRow {
   id: string;
   scope: string;
   layer1: string;
@@ -41,6 +41,17 @@ export interface MaterialEFRow {
   category: string;
 }
 
+export interface CategorizedEmissionFactorsTableProps {
+  title: string;
+  description?: string;
+}
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 const { Option } = Select;
 
 const REGION_COLORS: Record<Region, string> = {
@@ -54,7 +65,7 @@ const UNIT_DEFAULT = "KgCo2e/per kg";
 const DATA_SOURCE_DEFAULT = "Secondary literature / avg";
 const CATEGORY_DEFAULT = "Packaging";
 
-const emptyRow = (): MaterialEFRow => ({
+const emptyRow = (): EmissionFactorRow => ({
   id: "",
   scope: SCOPE_DEFAULT,
   layer1: "",
@@ -69,7 +80,7 @@ const emptyRow = (): MaterialEFRow => ({
   category: CATEGORY_DEFAULT,
 });
 
-const nextId = (rows: MaterialEFRow[]): string => {
+const nextId = (rows: EmissionFactorRow[]): string => {
   let max = 0;
   for (const r of rows) {
     const m = /^EF_(\d+)$/.exec(r.id);
@@ -105,20 +116,22 @@ const parseCsvLine = (line: string): string[] => {
   return out.map((s) => s.trim());
 };
 
-const MaterialsEmissionFactors: React.FC = () => {
+const CategorizedEmissionFactorsTable: React.FC<
+  CategorizedEmissionFactorsTableProps
+> = ({ title, description = "Categorized EF database" }) => {
   const navigate = useNavigate();
   const { message, modal } = App.useApp();
   const { canCreate, canUpdate, canDelete } = usePermissions();
 
-  const [rows, setRows] = useState<MaterialEFRow[]>([]);
+  const [rows, setRows] = useState<EmissionFactorRow[]>([]);
 
   const [search, setSearch] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newItem, setNewItem] = useState<MaterialEFRow>(emptyRow());
+  const [newItem, setNewItem] = useState<EmissionFactorRow>(emptyRow());
 
-  const [editingRow, setEditingRow] = useState<MaterialEFRow | null>(null);
-  const [editItem, setEditItem] = useState<MaterialEFRow>(emptyRow());
+  const [editingRow, setEditingRow] = useState<EmissionFactorRow | null>(null);
+  const [editItem, setEditItem] = useState<EmissionFactorRow>(emptyRow());
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -169,7 +182,7 @@ const MaterialsEmissionFactors: React.FC = () => {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `materials-emission-factors-${
+    link.download = `${slugify(title) || "emission-factors"}-${
       new Date().toISOString().split("T")[0]
     }.csv`;
     document.body.appendChild(link);
@@ -218,7 +231,7 @@ const MaterialsEmissionFactors: React.FC = () => {
         return;
       }
 
-      const imported: MaterialEFRow[] = [];
+      const imported: EmissionFactorRow[] = [];
       const existingIds = new Set(rows.map((r) => r.id));
       let nextNumeric = (() => {
         let max = 0;
@@ -288,7 +301,7 @@ const MaterialsEmissionFactors: React.FC = () => {
     message.success("Row added");
   };
 
-  const openEditModal = (row: MaterialEFRow) => {
+  const openEditModal = (row: EmissionFactorRow) => {
     setEditingRow(row);
     setEditItem({ ...row });
   };
@@ -306,7 +319,7 @@ const MaterialsEmissionFactors: React.FC = () => {
     message.success("Row updated");
   };
 
-  const handleDelete = (row: MaterialEFRow) => {
+  const handleDelete = (row: EmissionFactorRow) => {
     modal.confirm({
       title: "Delete this row?",
       content: `${row.id} — ${row.layer2} (${row.region}) will be removed.`,
@@ -319,7 +332,7 @@ const MaterialsEmissionFactors: React.FC = () => {
     });
   };
 
-  const columns: ColumnsType<MaterialEFRow> = [
+  const columns: ColumnsType<EmissionFactorRow> = [
     {
       title: "ID",
       dataIndex: "id",
@@ -406,8 +419,8 @@ const MaterialsEmissionFactors: React.FC = () => {
   ];
 
   const renderEditableFields = (
-    item: MaterialEFRow,
-    setItem: (v: MaterialEFRow) => void
+    item: EmissionFactorRow,
+    setItem: (v: EmissionFactorRow) => void
   ) => (
     <div className="grid grid-cols-2 gap-4 mt-4">
       <div className="col-span-2">
@@ -544,12 +557,8 @@ const MaterialsEmissionFactors: React.FC = () => {
                 <Leaf className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Materials Emission Factors
-                </h1>
-                <p className="text-gray-500">
-                  Categorized EF database
-                </p>
+                <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+                <p className="text-gray-500">{description}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -601,7 +610,7 @@ const MaterialsEmissionFactors: React.FC = () => {
           </div>
 
           <div className="px-6 pb-6">
-            <Table<MaterialEFRow>
+            <Table<EmissionFactorRow>
               rowKey="id"
               columns={columns}
               dataSource={filteredRows}
@@ -700,4 +709,4 @@ const MaterialsEmissionFactors: React.FC = () => {
   );
 };
 
-export default MaterialsEmissionFactors;
+export default CategorizedEmissionFactorsTable;
