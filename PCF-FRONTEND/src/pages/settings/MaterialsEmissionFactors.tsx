@@ -506,22 +506,13 @@ const MaterialsEmissionFactors: React.FC = () => {
           onChange={(v) => setItem({ ...item, efValue: v ?? 0 })}
         />
       </div>
-      <div>
+      <div className="col-span-2">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Unit
         </label>
         <Input
           value={item.unit}
           onChange={(e) => setItem({ ...item, unit: e.target.value })}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Category
-        </label>
-        <Input
-          value={item.category}
-          onChange={(e) => setItem({ ...item, category: e.target.value })}
         />
       </div>
       <div className="col-span-2">
