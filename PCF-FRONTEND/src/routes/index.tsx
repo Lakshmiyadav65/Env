@@ -46,6 +46,8 @@ const EcoInventSetupTabs = lazy(() => import("../pages/settings/EcoInventSetupTa
 const CategorizedEmissionFactorsTable = lazy(
   () => import("../pages/settings/CategorizedEmissionFactorsTable")
 );
+import type { CategorizedEmissionFactorsTableProps } from "../pages/settings/CategorizedEmissionFactorsTable";
+import { electricityEmissionFactors } from "../data/electricityEmissionFactors";
 
 const CATEGORIZED_EF_PAGE_KEYS = new Set([
   "materials-ef",
@@ -55,6 +57,20 @@ const CATEGORIZED_EF_PAGE_KEYS = new Set([
   "vehicle-ef",
   "waste-ef",
 ]);
+
+// Per-card overrides for seed rows + Add/Edit defaults.
+const CATEGORIZED_EF_OVERRIDES: Record<
+  string,
+  Partial<CategorizedEmissionFactorsTableProps>
+> = {
+  "electricity-ef": {
+    initialRows: electricityEmissionFactors,
+    regions: ["EU", "INDIA", "GLOBAL"],
+    defaultScope: "Scope 2",
+    defaultUnit: "KgCo2e/per kWh",
+    defaultCategory: "Electricity",
+  },
+};
 
 // Public pages
 const PublicManufacturerOnboarding = lazy(() => import("../pages/PublicManufacturerOnboarding"));
@@ -516,6 +532,7 @@ export const router = createBrowserRouter([
                 <CategorizedEmissionFactorsTable
                   title={group.title}
                   description={group.description}
+                  {...(CATEGORIZED_EF_OVERRIDES[group.key] ?? {})}
                 />
               </S>
             </PermissionRoute>

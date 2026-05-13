@@ -24,7 +24,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { usePermissions } from "../../contexts/PermissionContext";
 
-export type Region = "EU" | "IN" | "GLOBAL";
+export type Region = string;
 
 export interface EmissionFactorRow {
   id: string;
@@ -44,6 +44,16 @@ export interface EmissionFactorRow {
 export interface CategorizedEmissionFactorsTableProps {
   title: string;
   description?: string;
+  /** Pre-populate the table with these rows on first mount. */
+  initialRows?: EmissionFactorRow[];
+  /** Region options shown in the Add/Edit modal. Default: ["EU", "IN", "GLOBAL"]. */
+  regions?: string[];
+  /** Default value for `scope` when creating a new row. */
+  defaultScope?: string;
+  /** Default value for `unit` when creating a new row. */
+  defaultUnit?: string;
+  /** Default value for `category` when creating a new row. */
+  defaultCategory?: string;
 }
 
 const slugify = (s: string) =>
@@ -54,30 +64,42 @@ const slugify = (s: string) =>
 
 const { Option } = Select;
 
-const REGION_COLORS: Record<Region, string> = {
+const REGION_COLORS: Record<string, string> = {
   EU: "blue",
   IN: "orange",
+  INDIA: "orange",
   GLOBAL: "green",
+  US: "geekblue",
+  UK: "blue",
 };
+
+const regionColor = (v: string): string =>
+  REGION_COLORS[(v || "").toUpperCase()] ?? "default";
 
 const SCOPE_DEFAULT = "Scope 3";
 const UNIT_DEFAULT = "KgCo2e/per kg";
 const DATA_SOURCE_DEFAULT = "Secondary literature / avg";
 const CATEGORY_DEFAULT = "Packaging";
+const DEFAULT_REGIONS = ["EU", "IN", "GLOBAL"];
 
-const emptyRow = (): EmissionFactorRow => ({
+const buildEmptyRow = (
+  scope: string,
+  unit: string,
+  category: string,
+  defaultRegion: string
+): EmissionFactorRow => ({
   id: "",
-  scope: SCOPE_DEFAULT,
+  scope,
   layer1: "",
   layer2: "",
   layer3: "",
   layer4: "",
-  region: "EU",
+  region: defaultRegion,
   year: new Date().getFullYear(),
   efValue: 0,
-  unit: UNIT_DEFAULT,
+  unit,
   dataSource: DATA_SOURCE_DEFAULT,
-  category: CATEGORY_DEFAULT,
+  category,
 });
 
 const nextId = (rows: EmissionFactorRow[]): string => {
@@ -118,12 +140,24 @@ const parseCsvLine = (line: string): string[] => {
 
 const CategorizedEmissionFactorsTable: React.FC<
   CategorizedEmissionFactorsTableProps
-> = ({ title, description = "Categorized EF database" }) => {
+> = ({
+  title,
+  description = "Categorized EF database",
+  initialRows,
+  regions = DEFAULT_REGIONS,
+  defaultScope = SCOPE_DEFAULT,
+  defaultUnit = UNIT_DEFAULT,
+  defaultCategory = CATEGORY_DEFAULT,
+}) => {
   const navigate = useNavigate();
   const { message, modal } = App.useApp();
   const { canCreate, canUpdate, canDelete } = usePermissions();
 
-  const [rows, setRows] = useState<EmissionFactorRow[]>([]);
+  const defaultRegion = regions[0] ?? "EU";
+  const emptyRow = () =>
+    buildEmptyRow(defaultScope, defaultUnit, defaultCategory, defaultRegion);
+
+  const [rows, setRows] = useState<EmissionFactorRow[]>(initialRows ?? []);
 
   const [search, setSearch] = useState("");
 
@@ -244,8 +278,8 @@ const CategorizedEmissionFactorsTable: React.FC<
 
       for (let i = 1; i < lines.length; i++) {
         const cells = parseCsvLine(lines[i]);
-        const region = (cells[iRegion] || "EU").toUpperCase() as Region;
-        if (region !== "EU" && region !== "IN" && region !== "GLOBAL") continue;
+        const region = (cells[iRegion] || defaultRegion).toUpperCase();
+        if (!region) continue;
         let id = iId >= 0 ? cells[iId] : "";
         if (!id || existingIds.has(id)) {
           nextNumeric += 1;
@@ -254,7 +288,7 @@ const CategorizedEmissionFactorsTable: React.FC<
         existingIds.add(id);
         imported.push({
           id,
-          scope: iScope >= 0 ? cells[iScope] || SCOPE_DEFAULT : SCOPE_DEFAULT,
+          scope: iScope >= 0 ? cells[iScope] || defaultScope : defaultScope,
           layer1: iL1 >= 0 ? cells[iL1] || "" : "",
           layer2: cells[iL2] || "",
           layer3: iL3 >= 0 ? cells[iL3] || "" : "",
@@ -264,11 +298,11 @@ const CategorizedEmissionFactorsTable: React.FC<
             iYear >= 0 ? parseInt(cells[iYear], 10) || new Date().getFullYear()
               : new Date().getFullYear(),
           efValue: parseFloat(cells[iEf]) || 0,
-          unit: iUnit >= 0 ? cells[iUnit] || UNIT_DEFAULT : UNIT_DEFAULT,
+          unit: iUnit >= 0 ? cells[iUnit] || defaultUnit : defaultUnit,
           dataSource:
             iSrc >= 0 ? cells[iSrc] || DATA_SOURCE_DEFAULT : DATA_SOURCE_DEFAULT,
           category:
-            iCat >= 0 ? cells[iCat] || CATEGORY_DEFAULT : CATEGORY_DEFAULT,
+            iCat >= 0 ? cells[iCat] || defaultCategory : defaultCategory,
         });
       }
 
@@ -364,7 +398,7 @@ const CategorizedEmissionFactorsTable: React.FC<
       key: "region",
       width: 100,
       render: (v: Region) => (
-        <Tag color={REGION_COLORS[v]} className="font-medium">
+        <Tag color={regionColor(v)} className="font-medium">
           {v}
         </Tag>
       ),
@@ -449,11 +483,13 @@ const CategorizedEmissionFactorsTable: React.FC<
         <Select
           className="w-full"
           value={item.region}
-          onChange={(v) => setItem({ ...item, region: v as Region })}
+          onChange={(v) => setItem({ ...item, region: v })}
         >
-          <Option value="EU">EU</Option>
-          <Option value="IN">IN</Option>
-          <Option value="GLOBAL">GLOBAL</Option>
+          {regions.map((r) => (
+            <Option key={r} value={r}>
+              {r}
+            </Option>
+          ))}
         </Select>
       </div>
       <div>
