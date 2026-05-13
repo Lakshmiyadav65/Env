@@ -13,6 +13,7 @@ import {
 import {
   App,
   Button,
+  Empty,
   Input,
   InputNumber,
   Modal,
@@ -21,12 +22,24 @@ import {
   Tag,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import {
-  materialsEmissionFactors as seedRows,
-  type MaterialEFRow,
-  type Region,
-} from "../../data/materialsEmissionFactors";
 import { usePermissions } from "../../contexts/PermissionContext";
+
+export type Region = "EU" | "IN" | "GLOBAL";
+
+export interface MaterialEFRow {
+  id: string;
+  scope: string;
+  layer1: string;
+  layer2: string;
+  layer3: string;
+  layer4: string;
+  region: Region;
+  year: number;
+  efValue: number;
+  unit: string;
+  dataSource: string;
+  category: string;
+}
 
 const { Option } = Select;
 
@@ -97,7 +110,7 @@ const MaterialsEmissionFactors: React.FC = () => {
   const { message, modal } = App.useApp();
   const { canCreate, canUpdate, canDelete } = usePermissions();
 
-  const [rows, setRows] = useState<MaterialEFRow[]>(seedRows);
+  const [rows, setRows] = useState<MaterialEFRow[]>([]);
 
   const [search, setSearch] = useState("");
 
@@ -605,6 +618,26 @@ const MaterialsEmissionFactors: React.FC = () => {
               size="middle"
               scroll={{ x: 1810 }}
               pagination={false}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                      <div className="py-4">
+                        <div className="text-gray-700 font-medium mb-1">
+                          No emission factors yet
+                        </div>
+                        <div className="text-gray-500 text-sm">
+                          Click <span className="font-medium">Import CSV</span>{" "}
+                          to upload your data or{" "}
+                          <span className="font-medium">Add New</span> to create
+                          a row.
+                        </div>
+                      </div>
+                    }
+                  />
+                ),
+              }}
             />
           </div>
         </div>
