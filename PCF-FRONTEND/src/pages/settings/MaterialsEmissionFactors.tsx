@@ -41,9 +41,6 @@ const UNIT_DEFAULT = "KgCo2e/per kg";
 const DATA_SOURCE_DEFAULT = "Secondary literature / avg";
 const CATEGORY_DEFAULT = "Packaging";
 
-const distinct = (values: string[]): string[] =>
-  Array.from(new Set(values)).sort((a, b) => a.localeCompare(b));
-
 const emptyRow = (): MaterialEFRow => ({
   id: "",
   scope: SCOPE_DEFAULT,
@@ -103,10 +100,6 @@ const MaterialsEmissionFactors: React.FC = () => {
   const [rows, setRows] = useState<MaterialEFRow[]>(seedRows);
 
   const [search, setSearch] = useState("");
-  const [layer1Filter, setLayer1Filter] = useState<string | undefined>();
-  const [layer3Filter, setLayer3Filter] = useState<string | undefined>();
-  const [layer4Filter, setLayer4Filter] = useState<string | undefined>();
-  const [regionFilter, setRegionFilter] = useState<Region | undefined>();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItem, setNewItem] = useState<MaterialEFRow>(emptyRow());
@@ -114,37 +107,19 @@ const MaterialsEmissionFactors: React.FC = () => {
   const [editingRow, setEditingRow] = useState<MaterialEFRow | null>(null);
   const [editItem, setEditItem] = useState<MaterialEFRow>(emptyRow());
 
-  const layer1Options = useMemo(
-    () => distinct(rows.map((r) => r.layer1).filter(Boolean)),
-    [rows]
-  );
-  const layer3Options = useMemo(
-    () => distinct(rows.map((r) => r.layer3).filter(Boolean)),
-    [rows]
-  );
-  const layer4Options = useMemo(
-    () => distinct(rows.map((r) => r.layer4).filter(Boolean)),
-    [rows]
-  );
-
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return rows.filter((row) => {
-      if (layer1Filter && row.layer1 !== layer1Filter) return false;
-      if (layer3Filter && row.layer3 !== layer3Filter) return false;
-      if (layer4Filter && row.layer4 !== layer4Filter) return false;
-      if (regionFilter && row.region !== regionFilter) return false;
-      if (!q) return true;
-      return (
+    if (!q) return rows;
+    return rows.filter(
+      (row) =>
         row.id.toLowerCase().includes(q) ||
         row.layer2.toLowerCase().includes(q) ||
         row.layer1.toLowerCase().includes(q) ||
         row.layer3.toLowerCase().includes(q) ||
         row.layer4.toLowerCase().includes(q) ||
         row.region.toLowerCase().includes(q)
-      );
-    });
-  }, [rows, search, layer1Filter, layer3Filter, layer4Filter, regionFilter]);
+    );
+  }, [rows, search]);
 
   const handleExport = () => {
     const headers = [
@@ -613,56 +588,6 @@ const MaterialsEmissionFactors: React.FC = () => {
               onChange={(e) => setSearch(e.target.value)}
               className="w-72"
             />
-            <Select
-              allowClear
-              placeholder="Layer1"
-              value={layer1Filter}
-              onChange={(v) => setLayer1Filter(v)}
-              className="w-48"
-            >
-              {layer1Options.map((opt) => (
-                <Option key={opt} value={opt}>
-                  {opt}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              allowClear
-              placeholder="Layer3"
-              value={layer3Filter}
-              onChange={(v) => setLayer3Filter(v)}
-              className="w-48"
-            >
-              {layer3Options.map((opt) => (
-                <Option key={opt} value={opt}>
-                  {opt}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              allowClear
-              placeholder="Layer4"
-              value={layer4Filter}
-              onChange={(v) => setLayer4Filter(v)}
-              className="w-56"
-            >
-              {layer4Options.map((opt) => (
-                <Option key={opt} value={opt}>
-                  {opt}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              allowClear
-              placeholder="Region"
-              value={regionFilter}
-              onChange={(v) => setRegionFilter(v)}
-              className="w-32"
-            >
-              <Option value="EU">EU</Option>
-              <Option value="IN">IN</Option>
-              <Option value="GLOBAL">GLOBAL</Option>
-            </Select>
             <div className="ml-auto text-sm text-gray-500">
               Showing{" "}
               <span className="font-semibold text-gray-800">
@@ -679,13 +604,7 @@ const MaterialsEmissionFactors: React.FC = () => {
               dataSource={filteredRows}
               size="middle"
               scroll={{ x: 1810 }}
-              pagination={{
-                pageSize: 25,
-                showSizeChanger: true,
-                pageSizeOptions: ["25", "50", "100", "200"],
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total}`,
-              }}
+              pagination={false}
             />
           </div>
         </div>
