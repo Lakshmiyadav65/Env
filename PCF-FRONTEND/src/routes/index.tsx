@@ -47,8 +47,6 @@ const CategorizedEmissionFactorsTable = lazy(
   () => import("../pages/settings/CategorizedEmissionFactorsTable")
 );
 import type { CategorizedEmissionFactorsTableProps } from "../pages/settings/CategorizedEmissionFactorsTable";
-import { electricityEmissionFactors } from "../data/electricityEmissionFactors";
-import { fuelEmissionFactors } from "../data/fuelEmissionFactors";
 
 const CATEGORIZED_EF_PAGE_KEYS = new Set([
   "materials-ef",
@@ -65,14 +63,12 @@ const CATEGORIZED_EF_OVERRIDES: Record<
   Partial<CategorizedEmissionFactorsTableProps>
 > = {
   "electricity-ef": {
-    initialRows: electricityEmissionFactors,
     regions: ["EU", "INDIA", "GLOBAL"],
     defaultScope: "Scope 2",
     defaultUnit: "KgCo2e/per kWh",
     defaultCategory: "Electricity",
   },
   "fuel-ef": {
-    initialRows: fuelEmissionFactors,
     regions: ["EU", "INDIA", "GLOBAL"],
     defaultScope: "Scope 1",
     defaultUnit: "KgCo2e/per Liter",
