@@ -275,10 +275,6 @@ const MaterialsEmissionFactors: React.FC = () => {
   };
 
   const handleAdd = () => {
-    if (!newItem.layer2.trim()) {
-      message.warning("Please enter Layer2 (material name)");
-      return;
-    }
     const id =
       newItem.id && !rows.some((r) => r.id === newItem.id)
         ? newItem.id
@@ -295,10 +291,6 @@ const MaterialsEmissionFactors: React.FC = () => {
 
   const handleSaveEdit = () => {
     if (!editingRow) return;
-    if (!editItem.layer2.trim()) {
-      message.warning("Please enter Layer2 (material name)");
-      return;
-    }
     setRows((prev) =>
       prev.map((r) => (r.id === editingRow.id ? { ...editItem } : r))
     );
@@ -461,16 +453,6 @@ const MaterialsEmissionFactors: React.FC = () => {
           value={item.layer3}
           onChange={(e) => setItem({ ...item, layer3: e.target.value })}
           placeholder="e.g., Polymer"
-        />
-      </div>
-      <div className="col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Layer2 (Material Name) <span className="text-red-500">*</span>
-        </label>
-        <Input
-          value={item.layer2}
-          onChange={(e) => setItem({ ...item, layer2: e.target.value })}
-          placeholder="e.g., Polypropylene (PP)"
         />
       </div>
       <div className="col-span-2">
