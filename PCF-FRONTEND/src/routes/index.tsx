@@ -79,6 +79,9 @@ const CATEGORIZED_EF_OVERRIDES: Record<
     defaultUnit: "KgCo2e/per Liter",
     defaultCategory: "Fuel",
   },
+  "packaging-ef": {
+    efGroup: "packaging",
+  },
 };
 
 // Public pages
