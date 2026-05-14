@@ -62,6 +62,10 @@ const CATEGORIZED_EF_OVERRIDES: Record<
   string,
   Partial<CategorizedEmissionFactorsTableProps>
 > = {
+  "materials-ef": {
+    efGroup: "materials",
+    defaultCategory: "Materials",
+  },
   "electricity-ef": {
     regions: ["EU", "INDIA", "GLOBAL"],
     defaultScope: "Scope 2",
