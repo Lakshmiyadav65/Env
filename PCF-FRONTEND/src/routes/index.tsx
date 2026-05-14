@@ -82,6 +82,9 @@ const CATEGORIZED_EF_OVERRIDES: Record<
   "packaging-ef": {
     efGroup: "packaging",
   },
+  "waste-ef": {
+    efGroup: "waste",
+  },
 };
 
 // Public pages
