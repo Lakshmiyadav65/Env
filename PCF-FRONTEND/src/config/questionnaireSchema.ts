@@ -80,6 +80,13 @@ export interface QuestionnaireField {
   apiDropdown?: ApiDropdownType;
   // For cascading/dependent dropdowns - the field name this depends on
   dependsOnField?: string;
+  // For dropdowns sourced from a localStorage-backed Emission Factors page.
+  // efSource is the localStorage key (e.g. "ef:electricity-ef"), and
+  // efLayer is which Layer (1..4) of the EmissionFactorRow to expose.
+  // Options are filtered by all earlier layers selected on the same row, so
+  // L1 -> L2 -> L3 -> L4 acts as a cascade tied to the imported CSV data.
+  efSource?: string;
+  efLayer?: 1 | 2 | 3 | 4;
   // Auto-populate table rows from products_manufactured (Q15)
   autoPopulateFromProducts?: boolean;
   // For file uploads - allow multiple files
@@ -652,19 +659,36 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
         required: true,
         columns: [
           {
-            name: "energy_source",
-            label: "Energy Source Purchased/acquired",
+            name: "layer1",
+            label: "Layer 1",
             type: "select",
-            apiDropdown: "energySource",
-            placeholder: "Select source",
+            efSource: "ef:electricity-ef",
+            efLayer: 1,
+            placeholder: "Select Layer 1",
           },
           {
-            name: "energy_type",
-            label: "Energy_Type",
+            name: "layer2",
+            label: "Layer 2",
             type: "select",
-            apiDropdown: "energyTypeBySource",
-            dependsOnField: "energy_source",
-            placeholder: "Select type",
+            efSource: "ef:electricity-ef",
+            efLayer: 2,
+            placeholder: "Select Layer 2",
+          },
+          {
+            name: "layer3",
+            label: "Layer 3",
+            type: "select",
+            efSource: "ef:electricity-ef",
+            efLayer: 3,
+            placeholder: "Select Layer 3",
+          },
+          {
+            name: "layer4",
+            label: "Layer 4",
+            type: "select",
+            efSource: "ef:electricity-ef",
+            efLayer: 4,
+            placeholder: "Select Layer 4",
           },
           {
             name: "quantity",

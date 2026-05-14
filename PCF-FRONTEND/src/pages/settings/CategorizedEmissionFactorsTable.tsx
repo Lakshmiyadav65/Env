@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -54,6 +54,12 @@ export interface CategorizedEmissionFactorsTableProps {
   defaultUnit?: string;
   /** Default value for `category` when creating a new row. */
   defaultCategory?: string;
+  /**
+   * If set, rows are persisted to localStorage under this key. Other pages
+   * (e.g. supplier questionnaire) can read the same key to source dropdown
+   * options from the imported CSV data.
+   */
+  storageKey?: string;
 }
 
 const slugify = (s: string) =>
@@ -148,6 +154,7 @@ const CategorizedEmissionFactorsTable: React.FC<
   defaultScope = SCOPE_DEFAULT,
   defaultUnit = UNIT_DEFAULT,
   defaultCategory = CATEGORY_DEFAULT,
+  storageKey,
 }) => {
   const navigate = useNavigate();
   const { message, modal } = App.useApp();
@@ -157,7 +164,29 @@ const CategorizedEmissionFactorsTable: React.FC<
   const emptyRow = () =>
     buildEmptyRow(defaultScope, defaultUnit, defaultCategory, defaultRegion);
 
-  const [rows, setRows] = useState<EmissionFactorRow[]>(initialRows ?? []);
+  const [rows, setRows] = useState<EmissionFactorRow[]>(() => {
+    if (storageKey && typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed as EmissionFactorRow[];
+        }
+      } catch {
+        // fall through to seed
+      }
+    }
+    return initialRows ?? [];
+  });
+
+  useEffect(() => {
+    if (!storageKey || typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(rows));
+    } catch {
+      // quota or serialization errors are non-fatal; in-memory state still works
+    }
+  }, [rows, storageKey]);
 
   const [search, setSearch] = useState("");
 

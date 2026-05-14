@@ -67,6 +67,7 @@ const CATEGORIZED_EF_OVERRIDES: Record<
     defaultScope: "Scope 2",
     defaultUnit: "KgCo2e/per kWh",
     defaultCategory: "Electricity",
+    storageKey: "ef:electricity-ef",
   },
   "fuel-ef": {
     regions: ["EU", "INDIA", "GLOBAL"],

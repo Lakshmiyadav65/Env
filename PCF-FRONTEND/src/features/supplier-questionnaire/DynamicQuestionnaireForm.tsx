@@ -1186,6 +1186,113 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
                     render: (_: any, fieldRecord: any) => {
                       const fieldPath = field.name.split('.');
 
+                      // Handle Emission Factors cascade dropdown (Layer 1..4 sourced from
+                      // a localStorage-backed EF page). Each layer is filtered by the
+                      // earlier layers selected on the same row; changing an earlier
+                      // layer clears all deeper ones.
+                      if (col.efSource && col.efLayer) {
+                        // distanceTick reference forces this render to re-evaluate
+                        // after onChange writes to form (Form.List doesn't always
+                        // re-render the dependent cells on its own).
+                        void distanceTick;
+                        const layerKeys: ("layer1" | "layer2" | "layer3" | "layer4")[] = [
+                          "layer1",
+                          "layer2",
+                          "layer3",
+                          "layer4",
+                        ];
+                        const myLayerKey = layerKeys[col.efLayer - 1];
+
+                        let allRows: any[] = [];
+                        try {
+                          const raw = typeof window !== "undefined"
+                            ? window.localStorage.getItem(col.efSource)
+                            : null;
+                          if (raw) {
+                            const parsed = JSON.parse(raw);
+                            if (Array.isArray(parsed)) allRows = parsed;
+                          }
+                        } catch {
+                          allRows = [];
+                        }
+
+                        const rowValues = form.getFieldValue([...fieldPath, fieldRecord.name]) || {};
+                        // Filter EF rows by all earlier layer selections in this row
+                        const filtered = allRows.filter((r) => {
+                          for (let i = 0; i < col.efLayer! - 1; i++) {
+                            const k = layerKeys[i];
+                            const selected = rowValues[k];
+                            if (selected && r[k] !== selected) return false;
+                          }
+                          return true;
+                        });
+
+                        // Unique non-empty Layer values from filtered set
+                        const seen = new Set<string>();
+                        const options: string[] = [];
+                        for (const r of filtered) {
+                          const v = r[myLayerKey];
+                          if (v && !seen.has(v)) {
+                            seen.add(v);
+                            options.push(v);
+                          }
+                        }
+                        options.sort((a, b) => a.localeCompare(b));
+
+                        // Parent is the previous layer (if any). Layer 1 has no parent.
+                        const parentLayerKey = col.efLayer > 1 ? layerKeys[col.efLayer - 2] : null;
+                        const parentValue = parentLayerKey ? rowValues[parentLayerKey] : "ready";
+                        const hasNoData = allRows.length === 0;
+
+                        let placeholder = col.placeholder || `Select Layer ${col.efLayer}`;
+                        if (hasNoData) {
+                          placeholder = "Import Electricity EF CSV first";
+                        } else if (!parentValue) {
+                          placeholder = `Select Layer ${col.efLayer - 1} first`;
+                        }
+
+                        return (
+                          <Form.Item
+                            name={[fieldRecord.name, col.name]}
+                            rules={[
+                              {
+                                required: col.required,
+                                message: col.required
+                                  ? `Please fill in "${col.label}" for this row. This field is required.`
+                                  : undefined,
+                              },
+                            ].filter(Boolean)}
+                            className="mb-0"
+                          >
+                            <Select
+                              placeholder={placeholder}
+                              style={{ minWidth: 140, width: '100%' }}
+                              disabled={hasNoData || !parentValue}
+                              allowClear
+                              showSearch={options.length > 5}
+                              filterOption={(input, option) =>
+                                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+                              }
+                              onChange={() => {
+                                // Clear all deeper layers in this row so stale
+                                // selections don't survive a parent change.
+                                for (let i = col.efLayer!; i < layerKeys.length; i++) {
+                                  form.setFieldValue(
+                                    [...fieldPath, fieldRecord.name, layerKeys[i]],
+                                    undefined
+                                  );
+                                }
+                                setDistanceTick((t) => t + 1);
+                              }}
+                            >
+                              {options.map((v) => (
+                                <Select.Option key={v} value={v}>{v}</Select.Option>
+                              ))}
+                            </Select>
+                          </Form.Item>
+                        );
+                      }
+
                       // Handle dependent dropdown (e.g., sub_fuel_type depends on fuel_type)
                       if (hasDependentDropdown) {
                         const rowValues = form.getFieldValue([...fieldPath, fieldRecord.name]);
