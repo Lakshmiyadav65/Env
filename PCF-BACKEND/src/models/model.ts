@@ -3455,8 +3455,8 @@ ADD COLUMN IF NOT EXISTS platform VARCHAR(255);
 
         `CREATE TABLE IF NOT EXISTS electricity_emission_factor (
     eef_id VARCHAR(255) PRIMARY KEY,
-    type_of_energy VARCHAR(255), 
-    ef_eu_region VARCHAR(255),  
+    type_of_energy VARCHAR(255),
+    ef_eu_region VARCHAR(255),
     ef_india_region VARCHAR(255),
     ef_global_region VARCHAR(255),
     year VARCHAR(255),
@@ -3467,6 +3467,31 @@ ADD COLUMN IF NOT EXISTS platform VARCHAR(255);
     updated_by VARCHAR(255),
     update_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     created_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);`,
+
+        // Categorized EF database (Layer 1..4 schema). One row per region for
+        // each EF entry, discriminated by ef_group so the same table can hold
+        // electricity / fuel / packaging / vehicle / waste rows. Mirrors the
+        // EmissionFactorRow shape used on the frontend.
+        `CREATE TABLE IF NOT EXISTS categorized_emission_factor (
+    ef_group VARCHAR(50) NOT NULL,
+    ef_id VARCHAR(255) NOT NULL,
+    scope VARCHAR(50),
+    layer1 TEXT,
+    layer2 TEXT,
+    layer3 TEXT,
+    layer4 TEXT,
+    region VARCHAR(50),
+    year VARCHAR(10),
+    ef_value VARCHAR(50),
+    unit VARCHAR(100),
+    data_source VARCHAR(255),
+    category VARCHAR(100),
+    created_by VARCHAR(255),
+    updated_by VARCHAR(255),
+    update_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ef_group, ef_id)
 );`,
 
         `CREATE TABLE IF NOT EXISTS fuel_emission_factor (

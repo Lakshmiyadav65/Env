@@ -2889,3 +2889,252 @@ export async function getVehicleTypeEmissionFactorDropDownnList(_req: any, res: 
         }
     });
 }
+
+// ---------------------------------------------------------------------------
+// Categorized Emission Factor (Layer 1..4 schema, shared across EF groups).
+// Used by the new ECOInvent EF cards (Electricity first, others to follow)
+// and by the supplier questionnaire's cascading Layer 1..4 dropdowns.
+// The GET-list endpoint is public so the unauthenticated supplier link can
+// load the same data the admin imported.
+// ---------------------------------------------------------------------------
+
+const CATEGORIZED_EF_GROUPS = new Set([
+    "electricity",
+    "fuel",
+    "packaging",
+    "vehicle",
+    "waste",
+    "materials",
+]);
+
+function assertEfGroup(ef_group: any): string {
+    if (typeof ef_group !== "string" || !CATEGORIZED_EF_GROUPS.has(ef_group)) {
+        throw new Error(
+            `ef_group must be one of: ${[...CATEGORIZED_EF_GROUPS].join(", ")}`
+        );
+    }
+    return ef_group;
+}
+
+function normalizeCategorizedRow(item: any) {
+    return {
+        ef_id: String(item.ef_id ?? item.id ?? "").trim(),
+        scope: item.scope ?? "",
+        layer1: item.layer1 ?? "",
+        layer2: item.layer2 ?? "",
+        layer3: item.layer3 ?? "",
+        layer4: item.layer4 ?? "",
+        region: item.region ?? "",
+        year: item.year != null ? String(item.year) : "",
+        ef_value:
+            item.ef_value != null
+                ? String(item.ef_value)
+                : item.efValue != null
+                ? String(item.efValue)
+                : "",
+        unit: item.unit ?? "",
+        data_source: item.data_source ?? item.dataSource ?? "",
+        category: item.category ?? "",
+    };
+}
+
+export async function addCategorizedEmissionFactor(req: any, res: any) {
+    return withClient(async (client: any) => {
+        try {
+            const ef_group = assertEfGroup(req.body.ef_group);
+            const row = normalizeCategorizedRow(req.body);
+
+            const ef_id = row.ef_id || `EF_${ulid().slice(-6)}`;
+            if (!row.layer2) throw new Error("layer2 is required");
+
+            const query = `
+                INSERT INTO categorized_emission_factor
+                  (ef_group, ef_id, scope, layer1, layer2, layer3, layer4,
+                   region, year, ef_value, unit, data_source, category, created_by)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+                RETURNING *;
+            `;
+            const result = await client.query(query, [
+                ef_group,
+                ef_id,
+                row.scope,
+                row.layer1,
+                row.layer2,
+                row.layer3,
+                row.layer4,
+                row.region,
+                row.year,
+                row.ef_value,
+                row.unit,
+                row.data_source,
+                row.category,
+                req.user_id || null,
+            ]);
+            return res.send(
+                generateResponse(true, "Added successfully", 200, result.rows[0])
+            );
+        } catch (error: any) {
+            return res.send(generateResponse(false, error.message, 400, null));
+        }
+    });
+}
+
+export async function updateCategorizedEmissionFactor(req: any, res: any) {
+    return withClient(async (client: any) => {
+        try {
+            const ef_group = assertEfGroup(req.body.ef_group);
+            const row = normalizeCategorizedRow(req.body);
+            if (!row.ef_id) throw new Error("ef_id is required");
+
+            const query = `
+                UPDATE categorized_emission_factor SET
+                    scope = $3,
+                    layer1 = $4,
+                    layer2 = $5,
+                    layer3 = $6,
+                    layer4 = $7,
+                    region = $8,
+                    year = $9,
+                    ef_value = $10,
+                    unit = $11,
+                    data_source = $12,
+                    category = $13,
+                    updated_by = $14,
+                    update_date = CURRENT_TIMESTAMP
+                WHERE ef_group = $1 AND ef_id = $2
+                RETURNING *;
+            `;
+            const result = await client.query(query, [
+                ef_group,
+                row.ef_id,
+                row.scope,
+                row.layer1,
+                row.layer2,
+                row.layer3,
+                row.layer4,
+                row.region,
+                row.year,
+                row.ef_value,
+                row.unit,
+                row.data_source,
+                row.category,
+                req.user_id || null,
+            ]);
+            if (result.rowCount === 0) throw new Error("Row not found");
+            return res.send(
+                generateResponse(true, "Updated successfully", 200, result.rows[0])
+            );
+        } catch (error: any) {
+            return res.send(generateResponse(false, error.message, 400, null));
+        }
+    });
+}
+
+export async function bulkAddCategorizedEmissionFactor(req: any, res: any) {
+    return withClient(async (client: any) => {
+        try {
+            const ef_group = assertEfGroup(req.body.ef_group);
+            const rows = Array.isArray(req.body.rows) ? req.body.rows : [];
+            if (rows.length === 0) {
+                throw new Error("rows must be a non-empty array");
+            }
+
+            // Pull existing ef_ids in this group so we can pick fresh ones for
+            // collisions instead of failing the whole import.
+            const existing = await client.query(
+                "SELECT ef_id FROM categorized_emission_factor WHERE ef_group = $1",
+                [ef_group]
+            );
+            const taken = new Set<string>(existing.rows.map((r: any) => r.ef_id));
+            let nextNumeric = 0;
+            for (const id of taken) {
+                const m = /^EF_(\d+)$/.exec(id);
+                if (m) nextNumeric = Math.max(nextNumeric, parseInt(m[1], 10));
+            }
+            const allocateId = (): string => {
+                nextNumeric += 1;
+                return `EF_${String(nextNumeric).padStart(6, "0")}`;
+            };
+
+            const inserted: any[] = [];
+            for (const item of rows) {
+                const row = normalizeCategorizedRow(item);
+                let id = row.ef_id;
+                if (!id || taken.has(id)) id = allocateId();
+                taken.add(id);
+
+                const result = await client.query(
+                    `INSERT INTO categorized_emission_factor
+                       (ef_group, ef_id, scope, layer1, layer2, layer3, layer4,
+                        region, year, ef_value, unit, data_source, category, created_by)
+                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+                     RETURNING *;`,
+                    [
+                        ef_group,
+                        id,
+                        row.scope,
+                        row.layer1,
+                        row.layer2,
+                        row.layer3,
+                        row.layer4,
+                        row.region,
+                        row.year,
+                        row.ef_value,
+                        row.unit,
+                        row.data_source,
+                        row.category,
+                        req.user_id || null,
+                    ]
+                );
+                if (result.rows[0]) inserted.push(result.rows[0]);
+            }
+
+            return res.send(
+                generateResponse(true, "Bulk import successful", 200, inserted)
+            );
+        } catch (error: any) {
+            return res.send(generateResponse(false, error.message, 400, null));
+        }
+    });
+}
+
+export async function deleteCategorizedEmissionFactor(req: any, res: any) {
+    return withClient(async (client: any) => {
+        try {
+            const ef_group = assertEfGroup(req.body.ef_group);
+            const ef_id = String(req.body.ef_id || req.body.id || "").trim();
+            if (!ef_id) throw new Error("ef_id is required");
+
+            const result = await client.query(
+                "DELETE FROM categorized_emission_factor WHERE ef_group = $1 AND ef_id = $2",
+                [ef_group, ef_id]
+            );
+            if (result.rowCount === 0) throw new Error("Row not found");
+
+            return res.send(generateResponse(true, "Deleted successfully", 200, null));
+        } catch (error: any) {
+            return res.send(generateResponse(false, error.message, 400, null));
+        }
+    });
+}
+
+export async function getCategorizedEmissionFactorList(req: any, res: any) {
+    return withClient(async (client: any) => {
+        try {
+            const ef_group = assertEfGroup(req.query.ef_group);
+            const result = await client.query(
+                `SELECT ef_group, ef_id, scope, layer1, layer2, layer3, layer4,
+                        region, year, ef_value, unit, data_source, category
+                 FROM categorized_emission_factor
+                 WHERE ef_group = $1
+                 ORDER BY ef_id ASC`,
+                [ef_group]
+            );
+            return res.send(
+                generateResponse(true, "List fetched successfully", 200, result.rows)
+            );
+        } catch (error: any) {
+            return res.send(generateResponse(false, error.message, 400, null));
+        }
+    });
+}

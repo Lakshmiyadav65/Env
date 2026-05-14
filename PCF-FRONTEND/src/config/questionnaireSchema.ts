@@ -80,12 +80,13 @@ export interface QuestionnaireField {
   apiDropdown?: ApiDropdownType;
   // For cascading/dependent dropdowns - the field name this depends on
   dependsOnField?: string;
-  // For dropdowns sourced from a localStorage-backed Emission Factors page.
-  // efSource is the localStorage key (e.g. "ef:electricity-ef"), and
-  // efLayer is which Layer (1..4) of the EmissionFactorRow to expose.
+  // For dropdowns sourced from a backend-backed Emission Factors page.
+  // efSource is the ef_group name (e.g. "electricity", "fuel", "packaging"),
+  // and efLayer is which Layer (1..4) of the EmissionFactorRow to expose.
   // Options are filtered by all earlier layers selected on the same row, so
-  // L1 -> L2 -> L3 -> L4 acts as a cascade tied to the imported CSV data.
-  efSource?: string;
+  // L1 -> L2 -> L3 -> L4 acts as a cascade tied to the data imported on the
+  // matching ECOInvent EF page.
+  efSource?: "electricity" | "fuel" | "packaging" | "vehicle" | "waste" | "materials";
   efLayer?: 1 | 2 | 3 | 4;
   // Auto-populate table rows from products_manufactured (Q15)
   autoPopulateFromProducts?: boolean;
@@ -662,7 +663,7 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
             name: "layer1",
             label: "Layer 1",
             type: "select",
-            efSource: "ef:electricity-ef",
+            efSource: "electricity",
             efLayer: 1,
             placeholder: "Select Layer 1",
           },
@@ -670,7 +671,7 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
             name: "layer2",
             label: "Layer 2",
             type: "select",
-            efSource: "ef:electricity-ef",
+            efSource: "electricity",
             efLayer: 2,
             placeholder: "Select Layer 2",
           },
@@ -678,7 +679,7 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
             name: "layer3",
             label: "Layer 3",
             type: "select",
-            efSource: "ef:electricity-ef",
+            efSource: "electricity",
             efLayer: 3,
             placeholder: "Select Layer 3",
           },
@@ -686,7 +687,7 @@ const _FULL_QUESTIONNAIRE_SCHEMA: QuestionnaireSection[] = [
             name: "layer4",
             label: "Layer 4",
             type: "select",
-            efSource: "ef:electricity-ef",
+            efSource: "electricity",
             efLayer: 4,
             placeholder: "Select Layer 4",
           },

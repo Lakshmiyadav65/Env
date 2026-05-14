@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -23,6 +23,14 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { usePermissions } from "../../contexts/PermissionContext";
+import {
+  addCategorizedEfRow,
+  bulkAddCategorizedEfRows,
+  deleteCategorizedEfRow,
+  listCategorizedEfRows,
+  updateCategorizedEfRow,
+  type EfGroup,
+} from "../../lib/categorizedEmissionFactorService";
 
 export type Region = string;
 
@@ -55,11 +63,12 @@ export interface CategorizedEmissionFactorsTableProps {
   /** Default value for `category` when creating a new row. */
   defaultCategory?: string;
   /**
-   * If set, rows are persisted to localStorage under this key. Other pages
-   * (e.g. supplier questionnaire) can read the same key to source dropdown
-   * options from the imported CSV data.
+   * If set, rows are persisted to the backend under this ef_group. Other
+   * pages (e.g. the supplier questionnaire) read the same group via the
+   * categorized EF API. When absent, the table runs in pure in-memory mode
+   * (useful for EF cards that haven't been migrated to the new backend yet).
    */
-  storageKey?: string;
+  efGroup?: EfGroup;
 }
 
 const slugify = (s: string) =>
@@ -154,7 +163,7 @@ const CategorizedEmissionFactorsTable: React.FC<
   defaultScope = SCOPE_DEFAULT,
   defaultUnit = UNIT_DEFAULT,
   defaultCategory = CATEGORY_DEFAULT,
-  storageKey,
+  efGroup,
 }) => {
   const navigate = useNavigate();
   const { message, modal } = App.useApp();
@@ -164,29 +173,27 @@ const CategorizedEmissionFactorsTable: React.FC<
   const emptyRow = () =>
     buildEmptyRow(defaultScope, defaultUnit, defaultCategory, defaultRegion);
 
-  const [rows, setRows] = useState<EmissionFactorRow[]>(() => {
-    if (storageKey && typeof window !== "undefined") {
-      try {
-        const raw = window.localStorage.getItem(storageKey);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) return parsed as EmissionFactorRow[];
-        }
-      } catch {
-        // fall through to seed
-      }
+  const [rows, setRows] = useState<EmissionFactorRow[]>(initialRows ?? []);
+  const [loading, setLoading] = useState<boolean>(!!efGroup);
+  const [saving, setSaving] = useState<boolean>(false);
+
+  const refresh = useCallback(async () => {
+    if (!efGroup) return;
+    try {
+      const data = await listCategorizedEfRows(efGroup);
+      setRows(data);
+    } catch (err: any) {
+      message.error(err?.message || "Failed to load emission factors");
+    } finally {
+      setLoading(false);
     }
-    return initialRows ?? [];
-  });
+  }, [efGroup, message]);
 
   useEffect(() => {
-    if (!storageKey || typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(storageKey, JSON.stringify(rows));
-    } catch {
-      // quota or serialization errors are non-fatal; in-memory state still works
-    }
-  }, [rows, storageKey]);
+    if (!efGroup) return;
+    setLoading(true);
+    refresh();
+  }, [efGroup, refresh]);
 
   const [search, setSearch] = useState("");
 
@@ -339,8 +346,26 @@ const CategorizedEmissionFactorsTable: React.FC<
         message.warning("No valid rows found in CSV");
         return;
       }
-      setRows((prev) => [...prev, ...imported]);
-      message.success(`Imported ${imported.length} row${imported.length === 1 ? "" : "s"}`);
+
+      if (efGroup) {
+        setSaving(true);
+        try {
+          await bulkAddCategorizedEfRows(efGroup, imported);
+          await refresh();
+          message.success(
+            `Imported ${imported.length} row${imported.length === 1 ? "" : "s"}`
+          );
+        } catch (err: any) {
+          message.error(err?.message || "Import failed");
+        } finally {
+          setSaving(false);
+        }
+      } else {
+        setRows((prev) => [...prev, ...imported]);
+        message.success(
+          `Imported ${imported.length} row${imported.length === 1 ? "" : "s"}`
+        );
+      }
     };
     input.click();
   };
@@ -350,7 +375,7 @@ const CategorizedEmissionFactorsTable: React.FC<
     setShowAddModal(true);
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!newItem.layer2.trim()) {
       message.warning("Please enter Layer2");
       return;
@@ -359,9 +384,25 @@ const CategorizedEmissionFactorsTable: React.FC<
       newItem.id && !rows.some((r) => r.id === newItem.id)
         ? newItem.id
         : nextId(rows);
-    setRows((prev) => [...prev, { ...newItem, id }]);
-    setShowAddModal(false);
-    message.success("Row added");
+    const payload: EmissionFactorRow = { ...newItem, id };
+
+    if (efGroup) {
+      setSaving(true);
+      try {
+        await addCategorizedEfRow(efGroup, payload);
+        await refresh();
+        message.success("Row added");
+        setShowAddModal(false);
+      } catch (err: any) {
+        message.error(err?.message || "Failed to add row");
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      setRows((prev) => [...prev, payload]);
+      setShowAddModal(false);
+      message.success("Row added");
+    }
   };
 
   const openEditModal = (row: EmissionFactorRow) => {
@@ -369,17 +410,31 @@ const CategorizedEmissionFactorsTable: React.FC<
     setEditItem({ ...row });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingRow) return;
     if (!editItem.layer2.trim()) {
       message.warning("Please enter Layer2");
       return;
     }
-    setRows((prev) =>
-      prev.map((r) => (r.id === editingRow.id ? { ...editItem } : r))
-    );
-    setEditingRow(null);
-    message.success("Row updated");
+    if (efGroup) {
+      setSaving(true);
+      try {
+        await updateCategorizedEfRow(efGroup, editItem);
+        await refresh();
+        message.success("Row updated");
+        setEditingRow(null);
+      } catch (err: any) {
+        message.error(err?.message || "Failed to update row");
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      setRows((prev) =>
+        prev.map((r) => (r.id === editingRow.id ? { ...editItem } : r))
+      );
+      setEditingRow(null);
+      message.success("Row updated");
+    }
   };
 
   const handleDelete = (row: EmissionFactorRow) => {
@@ -388,9 +443,19 @@ const CategorizedEmissionFactorsTable: React.FC<
       content: `${row.id} — ${row.layer2} (${row.region}) will be removed.`,
       okText: "Delete",
       okButtonProps: { danger: true },
-      onOk: () => {
-        setRows((prev) => prev.filter((r) => r.id !== row.id));
-        message.success("Row deleted");
+      onOk: async () => {
+        if (efGroup) {
+          try {
+            await deleteCategorizedEfRow(efGroup, row.id);
+            await refresh();
+            message.success("Row deleted");
+          } catch (err: any) {
+            message.error(err?.message || "Failed to delete row");
+          }
+        } else {
+          setRows((prev) => prev.filter((r) => r.id !== row.id));
+          message.success("Row deleted");
+        }
       },
     });
   };
@@ -682,6 +747,7 @@ const CategorizedEmissionFactorsTable: React.FC<
               size="middle"
               scroll={{ x: 1700 }}
               pagination={false}
+              loading={loading || saving}
               locale={{
                 emptyText: (
                   <Empty
@@ -731,7 +797,7 @@ const CategorizedEmissionFactorsTable: React.FC<
           <Button key="cancel" onClick={() => setShowAddModal(false)}>
             Cancel
           </Button>,
-          <Button key="add" type="primary" onClick={handleAdd}>
+          <Button key="add" type="primary" loading={saving} onClick={handleAdd}>
             Add
           </Button>,
         ]}
@@ -763,7 +829,7 @@ const CategorizedEmissionFactorsTable: React.FC<
           <Button key="cancel" onClick={() => setEditingRow(null)}>
             Cancel
           </Button>,
-          <Button key="save" type="primary" onClick={handleSaveEdit}>
+          <Button key="save" type="primary" loading={saving} onClick={handleSaveEdit}>
             Save
           </Button>,
         ]}

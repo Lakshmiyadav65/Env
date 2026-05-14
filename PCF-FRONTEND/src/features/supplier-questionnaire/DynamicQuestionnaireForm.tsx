@@ -6,6 +6,8 @@ import { QUESTIONNAIRE_OPTIONS } from '../../config/questionnaireConfig';
 import { PlusOutlined, DeleteOutlined, UploadOutlined, QuestionCircleOutlined, CheckCircleOutlined, InfoCircleOutlined, LoadingOutlined, FileOutlined } from '@ant-design/icons';
 import type { QuestionnaireSection, QuestionnaireField, ApiDropdownType } from '../../config/questionnaireSchema';
 import questionnaireDropdownService, { type DropdownItem } from '../../lib/questionnaireDropdownService';
+import { listCategorizedEfRows, type EfGroup } from '../../lib/categorizedEmissionFactorService';
+import type { EmissionFactorRow } from '../../pages/settings/CategorizedEmissionFactorsTable';
 import supplierQuestionnaireService from '../../lib/supplierQuestionnaireService';
 import LocationAutocomplete from '../../components/LocationAutocomplete';
 import type { LocationValue } from '../../components/LocationAutocomplete';
@@ -143,6 +145,11 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
 
   // Counter to force re-render when distance is calculated (since distance lives in module-level _transportCoords)
   const [distanceTick, setDistanceTick] = useState(0);
+
+  // Categorized EF rows keyed by ef_group. Backs Layer 1..4 cascade dropdowns
+  // sourced from the ECOInvent EF pages.
+  const [efRowsByGroup, setEfRowsByGroup] = useState<Record<string, EmissionFactorRow[]>>({});
+  const [efLoadedGroups, setEfLoadedGroups] = useState<Set<string>>(new Set());
 
   // ---- Haversine + correction factor — pure frontend, synchronous, instant ----
   const haversineDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
@@ -320,6 +327,44 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
       }
     });
   }, [section, form, autoPopulateTables]);
+
+  // Load categorized EF rows for any ef_group referenced by columns in the
+  // current section (cached across section switches so we don't refetch on
+  // every step). Failures fall back to an empty list so the cascade still
+  // renders with the "no data" placeholder.
+  useEffect(() => {
+    if (!section) return;
+    const needed = new Set<EfGroup>();
+    const collect = (fields: QuestionnaireField[]) => {
+      fields.forEach((f) => {
+        if (f.efSource) needed.add(f.efSource as EfGroup);
+        if (f.columns) {
+          f.columns.forEach((c) => {
+            if (c.efSource) needed.add(c.efSource as EfGroup);
+          });
+        }
+      });
+    };
+    collect(section.fields);
+
+    needed.forEach((group) => {
+      if (efLoadedGroups.has(group)) return;
+      listCategorizedEfRows(group)
+        .then((rows) => {
+          setEfRowsByGroup((prev) => ({ ...prev, [group]: rows }));
+        })
+        .catch(() => {
+          setEfRowsByGroup((prev) => ({ ...prev, [group]: prev[group] ?? [] }));
+        })
+        .finally(() => {
+          setEfLoadedGroups((prev) => {
+            const next = new Set(prev);
+            next.add(group);
+            return next;
+          });
+        });
+    });
+  }, [section, efLoadedGroups]);
 
   // Fetch API dropdown data when section changes
   useEffect(() => {
@@ -1187,9 +1232,9 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
                       const fieldPath = field.name.split('.');
 
                       // Handle Emission Factors cascade dropdown (Layer 1..4 sourced from
-                      // a localStorage-backed EF page). Each layer is filtered by the
-                      // earlier layers selected on the same row; changing an earlier
-                      // layer clears all deeper ones.
+                      // the categorized EF API, keyed by col.efSource). Each layer is
+                      // filtered by the earlier layers selected on the same row;
+                      // changing an earlier layer clears all deeper ones.
                       if (col.efSource && col.efLayer) {
                         // distanceTick reference forces this render to re-evaluate
                         // after onChange writes to form (Form.List doesn't always
@@ -1203,18 +1248,8 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
                         ];
                         const myLayerKey = layerKeys[col.efLayer - 1];
 
-                        let allRows: any[] = [];
-                        try {
-                          const raw = typeof window !== "undefined"
-                            ? window.localStorage.getItem(col.efSource)
-                            : null;
-                          if (raw) {
-                            const parsed = JSON.parse(raw);
-                            if (Array.isArray(parsed)) allRows = parsed;
-                          }
-                        } catch {
-                          allRows = [];
-                        }
+                        const allRows: EmissionFactorRow[] = efRowsByGroup[col.efSource] || [];
+                        const isLoading = !efLoadedGroups.has(col.efSource);
 
                         const rowValues = form.getFieldValue([...fieldPath, fieldRecord.name]) || {};
                         // Filter EF rows by all earlier layer selections in this row
@@ -1242,11 +1277,14 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
                         // Parent is the previous layer (if any). Layer 1 has no parent.
                         const parentLayerKey = col.efLayer > 1 ? layerKeys[col.efLayer - 2] : null;
                         const parentValue = parentLayerKey ? rowValues[parentLayerKey] : "ready";
-                        const hasNoData = allRows.length === 0;
+                        const hasNoData = !isLoading && allRows.length === 0;
+                        const efSourceLabel = String(col.efSource).charAt(0).toUpperCase() + String(col.efSource).slice(1);
 
                         let placeholder = col.placeholder || `Select Layer ${col.efLayer}`;
-                        if (hasNoData) {
-                          placeholder = "Import Electricity EF CSV first";
+                        if (isLoading) {
+                          placeholder = "Loading…";
+                        } else if (hasNoData) {
+                          placeholder = `No ${efSourceLabel} EF data — import on the EF page`;
                         } else if (!parentValue) {
                           placeholder = `Select Layer ${col.efLayer - 1} first`;
                         }
@@ -1267,7 +1305,8 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
                             <Select
                               placeholder={placeholder}
                               style={{ minWidth: 140, width: '100%' }}
-                              disabled={hasNoData || !parentValue}
+                              disabled={isLoading || hasNoData || !parentValue}
+                              loading={isLoading}
                               allowClear
                               showSearch={options.length > 5}
                               filterOption={(input, option) =>

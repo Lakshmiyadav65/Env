@@ -73,4 +73,13 @@ Routes.get('/api/ecoinvent-emission-factor-data-setup/vehicle-type-emission-fact
 
 
 
+// Categorized EF (Layer 1..4 schema, shared across ef_groups).
+// GET is public so the unauthenticated supplier questionnaire can read the
+// rows the admin imported via the EF setup page.
+Routes.post('/api/ecoinvent-emission-factor-data-setup/categorized-emission-factor/add', authService.authenticate, Controller.addCategorizedEmissionFactor);
+Routes.post('/api/ecoinvent-emission-factor-data-setup/categorized-emission-factor/update', authService.authenticate, Controller.updateCategorizedEmissionFactor);
+Routes.post('/api/ecoinvent-emission-factor-data-setup/categorized-emission-factor/bulk/add', authService.authenticate, Controller.bulkAddCategorizedEmissionFactor);
+Routes.post('/api/ecoinvent-emission-factor-data-setup/categorized-emission-factor/delete', authService.authenticate, Controller.deleteCategorizedEmissionFactor);
+Routes.get('/api/ecoinvent-emission-factor-data-setup/categorized-emission-factor/list', Controller.getCategorizedEmissionFactorList);
+
 export default Routes;
