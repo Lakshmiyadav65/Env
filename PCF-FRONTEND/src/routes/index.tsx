@@ -85,6 +85,9 @@ const CATEGORIZED_EF_OVERRIDES: Record<
   "waste-ef": {
     efGroup: "waste",
   },
+  "vehicle-ef": {
+    efGroup: "vehicle",
+  },
 };
 
 // Public pages
