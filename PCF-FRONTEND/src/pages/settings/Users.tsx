@@ -1517,6 +1517,13 @@ const UsersPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
           <div className="flex justify-between items-center flex-wrap gap-4">
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate("/settings")}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                aria-label="Back to Settings"
+              >
+                <ArrowLeft size={20} className="text-gray-600" />
+              </button>
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20">
                 <Users className="w-6 h-6 text-white" />
               </div>
