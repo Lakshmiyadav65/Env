@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import supplierQuestionnaireService from "../lib/supplierQuestionnaireService";
 import authService from "../lib/authService";
 import { usePermissions } from "../contexts/PermissionContext";
@@ -922,7 +923,7 @@ const DataQualityRating = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader size={48} className="animate-spin text-green-500 mx-auto mb-4" />
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <p className="text-gray-600">Loading DQR data...</p>
         </div>
       </div>
