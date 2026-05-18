@@ -622,8 +622,8 @@ const DataQualityRating = () => {
     const rawDataEntries = formatRawDataPreview();
 
     return (
-      <div className="space-y-3">
-        <div className="bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 text-white p-5 rounded-b-xl -mx-6 -mt-6 mb-4 shadow-lg sticky top-0 z-10">
+      <div>
+        <div className="bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 text-white p-5 rounded-b-xl -mx-6 mb-4 shadow-lg sticky top-0 z-10">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">{mainTitle}</h3>
@@ -662,6 +662,7 @@ const DataQualityRating = () => {
           )}
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Technological Representativeness (TeR) */}
         {dataPoint.dqiRequired.includes("TeR") && (
           <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -915,6 +916,7 @@ const DataQualityRating = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
     );
   };
@@ -1114,25 +1116,21 @@ const DataQualityRating = () => {
           )}
         </div>
 
-        {/* Right Side Panel - DQI Assessment */}
-        <div
-          className={`fixed top-0 right-0 h-full w-full md:w-[35%] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
-            selectedDataPoint ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="h-full flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6 pt-0">
-              <DQIAssessmentPanel dataPoint={selectedDataPoint} />
-            </div>
-          </div>
-        </div>
-
-        {/* Overlay */}
+        {/* Centered Modal - DQI Assessment */}
         {selectedDataPoint && (
           <div
-            className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+            className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 sm:p-6"
             onClick={() => setSelectedDataPoint(null)}
-          />
+          >
+            <div
+              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex-1 overflow-y-auto px-6 pb-6">
+                <DQIAssessmentPanel dataPoint={selectedDataPoint} />
+              </div>
+            </div>
+          </div>
         )}
 
         {/* DQI Legend */}
