@@ -7,9 +7,9 @@ interface LoadingSpinnerProps {
 }
 
 const SIZE_MAP = {
-  sm: { box: 40, logo: 18, stroke: 2 },
-  md: { box: 88, logo: 40, stroke: 3 },
-  lg: { box: 128, logo: 60, stroke: 3.5 },
+  sm: { box: 28, logo: 14, stroke: 2 },
+  md: { box: 44, logo: 22, stroke: 2.5 },
+  lg: { box: 60, logo: 30, stroke: 2.5 },
 } as const;
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
@@ -19,10 +19,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 }) => {
   const d = SIZE_MAP[size];
   const center = d.box / 2;
-  const outerR = center - d.stroke;
-  const innerR = outerR - d.stroke * 2.4;
-  const outerCirc = 2 * Math.PI * outerR;
-  const innerCirc = 2 * Math.PI * innerR;
+  const r = center - d.stroke;
+  const circ = 2 * Math.PI * r;
 
   return (
     <div
@@ -34,57 +32,26 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         className="relative"
         style={{ width: d.box, height: d.box }}
       >
-        {/* Soft radial halo */}
-        <span
-          aria-hidden
-          className="absolute inset-0 rounded-full animate-enviraan-halo"
-          style={{
-            background:
-              "radial-gradient(closest-side, rgba(34,197,94,0.22), rgba(34,197,94,0) 72%)",
-          }}
-        />
-
-        {/* Concentric arcs (outer clockwise, inner counter-clockwise) */}
         <svg
           aria-hidden
           width={d.box}
           height={d.box}
           viewBox={`0 0 ${d.box} ${d.box}`}
-          className="absolute inset-0"
+          className="absolute inset-0 animate-spin"
+          style={{ animationDuration: "1.2s" }}
         >
-          <g
-            className="animate-spin"
-            style={{ transformOrigin: "center", animationDuration: "1.6s" }}
-          >
-            <circle
-              cx={center}
-              cy={center}
-              r={outerR}
-              fill="none"
-              stroke="#16a34a"
-              strokeWidth={d.stroke}
-              strokeLinecap="round"
-              strokeDasharray={`${outerCirc * 0.28} ${outerCirc * 0.72}`}
-            />
-          </g>
-          <g
-            className="animate-enviraan-spin-reverse"
-            style={{ transformOrigin: "center" }}
-          >
-            <circle
-              cx={center}
-              cy={center}
-              r={innerR}
-              fill="none"
-              stroke="#86efac"
-              strokeWidth={d.stroke * 0.7}
-              strokeLinecap="round"
-              strokeDasharray={`${innerCirc * 0.14} ${innerCirc * 0.86}`}
-            />
-          </g>
+          <circle
+            cx={center}
+            cy={center}
+            r={r}
+            fill="none"
+            stroke="#16a34a"
+            strokeWidth={d.stroke}
+            strokeLinecap="round"
+            strokeDasharray={`${circ * 0.3} ${circ * 0.7}`}
+          />
         </svg>
 
-        {/* Logo — breathes in center */}
         <img
           src="/logo.png"
           alt=""
@@ -100,14 +67,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       </div>
 
       {label && (
-        <p className="mt-5 text-[13px] font-medium tracking-[0.08em] uppercase text-slate-500">
-          {label}
-          <span className="enviraan-dots" aria-hidden>
-            <span />
-            <span />
-            <span />
-          </span>
-        </p>
+        <p className="mt-3 text-sm text-slate-500">{label}</p>
       )}
     </div>
   );

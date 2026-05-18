@@ -921,10 +921,8 @@ const DataQualityRating = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 flex items-center justify-center px-6">
-        <div className="flex flex-col items-center justify-center rounded-2xl bg-white/70 backdrop-blur-sm border border-green-100 shadow-sm px-12 py-10">
-          <LoadingSpinner size="lg" label="Loading DQR data" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="md" label="Loading DQR data..." />
       </div>
     );
   }
