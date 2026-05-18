@@ -648,11 +648,11 @@ const DataQualityRating = () => {
 
           {/* Show raw data summary */}
           {rawDataEntries && rawDataEntries.length > 0 && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 text-sm">
-              <div className="text-xs opacity-90 mb-1">Data Details</div>
-              <div className="space-y-1 text-sm">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20 text-sm">
+              <div className="text-[11px] uppercase tracking-wide opacity-80 mb-1">Data Details</div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-1 text-sm">
                 {rawDataEntries.map(([key, val]) => (
-                  <div key={key}>
+                  <div key={key} className="min-w-0 truncate">
                     <span className="opacity-75">{key.replace(/_/g, ' ')}:</span>{' '}
                     <span className="font-medium">{String(val)}</span>
                   </div>
