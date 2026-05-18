@@ -170,54 +170,42 @@
 }
 
 /* ========================================
-   Enviraan Brand Logo — "Alive" animation
-   3D Y-axis sway, punctuated by a quick
-   double-tap heartbeat at the end of each cycle.
+   Enviraan Brand Logo — "Grow" animation
+   The leaf at the bottom reveals first, then
+   unclips upward exposing the full mark.
+   Plays once on mount and rests fully visible.
    ======================================== */
-@keyframes enviraan-life {
+@keyframes enviraan-grow {
   0% {
-    transform: perspective(500px) rotateY(0deg) scale(1);
-    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+    clip-path: inset(82% 38% 0 38%);
+    transform: scale(0.45);
+    opacity: 0;
+    filter: drop-shadow(0 0 0 rgba(132, 204, 22, 0));
   }
-  18% {
-    transform: perspective(500px) rotateY(22deg) scale(1.02);
-    filter: drop-shadow(0 6px 12px rgba(132, 204, 22, 0.4));
+  35% {
+    clip-path: inset(55% 22% 0 22%);
+    transform: scale(0.7);
+    opacity: 0.8;
+    filter: drop-shadow(0 3px 10px rgba(132, 204, 22, 0.45));
   }
-  36% {
-    transform: perspective(500px) rotateY(0deg) scale(1);
-    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
-  }
-  54% {
-    transform: perspective(500px) rotateY(-22deg) scale(1.02);
-    filter: drop-shadow(0 6px 12px rgba(132, 204, 22, 0.4));
-  }
-  72% {
-    transform: perspective(500px) rotateY(0deg) scale(1);
-    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
-  }
-  /* heartbeat */
-  82% {
-    transform: perspective(500px) rotateY(0deg) scale(1.16);
-    filter: drop-shadow(0 8px 18px rgba(132, 204, 22, 0.6));
-  }
-  88% {
-    transform: perspective(500px) rotateY(0deg) scale(1);
-    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
-  }
-  93% {
-    transform: perspective(500px) rotateY(0deg) scale(1.12);
-    filter: drop-shadow(0 7px 14px rgba(132, 204, 22, 0.55));
+  65% {
+    clip-path: inset(15% 6% 0 6%);
+    transform: scale(0.95);
+    opacity: 1;
+    filter: drop-shadow(0 4px 14px rgba(132, 204, 22, 0.45));
   }
   100% {
-    transform: perspective(500px) rotateY(0deg) scale(1);
-    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+    clip-path: inset(0 0 0 0);
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 2px 6px rgba(132, 204, 22, 0.15));
   }
 }
 
-.animate-enviraan-life {
-  animation: enviraan-life 7s ease-in-out infinite;
-  transform-origin: center center;
-  will-change: transform, filter;
+.animate-enviraan-grow {
+  animation: enviraan-grow 1.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  transform-origin: 50% 100%;
+  will-change: transform, clip-path, filter;
 }
 
 /* ========================================
