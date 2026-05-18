@@ -325,11 +325,16 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           {!isMinimized && (
             <div className="flex items-center space-x-3">
-              <img
-                src="/logo-dark.png"
-                alt="Enviraan Logo"
-                className="w-10 h-10 object-contain"
-              />
+              <div className="group cursor-pointer select-none">
+                <div className="transition-transform duration-[700ms] ease-out group-hover:rotate-[360deg] group-hover:scale-110">
+                  <img
+                    src="/logo-dark.png"
+                    alt="Enviraan Logo"
+                    className="w-10 h-10 object-contain animate-enviraan-life"
+                    draggable={false}
+                  />
+                </div>
+              </div>
               <div>
                 <h1 className="text-lg font-bold text-white tracking-tight">Enviraan</h1>
                 <p className="text-slate-400 text-xs">Management Suite</p>
@@ -338,11 +343,16 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {isMinimized && (
-            <img
-              src="/logo-dark.png"
-              alt="Enviraan Logo"
-              className="w-10 h-10 object-contain"
-            />
+            <div className="group cursor-pointer select-none">
+              <div className="transition-transform duration-[700ms] ease-out group-hover:rotate-[360deg] group-hover:scale-110">
+                <img
+                  src="/logo-dark.png"
+                  alt="Enviraan Logo"
+                  className="w-10 h-10 object-contain animate-enviraan-life"
+                  draggable={false}
+                />
+              </div>
+            </div>
           )}
 
           {/* Close button for mobile */}

@@ -170,6 +170,57 @@
 }
 
 /* ========================================
+   Enviraan Brand Logo — "Alive" animation
+   3D Y-axis sway, punctuated by a quick
+   double-tap heartbeat at the end of each cycle.
+   ======================================== */
+@keyframes enviraan-life {
+  0% {
+    transform: perspective(500px) rotateY(0deg) scale(1);
+    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+  }
+  18% {
+    transform: perspective(500px) rotateY(22deg) scale(1.02);
+    filter: drop-shadow(0 6px 12px rgba(132, 204, 22, 0.4));
+  }
+  36% {
+    transform: perspective(500px) rotateY(0deg) scale(1);
+    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+  }
+  54% {
+    transform: perspective(500px) rotateY(-22deg) scale(1.02);
+    filter: drop-shadow(0 6px 12px rgba(132, 204, 22, 0.4));
+  }
+  72% {
+    transform: perspective(500px) rotateY(0deg) scale(1);
+    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+  }
+  /* heartbeat */
+  82% {
+    transform: perspective(500px) rotateY(0deg) scale(1.16);
+    filter: drop-shadow(0 8px 18px rgba(132, 204, 22, 0.6));
+  }
+  88% {
+    transform: perspective(500px) rotateY(0deg) scale(1);
+    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+  }
+  93% {
+    transform: perspective(500px) rotateY(0deg) scale(1.12);
+    filter: drop-shadow(0 7px 14px rgba(132, 204, 22, 0.55));
+  }
+  100% {
+    transform: perspective(500px) rotateY(0deg) scale(1);
+    filter: drop-shadow(0 3px 6px rgba(132, 204, 22, 0.25));
+  }
+}
+
+.animate-enviraan-life {
+  animation: enviraan-life 7s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform, filter;
+}
+
+/* ========================================
    Smooth Transitions
    ======================================== */
 * {
