@@ -328,7 +328,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <img
                 src="/logo-dark.png"
                 alt="Enviraan Logo"
-                className="w-10 h-10 object-contain animate-enviraan-grow"
+                className="w-10 h-10 object-contain"
                 draggable={false}
               />
               <div>
@@ -342,7 +342,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <img
               src="/logo-dark.png"
               alt="Enviraan Logo"
-              className="w-10 h-10 object-contain animate-enviraan-grow"
+              className="w-10 h-10 object-contain"
               draggable={false}
             />
           )}
