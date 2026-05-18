@@ -1119,7 +1119,7 @@ const DataQualityRating = () => {
         {/* Centered Modal - DQI Assessment */}
         {selectedDataPoint && (
           <div
-            className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 sm:p-6"
             onClick={() => setSelectedDataPoint(null)}
           >
             <div
