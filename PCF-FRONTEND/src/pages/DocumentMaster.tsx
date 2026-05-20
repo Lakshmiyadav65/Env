@@ -459,32 +459,38 @@ const DocumentMaster: React.FC = () => {
 
         {/* Documents Section */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          {/* Top row: heading */}
+          <div className="flex justify-between items-center mb-4 gap-4">
             <h2 className="text-lg font-semibold text-gray-900">
               PCF Documents
             </h2>
-            <Space wrap>
-              <Input
-                prefix={<Search size={16} className="text-gray-400" />}
-                placeholder="Search by code, title, product..."
-                className="w-[250px]"
-                size="large"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Select
-                defaultValue="all"
-                className="w-[140px]"
-                size="large"
-                value={statusFilter}
-                onChange={(value) => setStatusFilter(value)}
-              >
-                <Option value="all">All Status</Option>
-                <Option value="Approved">Approved</Option>
-                <Option value="In Progress">In Progress</Option>
-                <Option value="Rejected">Rejected</Option>
-              </Select>
-            </Space>
+          </div>
+
+          {/* Filter row */}
+          <div className="flex items-center gap-3 mb-6">
+            <Input
+              prefix={<Search size={16} className="text-gray-400" />}
+              placeholder="Search by code, title, product..."
+              style={{ height: 44 }}
+              className="flex-1 min-w-0"
+              size="large"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              allowClear
+            />
+            <Select
+              placeholder="All Status"
+              style={{ width: 180, height: 44 }}
+              className="flex-shrink-0"
+              size="large"
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value)}
+            >
+              <Option value="all">All Status</Option>
+              <Option value="Approved">Approved</Option>
+              <Option value="In Progress">In Progress</Option>
+              <Option value="Rejected">Rejected</Option>
+            </Select>
           </div>
 
           <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>

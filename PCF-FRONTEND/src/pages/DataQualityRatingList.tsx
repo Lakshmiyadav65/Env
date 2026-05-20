@@ -263,18 +263,26 @@ const DataQualityRatingList: React.FC = () => {
 
       {/* Filters and Search */}
       <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-gray-100">
-        <div className="relative">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search by organization, supplier, or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-          />
+        {/* Top row: heading */}
+        <div className="flex justify-between items-center mb-4 gap-4">
+          <h2 className="text-lg font-semibold text-gray-900">Assessments</h2>
+        </div>
+
+        {/* Filter row */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 min-w-0">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Search by organization, supplier, or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-11 pl-11 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+            />
+          </div>
         </div>
       </div>
 

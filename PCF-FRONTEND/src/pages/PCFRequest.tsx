@@ -626,57 +626,65 @@ const PCFRequest: React.FC = () => {
 
         {/* Requests Section */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          {/* Top row: heading + primary action */}
+          <div className="flex justify-between items-center mb-4 gap-4">
             <h2 className="text-lg font-semibold text-gray-900">
               PCF Requests
             </h2>
-            <Space wrap>
-              <Input
-                placeholder="Search code, title, category..."
-                prefix={<Search size={16} className="text-gray-400" />}
+            {canCreate("PCF Request") && (
+              <Button
+                type="primary"
+                icon={<Plus size={16} />}
                 size="large"
-                className="w-[250px]"
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                onPressEnter={handleSearch}
-                allowClear
-              />
-              <DatePicker.RangePicker
-                size="large"
-                format="DD MMM YYYY"
-                placeholder={["Start Date", "End Date"]}
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                className="w-[260px]"
-                allowClear
-              />
-              <Select
-                className="w-[150px]"
-                size="large"
-                value={statusFilter}
-                onChange={handleStatusFilterChange}
-                options={[
-                  { label: "All Status", value: "all" },
-                  { label: "In Progress", value: "In Progress" },
-                  { label: "Completed", value: "Completed" },
-                  { label: "Open", value: "Open" },
-                  { label: "Draft", value: "Draft" },
-                  { label: "Approved", value: "Approved" },
-                  { label: "Rejected", value: "Rejected" },
-                ]}
-              />
-              {canCreate("PCF Request") && (
-                <Button
-                  type="primary"
-                  icon={<Plus size={16} />}
-                  size="large"
-                  onClick={() => navigate("/pcf-request/new")}
-                  className="shadow-lg shadow-green-600/20"
-                >
-                  New Request
-                </Button>
-              )}
-            </Space>
+                onClick={() => navigate("/pcf-request/new")}
+                style={{ height: 44 }}
+                className="shadow-md shadow-green-600/20 flex-shrink-0"
+              >
+                New Request
+              </Button>
+            )}
+          </div>
+
+          {/* Filter row */}
+          <div className="flex items-center gap-3 mb-6">
+            <Input
+              placeholder="Search code, title, category..."
+              prefix={<Search size={16} className="text-gray-400" />}
+              size="large"
+              style={{ height: 44 }}
+              className="flex-1 min-w-0"
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onPressEnter={handleSearch}
+              allowClear
+            />
+            <DatePicker.RangePicker
+              size="large"
+              format="DD MMM YYYY"
+              placeholder={["Start Date", "End Date"]}
+              value={dateRange}
+              onChange={handleDateRangeChange}
+              style={{ width: 260, height: 44 }}
+              className="flex-shrink-0"
+              allowClear
+            />
+            <Select
+              placeholder="All Status"
+              style={{ width: 160, height: 44 }}
+              className="flex-shrink-0"
+              size="large"
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+              options={[
+                { label: "All Status", value: "all" },
+                { label: "In Progress", value: "In Progress" },
+                { label: "Completed", value: "Completed" },
+                { label: "Open", value: "Open" },
+                { label: "Draft", value: "Draft" },
+                { label: "Approved", value: "Approved" },
+                { label: "Rejected", value: "Rejected" },
+              ]}
+            />
           </div>
 
           <Spin

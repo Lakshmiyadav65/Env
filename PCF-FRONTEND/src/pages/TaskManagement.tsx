@@ -396,45 +396,51 @@ const TaskManagement: React.FC = () => {
 
           {/* Tasks Section */}
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+            {/* Top row: heading + primary action */}
+            <div className="flex justify-between items-center mb-4 gap-4">
               <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
-              <Space wrap>
-                <Select
-                  placeholder="All Priorities"
-                  className="w-[140px]"
+              {canCreate("Task Management") && (
+                <Button
+                  type="primary"
+                  icon={<Plus size={16} />}
                   size="large"
-                  value={priorityFilter}
-                  onChange={handlePriorityChange}
-                  options={PRIORITY_OPTIONS}
-                  allowClear
-                  onClear={() => handlePriorityChange("all")}
-                />
-                <Select
-                  placeholder="All Categories"
-                  className="w-[160px]"
-                  size="large"
-                  value={categoryFilter}
-                  onChange={handleCategoryChange}
-                  options={categoryOptions}
-                  allowClear
-                  onClear={() => handleCategoryChange("all")}
-                  showSearch
-                  filterOption={(input, option) =>
-                    (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-                  }
-                />
-                {canCreate("Task Management") && (
-                  <Button
-                    type="primary"
-                    icon={<Plus size={16} />}
-                    size="large"
-                    onClick={() => navigate("/task-management/new")}
-                    className="shadow-lg shadow-green-600/20"
-                  >
-                    Create Task
-                  </Button>
-                )}
-              </Space>
+                  onClick={() => navigate("/task-management/new")}
+                  style={{ height: 44 }}
+                  className="shadow-md shadow-green-600/20 flex-shrink-0"
+                >
+                  Create Task
+                </Button>
+              )}
+            </div>
+
+            {/* Filter row */}
+            <div className="flex items-center gap-3 mb-6">
+              <Select
+                placeholder="All Priorities"
+                style={{ width: 180, height: 44 }}
+                className="flex-shrink-0"
+                size="large"
+                value={priorityFilter}
+                onChange={handlePriorityChange}
+                options={PRIORITY_OPTIONS}
+                allowClear
+                onClear={() => handlePriorityChange("all")}
+              />
+              <Select
+                placeholder="All Categories"
+                style={{ width: 220, height: 44 }}
+                className="flex-shrink-0"
+                size="large"
+                value={categoryFilter}
+                onChange={handleCategoryChange}
+                options={categoryOptions}
+                allowClear
+                onClear={() => handleCategoryChange("all")}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+              />
             </div>
 
             <Spin spinning={isLoading} indicator={<LoadingSpinner size="md" />}>

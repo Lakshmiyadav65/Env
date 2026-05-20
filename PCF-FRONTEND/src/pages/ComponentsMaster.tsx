@@ -618,56 +618,62 @@ const ComponentsMaster: React.FC = () => {
 
         {/* Table Section */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          {/* Top row: heading */}
+          <div className="flex justify-between items-center mb-4 gap-4">
             <h2 className="text-lg font-semibold text-gray-900">Components</h2>
-            <Space wrap>
-              <Input
-                placeholder="Search..."
-                prefix={<Search size={16} className="text-gray-400" />}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onPressEnter={() => {
-                  // Immediately trigger search on Enter without waiting for debounce
-                  setDebouncedSearchTerm(searchTerm);
-                  setCurrentPage(1);
-                }}
-                allowClear
-                className="w-[200px]"
-                size="large"
-              />
-              <DatePicker.RangePicker
-                size="large"
-                format="DD MMM YYYY"
-                placeholder={["Start Date", "End Date"]}
-                onChange={(dates) => {
-                  if (dates) {
-                    setDateRange([
-                      dates[0]?.format("YYYY-MM-DD") || null,
-                      dates[1]?.format("YYYY-MM-DD") || null,
-                    ]);
-                  } else {
-                    setDateRange(null);
-                  }
-                  setCurrentPage(1);
-                }}
-                className="w-[240px]"
-                allowClear
-              />
-              <Select
-                className="w-[150px]"
-                size="large"
-                value={statusFilter}
-                onChange={(value) => {
-                  setStatusFilter(value);
-                  setCurrentPage(1);
-                }}
-                options={[
-                  { label: "All Status", value: "all" },
-                  { label: "Approved", value: "Approved" },
-                  { label: "In Progress", value: "In Progress" },
-                ]}
-              />
-            </Space>
+          </div>
+
+          {/* Filter row */}
+          <div className="flex items-center gap-3 mb-6">
+            <Input
+              placeholder="Search components..."
+              prefix={<Search size={16} className="text-gray-400" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onPressEnter={() => {
+                setDebouncedSearchTerm(searchTerm);
+                setCurrentPage(1);
+              }}
+              allowClear
+              style={{ height: 44 }}
+              className="flex-1 min-w-0"
+              size="large"
+            />
+            <DatePicker.RangePicker
+              size="large"
+              format="DD MMM YYYY"
+              placeholder={["Start Date", "End Date"]}
+              onChange={(dates) => {
+                if (dates) {
+                  setDateRange([
+                    dates[0]?.format("YYYY-MM-DD") || null,
+                    dates[1]?.format("YYYY-MM-DD") || null,
+                  ]);
+                } else {
+                  setDateRange(null);
+                }
+                setCurrentPage(1);
+              }}
+              style={{ width: 260, height: 44 }}
+              className="flex-shrink-0"
+              allowClear
+            />
+            <Select
+              placeholder="All Status"
+              style={{ width: 160, height: 44 }}
+              className="flex-shrink-0"
+              size="large"
+              value={statusFilter}
+              onChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              }}
+              options={[
+                { label: "All Status", value: "all" },
+                { label: "Approved", value: "Approved" },
+                { label: "In Progress", value: "In Progress" },
+              ]}
+            />
           </div>
 
           <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>
