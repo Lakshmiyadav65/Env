@@ -454,9 +454,10 @@ const PCFRequest: React.FC = () => {
     <div className="p-6">
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
-          {/* Decorative blur */}
-          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-green-200/40 to-emerald-200/30 rounded-full blur-3xl" />
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-emerald-50/40 border border-gray-100 shadow-sm p-6">
+          {/* Decorative blurs */}
+          <div className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-green-200/40 to-emerald-200/30 rounded-full blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 w-72 h-72 bg-gradient-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl" />
 
           <div className="relative">
             {/* Title Row */}
@@ -474,146 +475,157 @@ const PCFRequest: React.FC = () => {
               </div>
             </div>
 
-            {/* KPI Grid: Hero Total + 6 status cards */}
+            {/* Donut + Legend Dashboard */}
             {(() => {
-              const total = Math.max(statusCounts.total, 1);
-              const resolutionPct = Math.round(
-                ((statusCounts.completed + statusCounts.approved) / total) * 100
-              );
-              const STATUS_TILES = [
-                {
-                  key: "inProgress",
-                  label: "In Progress",
-                  value: statusCounts.inProgress,
-                  Icon: Clock,
-                  dot: "bg-blue-500",
-                  bar: "bg-blue-500",
-                  iconBg: "bg-blue-50",
-                  iconText: "text-blue-600",
-                },
-                {
-                  key: "completed",
-                  label: "Completed",
-                  value: statusCounts.completed,
-                  Icon: CheckCircle,
-                  dot: "bg-teal-500",
-                  bar: "bg-teal-500",
-                  iconBg: "bg-teal-50",
-                  iconText: "text-teal-600",
-                },
-                {
-                  key: "approved",
-                  label: "Approved",
-                  value: statusCounts.approved,
-                  Icon: CheckCircle,
-                  dot: "bg-green-500",
-                  bar: "bg-green-500",
-                  iconBg: "bg-green-50",
-                  iconText: "text-green-600",
-                },
-                {
-                  key: "pending",
-                  label: "Open",
-                  value: statusCounts.pending,
-                  Icon: Clock,
-                  dot: "bg-orange-500",
-                  bar: "bg-orange-500",
-                  iconBg: "bg-orange-50",
-                  iconText: "text-orange-600",
-                },
-                {
-                  key: "draft",
-                  label: "Draft",
-                  value: statusCounts.draft,
-                  Icon: AlertCircle,
-                  dot: "bg-amber-500",
-                  bar: "bg-amber-500",
-                  iconBg: "bg-amber-50",
-                  iconText: "text-amber-600",
-                },
-                {
-                  key: "rejected",
-                  label: "Rejected",
-                  value: statusCounts.rejected,
-                  Icon: XCircle,
-                  dot: "bg-red-500",
-                  bar: "bg-red-500",
-                  iconBg: "bg-red-50",
-                  iconText: "text-red-600",
-                },
+              const STATUS_CONFIG = [
+                { key: "inProgress", label: "In Progress", color: "#3b82f6", Icon: Clock,        value: statusCounts.inProgress },
+                { key: "completed",  label: "Completed",   color: "#14b8a6", Icon: CheckCircle,  value: statusCounts.completed },
+                { key: "approved",   label: "Approved",    color: "#22c55e", Icon: CheckCircle,  value: statusCounts.approved },
+                { key: "pending",    label: "Open",        color: "#f97316", Icon: Clock,        value: statusCounts.pending },
+                { key: "draft",      label: "Draft",       color: "#f59e0b", Icon: AlertCircle,  value: statusCounts.draft },
+                { key: "rejected",   label: "Rejected",    color: "#ef4444", Icon: XCircle,      value: statusCounts.rejected },
               ];
 
+              const total = statusCounts.total;
+              const safeTotal = Math.max(total, 1);
+              const resolutionPct = Math.round(
+                ((statusCounts.completed + statusCounts.approved) / safeTotal) * 100
+              );
+
+              // Donut chart math
+              const SIZE = 220;
+              const CENTER = SIZE / 2;
+              const RADIUS = 82;
+              const STROKE = 22;
+              const CIRC = 2 * Math.PI * RADIUS;
+              const GAP = 2; // tiny gap between segments in degrees
+
+              let cumulative = 0;
+              const arcs = STATUS_CONFIG
+                .filter((s) => s.value > 0)
+                .map((s) => {
+                  const fraction = s.value / safeTotal;
+                  const arcLen = Math.max(fraction * CIRC - GAP, 0);
+                  const dashOffset = -cumulative * CIRC;
+                  cumulative += fraction;
+                  return { ...s, arcLen, dashOffset };
+                });
+
               return (
-                <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
-                  {/* Hero Total Card */}
-                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-5 shadow-lg shadow-slate-900/20">
-                    <div className="pointer-events-none absolute -top-8 -right-8 w-32 h-32 bg-green-500/20 rounded-full blur-2xl" />
-                    <div className="relative">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-semibold">
-                          Total Requests
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
-                          <ClipboardList className="w-4 h-4 text-green-400" />
-                        </div>
-                      </div>
-                      <div className="text-5xl font-bold tracking-tight mb-4">
-                        {statusCounts.total}
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-[11px] mb-1.5">
-                          <span className="text-slate-400 font-medium">
-                            Resolution Rate
-                          </span>
-                          <span className="text-green-400 font-bold">
-                            {resolutionPct}%
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-green-400 to-emerald-300 rounded-full transition-all duration-500"
-                            style={{ width: `${resolutionPct}%` }}
+                <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-center">
+                  {/* Donut Chart */}
+                  <div className="relative flex items-center justify-center">
+                    <div className="absolute inset-0 m-auto w-48 h-48 bg-gradient-to-br from-green-400/10 to-emerald-400/10 rounded-full blur-2xl" />
+                    <svg
+                      width={SIZE}
+                      height={SIZE}
+                      viewBox={`0 0 ${SIZE} ${SIZE}`}
+                      className="relative drop-shadow-sm"
+                    >
+                      {/* Background track */}
+                      <circle
+                        cx={CENTER}
+                        cy={CENTER}
+                        r={RADIUS}
+                        fill="none"
+                        stroke="#f1f5f9"
+                        strokeWidth={STROKE}
+                      />
+                      {/* Colored arcs */}
+                      <g transform={`rotate(-90 ${CENTER} ${CENTER})`}>
+                        {arcs.map((s) => (
+                          <circle
+                            key={s.key}
+                            cx={CENTER}
+                            cy={CENTER}
+                            r={RADIUS}
+                            fill="none"
+                            stroke={s.color}
+                            strokeWidth={STROKE}
+                            strokeLinecap="round"
+                            strokeDasharray={`${s.arcLen} ${CIRC}`}
+                            strokeDashoffset={s.dashOffset}
+                            style={{
+                              transition:
+                                "stroke-dasharray 0.8s cubic-bezier(0.34, 1.2, 0.64, 1), stroke-dashoffset 0.8s cubic-bezier(0.34, 1.2, 0.64, 1)",
+                            }}
                           />
-                        </div>
-                      </div>
-                    </div>
+                        ))}
+                      </g>
+                      {/* Center labels */}
+                      <text
+                        x={CENTER}
+                        y={CENTER - 18}
+                        textAnchor="middle"
+                        className="fill-slate-400"
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          letterSpacing: "0.18em",
+                        }}
+                      >
+                        TOTAL
+                      </text>
+                      <text
+                        x={CENTER}
+                        y={CENTER + 14}
+                        textAnchor="middle"
+                        className="fill-slate-900"
+                        style={{ fontSize: 42, fontWeight: 800 }}
+                      >
+                        {total}
+                      </text>
+                      <text
+                        x={CENTER}
+                        y={CENTER + 36}
+                        textAnchor="middle"
+                        className="fill-emerald-600"
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        {resolutionPct}% RESOLVED
+                      </text>
+                    </svg>
                   </div>
 
-                  {/* Status Tiles Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {STATUS_TILES.map((s) => {
-                      const pct = Math.round((s.value / total) * 100);
+                  {/* Status Legend */}
+                  <div className="space-y-1.5">
+                    {STATUS_CONFIG.map((s) => {
+                      const pct = Math.round((s.value / safeTotal) * 100);
                       return (
                         <div
                           key={s.key}
-                          className="group bg-white border border-gray-200 hover:border-gray-300 rounded-xl p-3.5 transition-all hover:shadow-md"
+                          className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors"
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div
-                                className={`w-7 h-7 rounded-lg ${s.iconBg} flex items-center justify-center flex-shrink-0`}
-                              >
-                                <s.Icon className={`w-3.5 h-3.5 ${s.iconText}`} />
-                              </div>
-                              <span className="text-xs font-medium text-gray-600 truncate">
-                                {s.label}
-                              </span>
-                            </div>
-                            <span className="text-[10px] font-semibold text-gray-400 tabular-nums">
-                              {pct}%
-                            </span>
-                          </div>
-                          <div className="flex items-end justify-between gap-2">
-                            <div className="text-2xl font-bold text-gray-900 tabular-nums leading-none">
-                              {s.value}
-                            </div>
-                          </div>
-                          <div className="mt-2.5 h-1 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm"
+                            style={{ background: s.color }}
+                          />
+                          <s.Icon
+                            size={14}
+                            className="text-slate-400 flex-shrink-0 group-hover:text-slate-600 transition-colors"
+                          />
+                          <span className="text-sm font-medium text-slate-700 w-[110px] flex-shrink-0">
+                            {s.label}
+                          </span>
+                          <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                              className={`h-full ${s.bar} rounded-full transition-all duration-500`}
-                              style={{ width: `${pct}%` }}
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{
+                                width: `${pct}%`,
+                                background: s.color,
+                              }}
                             />
                           </div>
+                          <span className="text-sm font-bold text-slate-900 tabular-nums w-10 text-right">
+                            {s.value}
+                          </span>
+                          <span className="text-xs text-slate-400 tabular-nums w-10 text-right">
+                            {pct}%
+                          </span>
                         </div>
                       );
                     })}
