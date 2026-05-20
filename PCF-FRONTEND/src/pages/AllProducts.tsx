@@ -312,7 +312,7 @@ const AllProducts: React.FC = () => {
                 </Button>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-nowrap items-center gap-3 overflow-x-auto">
               <Input
                 placeholder="Search products..."
                 prefix={<Search size={16} className="text-gray-400" />}
@@ -320,7 +320,7 @@ const AllProducts: React.FC = () => {
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
                 size="large"
-                className="w-full sm:w-[240px] h-11"
+                className="w-[220px] h-11 flex-shrink-0"
               />
               <DatePicker.RangePicker
                 size="large"
@@ -337,12 +337,12 @@ const AllProducts: React.FC = () => {
                     setDateRange(null);
                   }
                 }}
-                className="w-full sm:w-[260px] h-11"
+                className="w-[240px] h-11 flex-shrink-0"
                 allowClear
               />
               <Select
                 placeholder="All Status"
-                className="w-full sm:w-[160px] h-11"
+                className="w-[150px] h-11 flex-shrink-0"
                 size="large"
                 value={statusFilter}
                 onChange={(value) => setStatusFilter(value)}
@@ -355,7 +355,7 @@ const AllProducts: React.FC = () => {
               />
               <Select
                 placeholder="All Categories"
-                className="w-full sm:w-[180px] h-11"
+                className="w-[170px] h-11 flex-shrink-0"
                 size="large"
                 value={categoryFilter}
                 onChange={(value) => setCategoryFilter(value || "all")}
@@ -373,7 +373,7 @@ const AllProducts: React.FC = () => {
                   icon={<Plus size={16} />}
                   size="large"
                   onClick={() => navigate("/product-portfolio/new")}
-                  className="h-11 shadow-md shadow-green-600/20"
+                  className="h-11 shadow-md shadow-green-600/20 flex-shrink-0"
                 >
                   Add Product
                 </Button>
