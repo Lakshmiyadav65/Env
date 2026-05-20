@@ -312,7 +312,7 @@ const AllProducts: React.FC = () => {
                 </Button>
               )}
             </div>
-            <div className="flex flex-nowrap items-center gap-3 overflow-x-auto">
+            <div className="flex flex-nowrap items-center gap-2">
               <Input
                 placeholder="Search products..."
                 prefix={<Search size={16} className="text-gray-400" />}
@@ -320,12 +320,13 @@ const AllProducts: React.FC = () => {
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
                 size="large"
-                className="w-[220px] h-11 flex-shrink-0"
+                style={{ width: 180, height: 44 }}
+                className="flex-shrink-0"
               />
               <DatePicker.RangePicker
                 size="large"
                 format="DD MMM YYYY"
-                placeholder={["Start Date", "End Date"]}
+                placeholder={["Start", "End"]}
                 value={dateRange ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
                 onChange={(dates) => {
                   if (dates) {
@@ -337,12 +338,14 @@ const AllProducts: React.FC = () => {
                     setDateRange(null);
                   }
                 }}
-                className="w-[240px] h-11 flex-shrink-0"
+                style={{ width: 200, height: 44 }}
+                className="flex-shrink-0"
                 allowClear
               />
               <Select
-                placeholder="All Status"
-                className="w-[150px] h-11 flex-shrink-0"
+                placeholder="Status"
+                style={{ width: 130, height: 44 }}
+                className="flex-shrink-0"
                 size="large"
                 value={statusFilter}
                 onChange={(value) => setStatusFilter(value)}
@@ -354,8 +357,9 @@ const AllProducts: React.FC = () => {
                 ]}
               />
               <Select
-                placeholder="All Categories"
-                className="w-[170px] h-11 flex-shrink-0"
+                placeholder="Category"
+                style={{ width: 150, height: 44 }}
+                className="flex-shrink-0"
                 size="large"
                 value={categoryFilter}
                 onChange={(value) => setCategoryFilter(value || "all")}
@@ -373,7 +377,8 @@ const AllProducts: React.FC = () => {
                   icon={<Plus size={16} />}
                   size="large"
                   onClick={() => navigate("/product-portfolio/new")}
-                  className="h-11 shadow-md shadow-green-600/20 flex-shrink-0"
+                  style={{ height: 44 }}
+                  className="shadow-md shadow-green-600/20 flex-shrink-0"
                 >
                   Add Product
                 </Button>
