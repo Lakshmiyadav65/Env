@@ -297,7 +297,8 @@ const AllProducts: React.FC = () => {
 
         {/* Products Table Section */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          {/* Top row: heading + Add Product action */}
+          <div className="flex justify-between items-center mb-4 gap-4">
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-semibold text-gray-900">Products</h2>
               {hasActiveFilters && (
@@ -312,78 +313,80 @@ const AllProducts: React.FC = () => {
                 </Button>
               )}
             </div>
-            <div className="flex flex-nowrap items-center gap-2">
-              <Input
-                placeholder="Search products..."
-                prefix={<Search size={16} className="text-gray-400" />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                allowClear
+            {canCreate("Product Portfolio") && (
+              <Button
+                type="primary"
+                icon={<Plus size={16} />}
                 size="large"
-                style={{ width: 180, height: 44 }}
-                className="flex-shrink-0"
-              />
-              <DatePicker.RangePicker
-                size="large"
-                format="DD MMM YYYY"
-                placeholder={["Start", "End"]}
-                value={dateRange ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
-                onChange={(dates) => {
-                  if (dates) {
-                    setDateRange([
-                      dates[0]?.format("YYYY-MM-DD") || null,
-                      dates[1]?.format("YYYY-MM-DD") || null,
-                    ]);
-                  } else {
-                    setDateRange(null);
-                  }
-                }}
-                style={{ width: 200, height: 44 }}
-                className="flex-shrink-0"
-                allowClear
-              />
-              <Select
-                placeholder="Status"
-                style={{ width: 130, height: 44 }}
-                className="flex-shrink-0"
-                size="large"
-                value={statusFilter}
-                onChange={(value) => setStatusFilter(value)}
-                options={[
-                  { label: "All Status", value: "all" },
-                  { label: "PCF Available", value: "available" },
-                  { label: "In Progress", value: "in-progress" },
-                  { label: "Not Available", value: "not-available" },
-                ]}
-              />
-              <Select
-                placeholder="Category"
-                style={{ width: 150, height: 44 }}
-                className="flex-shrink-0"
-                size="large"
-                value={categoryFilter}
-                onChange={(value) => setCategoryFilter(value || "all")}
-                options={categories}
-                allowClear
-                onClear={() => setCategoryFilter("all")}
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                onClick={() => navigate("/product-portfolio/new")}
+                style={{ height: 44 }}
+                className="shadow-md shadow-green-600/20 flex-shrink-0"
+              >
+                Add Product
+              </Button>
+            )}
+          </div>
+
+          {/* Filter row */}
+          <div className="flex items-center gap-3 mb-6">
+            <Input
+              placeholder="Search products..."
+              prefix={<Search size={16} className="text-gray-400" />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              allowClear
+              size="large"
+              style={{ height: 44 }}
+              className="flex-1 min-w-0"
+            />
+            <DatePicker.RangePicker
+              size="large"
+              format="DD MMM YYYY"
+              placeholder={["Start Date", "End Date"]}
+              value={dateRange ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
+              onChange={(dates) => {
+                if (dates) {
+                  setDateRange([
+                    dates[0]?.format("YYYY-MM-DD") || null,
+                    dates[1]?.format("YYYY-MM-DD") || null,
+                  ]);
+                } else {
+                  setDateRange(null);
                 }
-              />
-              {canCreate("Product Portfolio") && (
-                <Button
-                  type="primary"
-                  icon={<Plus size={16} />}
-                  size="large"
-                  onClick={() => navigate("/product-portfolio/new")}
-                  style={{ height: 44 }}
-                  className="shadow-md shadow-green-600/20 flex-shrink-0"
-                >
-                  Add Product
-                </Button>
-              )}
-            </div>
+              }}
+              style={{ width: 260, height: 44 }}
+              className="flex-shrink-0"
+              allowClear
+            />
+            <Select
+              placeholder="All Status"
+              style={{ width: 160, height: 44 }}
+              className="flex-shrink-0"
+              size="large"
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value)}
+              options={[
+                { label: "All Status", value: "all" },
+                { label: "PCF Available", value: "available" },
+                { label: "In Progress", value: "in-progress" },
+                { label: "Not Available", value: "not-available" },
+              ]}
+            />
+            <Select
+              placeholder="All Categories"
+              style={{ width: 180, height: 44 }}
+              className="flex-shrink-0"
+              size="large"
+              value={categoryFilter}
+              onChange={(value) => setCategoryFilter(value || "all")}
+              options={categories}
+              allowClear
+              onClear={() => setCategoryFilter("all")}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+              }
+            />
           </div>
 
           <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>
