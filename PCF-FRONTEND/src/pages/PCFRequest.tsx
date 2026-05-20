@@ -29,6 +29,7 @@ import {
 import { Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 import pcfService from "../lib/pcfService";
 import type { PCFBOMItem } from "../lib/pcfService";
 import dayjs from "dayjs";
@@ -637,14 +638,16 @@ const PCFRequest: React.FC = () => {
             </Space>
           </div>
 
-          <Spin spinning={isLoading}>
+          <Spin
+            spinning={isLoading}
+            indicator={<LoadingSpinner size="md" />}
+          >
             <Table
               columns={columns}
               dataSource={pcfRequests}
               pagination={false}
               scroll={{ x: 1200 }}
               rowKey="id"
-              loading={isLoading}
               className="rounded-xl overflow-hidden"
             />
           </Spin>
