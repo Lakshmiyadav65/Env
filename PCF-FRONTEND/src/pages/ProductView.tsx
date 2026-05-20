@@ -63,6 +63,7 @@ import {
   Link2,
   Share2,
 } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import productService from "../lib/productService";
 import { usePermissions } from "../contexts/PermissionContext";
 import type {
@@ -721,7 +722,7 @@ const ProductView: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
-        <Spin size="large" />
+        <LoadingSpinner size="lg" label="Loading product..." />
       </div>
     );
   }
@@ -886,7 +887,7 @@ const ProductView: React.FC = () => {
                 <div className="p-4 max-h-[320px] overflow-y-auto custom-scrollbar">
                   {linkedPCFsLoading ? (
                     <div className="flex justify-center py-12">
-                      <Spin size="default" />
+                      <LoadingSpinner size="md" />
                     </div>
                   ) : linkedPCFs.length > 0 ? (
                     <div className="space-y-3">
@@ -1251,7 +1252,7 @@ const ProductView: React.FC = () => {
             {/* Components Table */}
             {bomLoading ? (
               <div className="flex justify-center py-16">
-                <Spin size="large" />
+                <LoadingSpinner size="lg" />
               </div>
             ) : (
               <>
@@ -3329,7 +3330,7 @@ const ProductView: React.FC = () => {
                           <div>
                             {pcfHistoryLoading ? (
                               <div className="flex justify-center py-12">
-                                <Spin size="default" />
+                                <LoadingSpinner size="md" />
                               </div>
                             ) : (
                               <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto custom-scrollbar">
@@ -3689,7 +3690,7 @@ const ProductView: React.FC = () => {
                 {/* Secondary Data Table */}
                 {secondaryDataLoading ? (
                   <div className="flex justify-center py-12">
-                    <Spin size="large" />
+                    <LoadingSpinner size="lg" />
                   </div>
                 ) : (
                   <>

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "../../components/LoadingSpinner";
 import alertManagementService from "../../lib/alertManagementService";
 import type { AlertListItem } from "../../lib/alertManagementService";
 import { usePermissions } from "../../contexts/PermissionContext";
@@ -377,7 +378,7 @@ const AlertManagement: React.FC = () => {
             </div>
           )}
 
-          <Spin spinning={loading}>
+          <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>
             <Table
               columns={columns}
               dataSource={alerts}

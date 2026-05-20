@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 import componentMasterService, {
   type ComponentItem,
   type ComponentStats,
@@ -682,7 +683,7 @@ const ComponentsMaster: React.FC = () => {
             </Space>
           </div>
 
-          <Spin spinning={loading}>
+          <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>
             <Table
               columns={columns}
               dataSource={flattenedData}
@@ -690,7 +691,6 @@ const ComponentsMaster: React.FC = () => {
               scroll={{ x: 4000, y: 500 }}
               rowKey="key"
               size="small"
-              loading={loading}
               className="rounded-xl overflow-hidden"
             />
           </Spin>

@@ -27,6 +27,7 @@ import {
   FileType,
   PlayCircle,
 } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { documentMasterService } from "../lib/documentMasterService";
 import type { PCFDocumentItem, DocumentStats } from "../lib/documentMasterService";
 import pcfService from "../lib/pcfService";
@@ -500,12 +501,11 @@ const DocumentMaster: React.FC = () => {
             </Space>
           </div>
 
-          <Spin spinning={loading}>
+          <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>
             <Table
               columns={columns as any}
               dataSource={filteredDocuments}
               rowKey="id"
-              loading={loading}
               pagination={false}
               scroll={{ x: 900 }}
               className="rounded-xl overflow-hidden"
@@ -628,7 +628,7 @@ const DocumentMaster: React.FC = () => {
           </div>
         }
       >
-        <Spin spinning={uploading || loadingUrls}>
+        <Spin spinning={uploading || loadingUrls} indicator={<LoadingSpinner size="md" />}>
           <div className="space-y-6">
             {/* Technical Specifications Section */}
             <div>

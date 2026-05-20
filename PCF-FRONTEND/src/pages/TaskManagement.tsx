@@ -23,6 +23,7 @@ import {
   Eye,
 } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
+import LoadingSpinner from "../components/LoadingSpinner";
 import taskService from "../lib/taskService";
 import type { TaskItem } from "../lib/taskService";
 import { useNavigate } from "react-router-dom";
@@ -426,14 +427,13 @@ const TaskManagement: React.FC = () => {
               </Space>
             </div>
 
-            <Spin spinning={isLoading}>
+            <Spin spinning={isLoading} indicator={<LoadingSpinner size="md" />}>
               <Table
                 columns={columns}
                 dataSource={tasks}
                 pagination={false}
                 scroll={{ x: 1200 }}
                 rowKey="id"
-                loading={isLoading}
                 className="rounded-xl overflow-hidden"
               />
             </Spin>

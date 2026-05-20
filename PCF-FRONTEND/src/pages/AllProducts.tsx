@@ -21,6 +21,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import LoadingSpinner from "../components/LoadingSpinner";
 import productService from "../lib/productService";
 import type { Product, ProductCategory } from "../lib/productService";
 import { usePermissions } from "../contexts/PermissionContext";
@@ -380,14 +381,13 @@ const AllProducts: React.FC = () => {
             </Space>
           </div>
 
-          <Spin spinning={loading}>
+          <Spin spinning={loading} indicator={<LoadingSpinner size="md" />}>
             <Table
               columns={columns}
               dataSource={products}
               pagination={false}
               scroll={{ x: 1450 }}
               rowKey="id"
-              loading={loading}
               className="rounded-xl overflow-hidden"
               locale={{
                 emptyText: hasActiveFilters ? (
