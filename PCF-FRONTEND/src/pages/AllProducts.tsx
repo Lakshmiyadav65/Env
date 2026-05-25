@@ -273,25 +273,63 @@ const AllProducts: React.FC = () => {
     <div className="p-6">
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center flex-wrap gap-6">
-            {/* Left Section - Title and Description */}
-            <div className="flex-1 min-w-[300px]">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20">
-                  <Package className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    All Products
-                  </h1>
-                  <p className="text-gray-500">
-                    Manage your product catalog and PCF tracking
-                  </p>
-                </div>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+          {/* Decorative blurs */}
+          <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-green-200/40 to-emerald-200/30 rounded-full blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-br from-emerald-200/20 to-green-200/20 rounded-full blur-3xl" />
+
+          <div className="relative p-6 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30 flex-shrink-0">
+                <Package className="w-6 h-6 text-white" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                  All Products
+                </h1>
+                <p className="text-gray-500 text-sm">
+                  Manage your product catalog and PCF tracking
+                </p>
               </div>
             </div>
 
+            {/* Stat chips */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 border border-green-100">
+                <Package className="w-3.5 h-3.5 text-green-600" />
+                <span className="text-xs font-semibold text-green-700 tabular-nums">
+                  {totalCount}
+                </span>
+                <span className="text-xs text-green-600/80">Products</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-100">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                <span className="text-xs font-semibold text-blue-700 tabular-nums">
+                  {Math.max(categories.length - 1, 0)}
+                </span>
+                <span className="text-xs text-blue-600/80">Categories</span>
+              </div>
+              <div
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
+                  hasActiveFilters
+                    ? "bg-amber-50 border-amber-100"
+                    : "bg-slate-50 border-slate-200"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    hasActiveFilters ? "bg-amber-500" : "bg-slate-400"
+                  }`}
+                />
+                <span
+                  className={`text-xs font-semibold ${
+                    hasActiveFilters ? "text-amber-700" : "text-slate-700"
+                  }`}
+                >
+                  {hasActiveFilters ? "Filtered" : "All Records"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
