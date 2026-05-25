@@ -576,6 +576,38 @@ const PCFRequest: React.FC = () => {
                           />
                         </div>
                       </div>
+
+                      {/* Status Mix mini stacked bar */}
+                      <div className="mt-5 pt-4 border-t border-white/10">
+                        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.14em] text-slate-400 font-semibold mb-2">
+                          <span>Status Mix</span>
+                          <span className="normal-case tracking-normal text-slate-500">
+                            {STATUS_TILES.filter((t) => t.value > 0).length} active
+                          </span>
+                        </div>
+                        <div className="flex h-2 rounded-full overflow-hidden bg-white/10">
+                          {STATUS_TILES.filter((s) => s.value > 0).map((s) => (
+                            <div
+                              key={s.key}
+                              className={`h-full ${s.bar} transition-all duration-500`}
+                              style={{ width: `${(s.value / total) * 100}%` }}
+                              title={`${s.label}: ${s.value}`}
+                            />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                          {STATUS_TILES.filter((s) => s.value > 0)
+                            .slice(0, 3)
+                            .map((s) => (
+                              <div key={s.key} className="flex items-center gap-1.5">
+                                <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                                <span className="text-[10px] text-slate-400 font-medium">
+                                  {s.label}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
