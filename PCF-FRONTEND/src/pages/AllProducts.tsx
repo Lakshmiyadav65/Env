@@ -335,9 +335,9 @@ const AllProducts: React.FC = () => {
               const coveragePct = Math.round((counts.available / safeTotal) * 100);
 
               const TILES = [
-                { key: "available", label: "PCF Available", value: counts.available, Icon: CheckCircle, bar: "bg-green-500", iconBg: "bg-green-50", iconText: "text-green-600" },
-                { key: "inProgress", label: "In Progress", value: counts.inProgress, Icon: Clock, bar: "bg-blue-500", iconBg: "bg-blue-50", iconText: "text-blue-600" },
-                { key: "notAvailable", label: "Not Available", value: counts.notAvailable, Icon: MinusCircle, bar: "bg-slate-400", iconBg: "bg-slate-100", iconText: "text-slate-600" },
+                { key: "available", label: "PCF Available", value: counts.available, Icon: CheckCircle, bar: "bg-green-500", iconBg: "bg-green-50", iconText: "text-green-600", description: "Products with a published PCF report", filterValue: "available", hoverText: "group-hover:text-green-600" },
+                { key: "inProgress", label: "In Progress", value: counts.inProgress, Icon: Clock, bar: "bg-blue-500", iconBg: "bg-blue-50", iconText: "text-blue-600", description: "PCF calculation underway", filterValue: "in-progress", hoverText: "group-hover:text-blue-600" },
+                { key: "notAvailable", label: "Not Available", value: counts.notAvailable, Icon: MinusCircle, bar: "bg-slate-400", iconBg: "bg-slate-100", iconText: "text-slate-600", description: "Awaiting PCF submission", filterValue: "not-available", hoverText: "group-hover:text-slate-900" },
               ];
 
               return (
@@ -375,9 +375,11 @@ const AllProducts: React.FC = () => {
                     {TILES.map((s) => {
                       const pct = Math.round((s.value / safeTotal) * 100);
                       return (
-                        <div
+                        <button
                           key={s.key}
-                          className="bg-white border border-gray-200 hover:border-gray-300 rounded-xl p-3.5 transition-all hover:shadow-md"
+                          type="button"
+                          onClick={() => setStatusFilter(s.filterValue)}
+                          className="group text-left w-full bg-white border border-gray-200 hover:border-gray-300 rounded-xl p-3.5 transition-all hover:shadow-md flex flex-col"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2 min-w-0">
@@ -401,7 +403,14 @@ const AllProducts: React.FC = () => {
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                        </div>
+                          <p className="mt-3 text-[11px] text-gray-500 leading-snug">
+                            {s.description}
+                          </p>
+                          <div className="mt-auto pt-3 flex items-center justify-between text-[11px] font-semibold text-gray-400 group-hover:text-gray-700 transition-colors">
+                            <span>View products</span>
+                            <span className={`transition-all group-hover:translate-x-0.5 ${s.hoverText}`}>→</span>
+                          </div>
+                        </button>
                       );
                     })}
                   </div>
