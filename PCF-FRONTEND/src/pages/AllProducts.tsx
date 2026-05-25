@@ -17,6 +17,9 @@ import {
   Edit,
   Search,
   X,
+  CheckCircle,
+  Clock,
+  MinusCircle,
 } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +44,12 @@ const AllProducts: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
   const [dateRange, setDateRange] = useState<[string | null, string | null] | null>(null);
+  const [apiStats, setApiStats] = useState<{
+    total_count?: string | number;
+    available_count?: string | number;
+    in_progress_count?: string | number;
+    not_available_count?: string | number;
+  } | null>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -126,6 +135,9 @@ const AllProducts: React.FC = () => {
         const pages = pagination.totalPages || data?.totalPages || Math.max(1, Math.ceil(total / pageSize));
         setTotalCount(total);
         setTotalPages(pages);
+        // Capture per-status stats if the backend supplies them
+        const stats = (response as any)?.stats || data?.stats || null;
+        setApiStats(stats);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -273,17 +285,15 @@ const AllProducts: React.FC = () => {
     <div className="p-6">
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-          {/* Decorative blurs */}
-          <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-green-200/40 to-emerald-200/30 rounded-full blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-br from-emerald-200/20 to-green-200/20 rounded-full blur-3xl" />
-
-          <div className="relative p-6 flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30 flex-shrink-0">
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-green-200/40 to-emerald-200/30 rounded-full blur-3xl" />
+          <div className="relative">
+            {/* Title Row */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20 flex-shrink-0">
                 <Package className="w-6 h-6 text-white" />
               </div>
-              <div className="min-w-0">
+              <div>
                 <h1 className="text-2xl font-bold text-gray-900 leading-tight">
                   All Products
                 </h1>
@@ -293,43 +303,111 @@ const AllProducts: React.FC = () => {
               </div>
             </div>
 
-            {/* Stat chips */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 border border-green-100">
-                <Package className="w-3.5 h-3.5 text-green-600" />
-                <span className="text-xs font-semibold text-green-700 tabular-nums">
-                  {totalCount}
-                </span>
-                <span className="text-xs text-green-600/80">Products</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-100">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <span className="text-xs font-semibold text-blue-700 tabular-nums">
-                  {Math.max(categories.length - 1, 0)}
-                </span>
-                <span className="text-xs text-blue-600/80">Categories</span>
-              </div>
-              <div
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
-                  hasActiveFilters
-                    ? "bg-amber-50 border-amber-100"
-                    : "bg-slate-50 border-slate-200"
-                }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    hasActiveFilters ? "bg-amber-500" : "bg-slate-400"
-                  }`}
-                />
-                <span
-                  className={`text-xs font-semibold ${
-                    hasActiveFilters ? "text-amber-700" : "text-slate-700"
-                  }`}
-                >
-                  {hasActiveFilters ? "Filtered" : "All Records"}
-                </span>
-              </div>
-            </div>
+            {/* KPI Grid: Hero Total + status tiles */}
+            {(() => {
+              // Fallback to current-page counts when backend doesn't supply per-status stats
+              const pageAvailable = products.filter(
+                (p: any) =>
+                  (p.pcf_status || "").toLowerCase() === "available" ||
+                  (p.pcf_status || "").toLowerCase() === "completed" ||
+                  (p.pcf_status || "").toLowerCase() === "approved",
+              ).length;
+              const pageInProgress = products.filter(
+                (p: any) =>
+                  (p.pcf_status || "").toLowerCase() === "in progress" ||
+                  (p.pcf_status || "").toLowerCase() === "in-progress",
+              ).length;
+              const pageNotAvailable = products.filter(
+                (p: any) =>
+                  !p.pcf_status ||
+                  (p.pcf_status || "").toLowerCase() === "not available" ||
+                  (p.pcf_status || "").toLowerCase() === "not-available",
+              ).length;
+
+              const counts = {
+                total: totalCount || products.length,
+                available: parseInt(String(apiStats?.available_count ?? pageAvailable), 10) || 0,
+                inProgress: parseInt(String(apiStats?.in_progress_count ?? pageInProgress), 10) || 0,
+                notAvailable: parseInt(String(apiStats?.not_available_count ?? pageNotAvailable), 10) || 0,
+              };
+
+              const safeTotal = Math.max(counts.total, 1);
+              const coveragePct = Math.round((counts.available / safeTotal) * 100);
+
+              const TILES = [
+                { key: "available", label: "PCF Available", value: counts.available, Icon: CheckCircle, bar: "bg-green-500", iconBg: "bg-green-50", iconText: "text-green-600" },
+                { key: "inProgress", label: "In Progress", value: counts.inProgress, Icon: Clock, bar: "bg-blue-500", iconBg: "bg-blue-50", iconText: "text-blue-600" },
+                { key: "notAvailable", label: "Not Available", value: counts.notAvailable, Icon: MinusCircle, bar: "bg-slate-400", iconBg: "bg-slate-100", iconText: "text-slate-600" },
+              ];
+
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
+                  {/* Hero Total Card */}
+                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-5 shadow-lg shadow-slate-900/20">
+                    <div className="pointer-events-none absolute -top-8 -right-8 w-32 h-32 bg-green-500/20 rounded-full blur-2xl" />
+                    <div className="relative">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-semibold">
+                          Total Products
+                        </span>
+                        <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
+                          <Package className="w-4 h-4 text-green-400" />
+                        </div>
+                      </div>
+                      <div className="text-5xl font-bold tracking-tight mb-4">{counts.total}</div>
+                      <div>
+                        <div className="flex items-center justify-between text-[11px] mb-1.5">
+                          <span className="text-slate-400 font-medium">PCF Coverage</span>
+                          <span className="text-green-400 font-bold">{coveragePct}%</span>
+                        </div>
+                        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-green-400 to-emerald-300 rounded-full transition-all duration-500"
+                            style={{ width: `${coveragePct}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Tiles Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {TILES.map((s) => {
+                      const pct = Math.round((s.value / safeTotal) * 100);
+                      return (
+                        <div
+                          key={s.key}
+                          className="bg-white border border-gray-200 hover:border-gray-300 rounded-xl p-3.5 transition-all hover:shadow-md"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className={`w-7 h-7 rounded-lg ${s.iconBg} flex items-center justify-center flex-shrink-0`}>
+                                <s.Icon className={`w-3.5 h-3.5 ${s.iconText}`} />
+                              </div>
+                              <span className="text-xs font-medium text-gray-600 truncate">
+                                {s.label}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-semibold text-gray-400 tabular-nums">
+                              {pct}%
+                            </span>
+                          </div>
+                          <div className="text-2xl font-bold text-gray-900 tabular-nums leading-none">
+                            {s.value}
+                          </div>
+                          <div className="mt-2.5 h-1 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${s.bar} rounded-full transition-all duration-500`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
