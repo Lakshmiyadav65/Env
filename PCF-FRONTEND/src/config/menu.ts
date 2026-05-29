@@ -58,13 +58,6 @@ export const menuItems: MenuItem[] = [
     permissionKey: "data quality rating",
   },
   {
-    id: "knowledge-base",
-    title: "Knowledge Base",
-    path: "#",
-    icon: "BookOpen",
-    action: "knowledge-base",
-  },
-  {
     id: "settings",
     title: "Settings",
     path: "/settings",

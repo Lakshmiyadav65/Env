@@ -34,6 +34,7 @@ import {
   ClipboardList,
   Star,
   BookOpen,
+  ArrowRight,
 } from "lucide-react";
 import { menuItems } from "../config/menu";
 import { cn } from "../lib/utils";
@@ -188,16 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       // Minimized view - only show icons
       return (
         <div key={item.id} className="relative">
-          {item.action === "knowledge-base" ? (
-            <button
-              onClick={onOpenKnowledgeBase}
-              className={minimizedClasses}
-              title={item.title}
-            >
-              <IconComponent className="h-5 w-5" />
-              {minimizedTooltip}
-            </button>
-          ) : hasChildren ? (
+          {hasChildren ? (
             <button
               onClick={() => toggleExpanded(item.id)}
               className={minimizedClasses}
@@ -220,17 +212,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     return (
       <div key={item.id}>
         <div className="flex items-center">
-          {item.action === "knowledge-base" ? (
-            <button
-              onClick={onOpenKnowledgeBase}
-              className={cn(
-                "sidebar-menu-item flex items-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-200 group"
-              )}
-            >
-              <IconComponent className="h-5 w-5 mr-3 text-slate-400 group-hover:text-white transition-colors duration-200" />
-              <span className="flex-1 text-left">{item.title}</span>
-            </button>
-          ) : hasChildren ? (
+          {hasChildren ? (
             <button
               onClick={() => toggleExpanded(item.id)}
               className={cn(
@@ -391,6 +373,47 @@ const Sidebar: React.FC<SidebarProps> = ({
             filteredMenuItems.map((item) => renderMenuItem(item))
           )}
         </nav>
+
+        {/* Knowledge Base Card */}
+        {isMinimized ? (
+          <div className="px-2 pb-2">
+            <button
+              onClick={onOpenKnowledgeBase}
+              title="Knowledge Base"
+              aria-label="Open Knowledge Base"
+              className="group relative flex items-center justify-center w-11 h-11 mx-auto rounded-xl bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-all duration-200"
+            >
+              <BookOpen className="h-5 w-5" />
+              <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-xl">
+                Knowledge Base
+              </div>
+            </button>
+          </div>
+        ) : (
+          <div className="px-4 pb-3">
+            <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-4">
+              <div className="flex items-center gap-3 mb-2.5">
+                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-green-500/10 shrink-0">
+                  <BookOpen className="h-5 w-5 text-green-400" />
+                </div>
+                <p className="text-sm font-bold text-white leading-tight">
+                  Knowledge Base
+                </p>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed mb-3">
+                Unlock the full potential of Enviraan with our expert-led
+                documentation.
+              </p>
+              <button
+                onClick={onOpenKnowledgeBase}
+                className="group inline-flex items-center gap-1.5 text-sm font-semibold text-green-400 hover:text-green-300 transition-colors duration-200"
+              >
+                Browse Guides
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div
