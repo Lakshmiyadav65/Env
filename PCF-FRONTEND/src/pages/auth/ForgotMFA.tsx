@@ -55,7 +55,7 @@ const ForgotMFA: React.FC = () => {
           <div className="text-center text-white max-w-md">
             <h1 className="text-3xl font-bold mb-4 leading-tight">
               Welcome to Enviraan
-              <span className="block text-green-400">Management Suite</span>
+              <span className="block text-green-400">PCF Supplier Intelligence Suite</span>
             </h1>
             <p className="text-slate-400 text-lg leading-relaxed">
               Track product carbon footprints, manage supplier questionnaires, and ensure data quality.
