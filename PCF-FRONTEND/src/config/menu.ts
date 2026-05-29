@@ -1,5 +1,4 @@
 import type { MenuItem } from "../types";
-import { getKnowledgeBaseUrl } from "../lib/knowledgeBaseUrl";
 
 export const menuItems: MenuItem[] = [
   {
@@ -61,9 +60,9 @@ export const menuItems: MenuItem[] = [
   {
     id: "knowledge-base",
     title: "Knowledge Base",
-    path: getKnowledgeBaseUrl(),
+    path: "#",
     icon: "BookOpen",
-    external: true,
+    action: "knowledge-base",
   },
   {
     id: "settings",

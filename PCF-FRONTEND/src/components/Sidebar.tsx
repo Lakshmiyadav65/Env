@@ -76,12 +76,14 @@ interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   onMinimizedChange: (minimized: boolean) => void;
+  onOpenKnowledgeBase: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onToggle,
   onMinimizedChange,
+  onOpenKnowledgeBase,
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = useState(false);
@@ -186,17 +188,15 @@ const Sidebar: React.FC<SidebarProps> = ({
       // Minimized view - only show icons
       return (
         <div key={item.id} className="relative">
-          {item.external ? (
-            <a
-              href={item.path}
-              target="_blank"
-              rel="noopener noreferrer"
+          {item.action === "knowledge-base" ? (
+            <button
+              onClick={onOpenKnowledgeBase}
               className={minimizedClasses}
               title={item.title}
             >
               <IconComponent className="h-5 w-5" />
               {minimizedTooltip}
-            </a>
+            </button>
           ) : hasChildren ? (
             <button
               onClick={() => toggleExpanded(item.id)}
@@ -220,18 +220,16 @@ const Sidebar: React.FC<SidebarProps> = ({
     return (
       <div key={item.id}>
         <div className="flex items-center">
-          {item.external ? (
-            <a
-              href={item.path}
-              target="_blank"
-              rel="noopener noreferrer"
+          {item.action === "knowledge-base" ? (
+            <button
+              onClick={onOpenKnowledgeBase}
               className={cn(
                 "sidebar-menu-item flex items-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-200 group"
               )}
             >
               <IconComponent className="h-5 w-5 mr-3 text-slate-400 group-hover:text-white transition-colors duration-200" />
               <span className="flex-1 text-left">{item.title}</span>
-            </a>
+            </button>
           ) : hasChildren ? (
             <button
               onClick={() => toggleExpanded(item.id)}
