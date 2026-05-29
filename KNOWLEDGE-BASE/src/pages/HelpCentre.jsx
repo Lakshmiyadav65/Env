@@ -4,81 +4,31 @@ import styles from './HelpCentre.module.css'
 
 const CATEGORIES = [
     {
-        id: 'env',
+        id: 'getting-started',
+        path: '/article-what-is-enviguide',
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2a10 10 0 100 20A10 10 0 0012 2z" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" />
             </svg>
         ),
-        title: 'Environment Setup',
-        desc: 'Get your green workspace ready with our foundational configuration guides.',
+        title: 'Getting Started',
+        desc: 'New to EnviGuide? Start here for a platform overview and the essentials.',
     },
     {
-        id: 'api',
+        id: 'walkthrough',
+        path: '/article-platform-walkthrough',
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M10 20l4-16M4 8l-4 4 4 4M20 8l4 4-4 4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
         ),
-        title: 'API Integration',
-        desc: 'Connect your existing tech stack seamlessly with our robust developer API.',
-    },
-    {
-        id: 'compliance',
-        icon: (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M9 12l2 2 4-4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        ),
-        title: 'Compliance',
-        desc: 'Stay ahead of global environmental standards with our compliance guides.',
-    },
-    {
-        id: 'analytics',
-        icon: (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M18 20V10M12 20V4M6 20v-6" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        ),
-        title: 'Data Analytics',
-        desc: 'Extract deep insights from your sustainability metrics with ease.',
-    },
-    {
-        id: 'team',
-        icon: (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        ),
-        title: 'Team Management',
-        desc: 'Manage roles and global collaboration for your impact teams.',
-    },
-    {
-        id: 'billing',
-        icon: (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="5" width="20" height="14" rx="2" stroke="#22c55e" strokeWidth="2" />
-                <path d="M2 10h20" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-        ),
-        title: 'Billing & Plans',
-        desc: 'Everything you need to know about your subscription and enterprise invoicing.',
-    },
-    {
-        id: 'supplier',
-        icon: (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M9 11l3 3L22 4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        ),
-        title: 'Supplier Questionnaire Guidance',
-        desc: 'Expert guidance on completing and submitting supplier sustainability questionnaires.',
+        title: 'Platform Walkthrough',
+        desc: 'A step-by-step tour of how the platform works, end to end.',
     },
     {
         id: 'pcf',
+        path: '/manuals-pcf',
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -89,14 +39,62 @@ const CATEGORIES = [
         desc: 'Complete step-by-step documentation for Product Carbon Footprint workflows.',
     },
     {
+        id: 'admin',
+        path: '/manuals-admin',
+        icon: (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M9 12l2 2 4-4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        ),
+        title: 'Admin Manuals',
+        desc: 'Manage manufacturers, users, authorizations and data configuration.',
+    },
+    {
         id: 'manufacturer',
+        path: '/manuals-manufacturer',
         icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M3 21h18M3 7v14M13 3v18M21 11v10M8 9h2M16 13h2" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
         ),
-        title: 'Manufacture Own Emission Questionnaire Guidance',
-        desc: 'Comprehensive guidance on completing the manufacturer own emissions reporting questionnaire.',
+        title: 'Manufacturer Manuals',
+        desc: 'Add products, raise PCF requests and report your own emissions.',
+    },
+    {
+        id: 'supplier',
+        path: '/manuals-supplier',
+        icon: (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M9 11l3 3L22 4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        ),
+        title: 'Supplier Manuals',
+        desc: 'Get access and complete supplier sustainability questionnaires.',
+    },
+    {
+        id: 'own-emissions',
+        path: '/article-own-emissions',
+        icon: (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M18 20V10M12 20V4M6 20v-6" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        ),
+        title: 'Own Emissions',
+        desc: 'Guidance on completing the manufacturer own-emissions questionnaire.',
+    },
+    {
+        id: 'masters',
+        path: '/article-component-master',
+        icon: (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+        ),
+        title: 'Component & Document Master',
+        desc: 'Manage component data and supporting documents for your products.',
     },
 ]
 
@@ -143,7 +141,7 @@ const MANUALS_SUPPLIER = [
 
 const ALL_SEARCHABLE = [
     ...POPULAR_ARTICLES.map(a => ({ title: a.title, path: a.path, type: a.tag })),
-    ...CATEGORIES.map(c => ({ title: c.title, path: c.id === 'supplier' ? '/supplier-questionnaire' : c.id === 'manufacturer' ? '/manufacturer-questionnaire' : c.id === 'env' ? '/article-what-is-enviguide' : c.id === 'pcf' ? '/manuals-pcf' : '#', type: 'Category' })),
+    ...CATEGORIES.map(c => ({ title: c.title, path: c.path, type: 'Category' })),
     ...MANUALS_ADMIN,
     ...MANUALS_MANUFACTURER,
     ...MANUALS_SUPPLIER,
@@ -152,6 +150,7 @@ const ALL_SEARCHABLE = [
 export default function HelpCentre() {
     const navigate = useNavigate()
     const searchRef = useRef(null)
+    const chatRef = useRef(null)
     const [search, setSearch] = useState('')
     const [searchResults, setSearchResults] = useState([])
     const [showResults, setShowResults] = useState(false)
@@ -162,6 +161,10 @@ export default function HelpCentre() {
         const handleClickOutside = (event) => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
                 setShowResults(false)
+            }
+            if (chatRef.current && !chatRef.current.contains(event.target)) {
+                setIsChatOpen(false)
+                setShowRoles(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -209,15 +212,17 @@ export default function HelpCentre() {
                     <em className={styles.heroAccent}>sustain</em> more?
                 </h1>
 
-                <div ref={searchRef} className={styles.searchWrapper}>
+                <div ref={searchRef} className={styles.searchWrapper} role="search">
                     <div className={styles.searchBox}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <circle cx="11" cy="11" r="8" stroke="#9ca3af" strokeWidth="2" />
                             <path d="M21 21l-4.35-4.35" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <input
                             className={styles.searchInput}
-                            placeholder="Search for articles, sustainability guides, or API docs..."
+                            type="search"
+                            aria-label="Search help articles and guides"
+                            placeholder="Search articles, manuals, and guides..."
                             value={search}
                             onChange={e => handleSearch(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && onSearchClick()}
@@ -271,44 +276,47 @@ export default function HelpCentre() {
                         <h2 className={styles.sectionTitle}>Browse by Category</h2>
                         <p className={styles.sectionSub}>Find exactly what you need through our specialised resource hubs.</p>
                     </div>
-                    <a href="#" className={styles.viewAll}>
-                        View All Categories
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <button type="button" className={styles.viewAll} onClick={() => navigate('/manuals-pcf')}>
+                        Browse all manuals
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                    </a>
+                    </button>
                 </div>
 
                 <div className={styles.categoryGrid}>
                     {CATEGORIES.map((cat) => (
-                        <div
+                        <button
                             key={cat.id}
+                            type="button"
                             className={styles.categoryCard}
-                            onClick={() => {
-                                if (cat.id === 'supplier') navigate('/supplier-questionnaire')
-                                if (cat.id === 'manufacturer') navigate('/manufacturer-questionnaire')
-                                if (cat.id === 'env') navigate('/article-what-is-enviguide')
-                                if (cat.id === 'pcf') navigate('/manuals-pcf')
-                            }}
-                            style={{ cursor: (cat.id === 'supplier' || cat.id === 'manufacturer' || cat.id === 'env' || cat.id === 'pcf') ? 'pointer' : 'default' }}
+                            onClick={() => navigate(cat.path)}
+                            aria-label={`Open ${cat.title}`}
                         >
                             <div className={styles.catIconWrap}>{cat.icon}</div>
                             <h3 className={styles.catTitle}>{cat.title}</h3>
                             <p className={styles.catDesc}>{cat.desc}</p>
-                        </div>
+                        </button>
                     ))}
                 </div>
             </section>
 
             {/* ── AI Floating Chat Widget ── */}
             <div
+                ref={chatRef}
                 className={styles.chatWrapper}
                 onMouseEnter={() => setIsChatOpen(true)}
                 onMouseLeave={() => { setIsChatOpen(false); setShowRoles(false); }}
             >
                 {!isChatOpen ? (
-                    <div className={styles.chatTrigger} title="Talk to AI ESG Guide">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <button
+                        type="button"
+                        className={styles.chatTrigger}
+                        title="Talk to AI ESG Guide"
+                        aria-label="Talk to AI ESG Guide"
+                        onClick={() => setIsChatOpen(true)}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M12 8V4H8" />
                             <rect width="16" height="12" x="4" y="8" rx="2" />
                             <path d="M2 14h2" />
@@ -316,7 +324,7 @@ export default function HelpCentre() {
                             <path d="M15 13v2" />
                             <path d="M9 13v2" />
                         </svg>
-                    </div>
+                    </button>
                 ) : (
                     <div className={`${styles.floatingAiChat} ${showRoles ? styles.expanded : ''}`}>
                         {!showRoles ? (
@@ -434,15 +442,15 @@ export default function HelpCentre() {
                         </div>
 
                         {/* Extra insight row */}
-                        <a href="#" className={styles.insightRow}>
+                        <button type="button" className={styles.insightRow} onClick={() => navigate('/article-platform-walkthrough')}>
                             <div>
-                                <span className={styles.articleTag}>Analytics</span>
-                                <p className={styles.articleTitle}>Predicting waste reduction trends with AI</p>
+                                <span className={styles.articleTag}>Getting Started</span>
+                                <p className={styles.articleTitle}>How the platform works — a step-by-step walkthrough</p>
                             </div>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                        </a>
+                        </button>
                     </div>
 
                 </div>

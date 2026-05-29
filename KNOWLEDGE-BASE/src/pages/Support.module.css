@@ -592,3 +592,17 @@
         padding: 28px 16px 48px;
     }
 }
+
+@media (max-width: 480px) {
+    .brandName {
+        display: none;
+    }
+
+    .heroTitle {
+        font-size: 24px;
+    }
+
+    .chipGrid {
+        gap: 6px;
+    }
+}

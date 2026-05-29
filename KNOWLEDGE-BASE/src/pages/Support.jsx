@@ -146,10 +146,10 @@ export default function Support() {
                             </div>
                             <ul className={styles.linksList}>
                                 {[
-                                    { icon: 'info', label: 'Frequently Asked Questions' },
+                                    { icon: 'info', label: 'Help Centre & FAQs', path: '/help-centre' },
                                     { icon: 'book', label: 'PCF User Manuals', path: '/manuals-pcf' },
-                                    { icon: 'users', label: 'Community Guidelines' },
-                                    { icon: 'shield', label: 'Privacy Policy' },
+                                    { icon: 'users', label: 'Manufacturer Manuals', path: '/manuals-manufacturer' },
+                                    { icon: 'shield', label: 'Supplier Manuals', path: '/manuals-supplier' },
                                 ].map(({ icon, label, path }) => (
                                     <li key={label}>
                                         <button

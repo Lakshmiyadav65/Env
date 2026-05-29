@@ -266,10 +266,21 @@
     text-decoration: none;
     white-space: nowrap;
     transition: gap 0.15s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 4px 2px;
 }
 
 .viewAll:hover {
     gap: 10px;
+}
+
+.viewAll:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 2px;
+    border-radius: 6px;
 }
 
 .chatWrapper {
@@ -508,12 +519,22 @@
 }
 
 .categoryCard {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
     background: #fff;
     border: 1.5px solid #e5e7eb;
     border-radius: 14px;
     padding: 22px 20px;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.categoryCard:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 2px;
 }
 
 .categoryCard:hover {
@@ -733,12 +754,25 @@
     text-decoration: none;
     transition: all 0.15s;
     background: #fff;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
 }
 
 .insightRow:hover {
     border-color: #e5e7eb;
     background: #f9fafb;
     transform: translateX(3px);
+}
+
+.articleRow:focus-visible,
+.insightRow:focus-visible,
+.popularChip:focus-visible,
+.searchBtn:focus-visible,
+.backBtn:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 2px;
 }
 
 /* ── Stats Bar ── */
@@ -820,12 +854,85 @@
     }
 }
 
+@media (max-width: 640px) {
+    .topBar {
+        padding: 0 16px;
+    }
+
+    .hero {
+        padding: 48px 20px 40px;
+    }
+
+    .section {
+        padding: 0 20px 44px;
+    }
+
+    .sectionHead {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    /* Keep the floating assistant clear of content on small screens */
+    .chatWrapper {
+        right: 16px;
+        top: auto;
+        bottom: 20px;
+        transform: none;
+    }
+
+    .floatingAiChat {
+        width: min(270px, calc(100vw - 32px));
+    }
+
+    .floatingAiChat.expanded {
+        width: min(300px, calc(100vw - 32px));
+    }
+}
+
 @media (max-width: 600px) {
     .categoryGrid {
         grid-template-columns: 1fr;
     }
 
     .heroTitle {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    .heroTitle {
+        font-size: 23px;
+        margin-bottom: 24px;
+    }
+
+    /* Stack the search button under the input so nothing is cut off */
+    .searchBox {
+        flex-wrap: wrap;
+        border-radius: 20px;
+        padding: 12px 16px;
+    }
+
+    .searchInput {
+        flex: 1 1 100%;
+        order: 1;
+    }
+
+    .searchBox > svg {
+        order: 0;
+    }
+
+    .searchBtn {
+        flex: 1 1 100%;
+        order: 2;
+        padding: 11px 22px;
+    }
+
+    .statItem {
+        padding: 0 16px;
+    }
+
+    .statValue {
         font-size: 26px;
     }
 }
