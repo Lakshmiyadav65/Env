@@ -1,0 +1,13 @@
+# Root workspace dependencies (concurrently, etc.)
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
