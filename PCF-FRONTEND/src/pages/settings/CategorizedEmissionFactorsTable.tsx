@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -18,24 +18,29 @@ import {
   InputNumber,
   Modal,
   Select,
+  Spin,
   Table,
   Tag,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { usePermissions } from "../../contexts/PermissionContext";
 import {
-  addCategorizedEfRow,
-  bulkAddCategorizedEfRows,
-  deleteCategorizedEfRow,
-  listCategorizedEfRows,
-  updateCategorizedEfRow,
-  type EfGroup,
-} from "../../lib/categorizedEmissionFactorService";
+  addLayeredEF,
+  bulkAddLayeredEF,
+  deleteLayeredEF,
+  listLayeredEF,
+  updateLayeredEF,
+  type LayeredEFEntity,
+  type LayeredEFRow,
+} from "../../lib/ecoInventService";
 
 export type Region = string;
 
+// Frontend row shape (camelCase). `dbId` holds the backend internal PK
+// (mef_id / eef_id / fef_id / pef_id / wtef_id / wmttef_id) so we can update/delete.
 export interface EmissionFactorRow {
-  id: string;
+  id: string;           // ef_code (Excel ID, e.g. EF_001937)
+  dbId?: string;
   scope: string;
   layer1: string;
   layer2: string;
@@ -52,9 +57,9 @@ export interface EmissionFactorRow {
 export interface CategorizedEmissionFactorsTableProps {
   title: string;
   description?: string;
-  /** Pre-populate the table with these rows on first mount. */
-  initialRows?: EmissionFactorRow[];
-  /** Region options shown in the Add/Edit modal. Default: ["EU", "IN", "GLOBAL"]. */
+  /** Which backend EF type this page is bound to. Drives all API calls. */
+  entity: LayeredEFEntity;
+  /** Region options shown in the Add/Edit modal. Default: ["EU", "INDIA", "GLOBAL"]. */
   regions?: string[];
   /** Default value for `scope` when creating a new row. */
   defaultScope?: string;
@@ -62,13 +67,6 @@ export interface CategorizedEmissionFactorsTableProps {
   defaultUnit?: string;
   /** Default value for `category` when creating a new row. */
   defaultCategory?: string;
-  /**
-   * If set, rows are persisted to the backend under this ef_group. Other
-   * pages (e.g. the supplier questionnaire) read the same group via the
-   * categorized EF API. When absent, the table runs in pure in-memory mode
-   * (useful for EF cards that haven't been migrated to the new backend yet).
-   */
-  efGroup?: EfGroup;
 }
 
 const slugify = (s: string) =>
@@ -95,7 +93,7 @@ const SCOPE_DEFAULT = "Scope 3";
 const UNIT_DEFAULT = "KgCo2e/per kg";
 const DATA_SOURCE_DEFAULT = "Secondary literature / avg";
 const CATEGORY_DEFAULT = "Packaging";
-const DEFAULT_REGIONS = ["EU", "IN", "GLOBAL"];
+const DEFAULT_REGIONS = ["EU", "INDIA", "GLOBAL"];
 
 const buildEmptyRow = (
   scope: string,
@@ -153,17 +151,52 @@ const parseCsvLine = (line: string): string[] => {
   return out.map((s) => s.trim());
 };
 
+// Convert API row -> frontend row, carrying the dbId and applying the page's
+// default category (backend doesn't store category).
+const fromService = (
+  r: LayeredEFRow,
+  defaultCategory: string
+): EmissionFactorRow => ({
+  id: r.id,
+  dbId: r.dbId,
+  scope: r.scope,
+  layer1: r.layer1,
+  layer2: r.layer2,
+  layer3: r.layer3,
+  layer4: r.layer4,
+  region: r.region,
+  year: r.year,
+  efValue: r.efValue,
+  unit: r.unit,
+  dataSource: r.dataSource,
+  category: defaultCategory,
+});
+
+const toService = (r: EmissionFactorRow): LayeredEFRow => ({
+  id: r.id,
+  dbId: r.dbId,
+  scope: r.scope,
+  layer1: r.layer1,
+  layer2: r.layer2,
+  layer3: r.layer3,
+  layer4: r.layer4,
+  region: r.region,
+  year: r.year,
+  efValue: r.efValue,
+  unit: r.unit,
+  dataSource: r.dataSource,
+});
+
 const CategorizedEmissionFactorsTable: React.FC<
   CategorizedEmissionFactorsTableProps
 > = ({
   title,
   description = "Categorized EF database",
-  initialRows,
+  entity,
   regions = DEFAULT_REGIONS,
   defaultScope = SCOPE_DEFAULT,
   defaultUnit = UNIT_DEFAULT,
   defaultCategory = CATEGORY_DEFAULT,
-  efGroup,
 }) => {
   const navigate = useNavigate();
   const { message, modal } = App.useApp();
@@ -173,48 +206,56 @@ const CategorizedEmissionFactorsTable: React.FC<
   const emptyRow = () =>
     buildEmptyRow(defaultScope, defaultUnit, defaultCategory, defaultRegion);
 
-  const [rows, setRows] = useState<EmissionFactorRow[]>(initialRows ?? []);
-  const [loading, setLoading] = useState<boolean>(!!efGroup);
-  const [saving, setSaving] = useState<boolean>(false);
-
-  const refresh = useCallback(async () => {
-    if (!efGroup) return;
-    try {
-      const data = await listCategorizedEfRows(efGroup);
-      setRows(data);
-    } catch (err: any) {
-      message.error(err?.message || "Failed to load emission factors");
-    } finally {
-      setLoading(false);
-    }
-  }, [efGroup, message]);
-
-  useEffect(() => {
-    if (!efGroup) return;
-    setLoading(true);
-    refresh();
-  }, [efGroup, refresh]);
+  const [rows, setRows] = useState<EmissionFactorRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItem, setNewItem] = useState<EmissionFactorRow>(emptyRow());
+  const [adding, setAdding] = useState(false);
 
   const [editingRow, setEditingRow] = useState<EmissionFactorRow | null>(null);
   const [editItem, setEditItem] = useState<EmissionFactorRow>(emptyRow());
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Load list when entity changes
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    listLayeredEF(entity)
+      .then((apiRows) => {
+        if (cancelled) return;
+        setRows(apiRows.map((r) => fromService(r, defaultCategory)));
+      })
+      .catch(() => {
+        if (!cancelled) message.error("Failed to load emission factors");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [entity, defaultCategory, message]);
 
   const filteredRows = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (!q) return rows;
-    return rows.filter(
-      (row) =>
-        row.id.toLowerCase().includes(q) ||
-        row.layer2.toLowerCase().includes(q) ||
-        row.layer1.toLowerCase().includes(q) ||
-        row.layer3.toLowerCase().includes(q) ||
-        row.layer4.toLowerCase().includes(q) ||
-        row.region.toLowerCase().includes(q)
-    );
+    // Full-word match (case-insensitive) per token. "bus" matches "Bus"
+    // but NOT "Business" or "Combustion". Punctuation in the query (parens,
+    // commas, slashes) is treated as a separator so multi-word phrases work.
+    const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const cleaned = q.replace(/[^A-Za-z0-9_\s]+/g, " ");
+    const tokens = cleaned.split(/\s+/).filter(Boolean).map(escape);
+    if (tokens.length === 0) return rows;
+    const regexes = tokens.map((t) => new RegExp(`\\b${t}\\b`, "i"));
+    const fields = (row: EmissionFactorRow) =>
+      [row.id, row.layer1, row.layer2, row.layer3, row.layer4, row.region];
+    return rows.filter((row) => {
+      const cols = fields(row);
+      return regexes.every((re) => cols.some((c) => re.test(c)));
+    });
   }, [rows, search]);
 
   const handleExport = () => {
@@ -294,9 +335,10 @@ const CategorizedEmissionFactorsTable: React.FC<
       );
       const iCat = idx("category");
 
-      if (iL2 < 0 || iRegion < 0 || iEf < 0) {
+      // Layer4, Region, and EF Value are mandatory in the new schema
+      if (iL4 < 0 || iRegion < 0 || iEf < 0) {
         message.error(
-          "CSV must contain at least Layer2, Region, and EF Value columns"
+          "CSV must contain at least Layer4, Region, and EF Value columns"
         );
         return;
       }
@@ -326,12 +368,13 @@ const CategorizedEmissionFactorsTable: React.FC<
           id,
           scope: iScope >= 0 ? cells[iScope] || defaultScope : defaultScope,
           layer1: iL1 >= 0 ? cells[iL1] || "" : "",
-          layer2: cells[iL2] || "",
+          layer2: iL2 >= 0 ? cells[iL2] || "" : "",
           layer3: iL3 >= 0 ? cells[iL3] || "" : "",
-          layer4: iL4 >= 0 ? cells[iL4] || "" : "",
+          layer4: cells[iL4] || "",
           region,
           year:
-            iYear >= 0 ? parseInt(cells[iYear], 10) || new Date().getFullYear()
+            iYear >= 0
+              ? parseInt(cells[iYear], 10) || new Date().getFullYear()
               : new Date().getFullYear(),
           efValue: parseFloat(cells[iEf]) || 0,
           unit: iUnit >= 0 ? cells[iUnit] || defaultUnit : defaultUnit,
@@ -347,25 +390,21 @@ const CategorizedEmissionFactorsTable: React.FC<
         return;
       }
 
-      if (efGroup) {
-        setSaving(true);
-        try {
-          await bulkAddCategorizedEfRows(efGroup, imported);
-          await refresh();
-          message.success(
-            `Imported ${imported.length} row${imported.length === 1 ? "" : "s"}`
-          );
-        } catch (err: any) {
-          message.error(err?.message || "Import failed");
-        } finally {
-          setSaving(false);
-        }
-      } else {
-        setRows((prev) => [...prev, ...imported]);
-        message.success(
-          `Imported ${imported.length} row${imported.length === 1 ? "" : "s"}`
-        );
+      const hide = message.loading(`Importing ${imported.length} rows…`, 0);
+      const res = await bulkAddLayeredEF(entity, imported.map(toService));
+      hide();
+      if (!res.success) {
+        message.error(res.message || "Bulk import failed");
+        return;
       }
+      // Reload from server to get authoritative dbIds
+      const fresh = await listLayeredEF(entity);
+      setRows(fresh.map((r) => fromService(r, defaultCategory)));
+      message.success(
+        `Imported ${res.addedCount ?? imported.length} row${
+          (res.addedCount ?? imported.length) === 1 ? "" : "s"
+        }`
+      );
     };
     input.click();
   };
@@ -376,33 +415,35 @@ const CategorizedEmissionFactorsTable: React.FC<
   };
 
   const handleAdd = async () => {
-    if (!newItem.layer2.trim()) {
-      message.warning("Please enter Layer2");
+    if (!newItem.id.trim()) {
+      message.warning("Please enter an ID");
       return;
     }
-    const id =
-      newItem.id && !rows.some((r) => r.id === newItem.id)
-        ? newItem.id
-        : nextId(rows);
-    const payload: EmissionFactorRow = { ...newItem, id };
-
-    if (efGroup) {
-      setSaving(true);
-      try {
-        await addCategorizedEfRow(efGroup, payload);
-        await refresh();
-        message.success("Row added");
-        setShowAddModal(false);
-      } catch (err: any) {
-        message.error(err?.message || "Failed to add row");
-      } finally {
-        setSaving(false);
-      }
-    } else {
-      setRows((prev) => [...prev, payload]);
-      setShowAddModal(false);
-      message.success("Row added");
+    if (!newItem.layer4.trim()) {
+      message.warning("Please enter Layer4");
+      return;
     }
+    if (!newItem.region.trim()) {
+      message.warning("Please select a Region");
+      return;
+    }
+    if (rows.some((r) => r.id === newItem.id)) {
+      message.warning(`ID ${newItem.id} already exists`);
+      return;
+    }
+    setAdding(true);
+    const res = await addLayeredEF(entity, toService(newItem));
+    setAdding(false);
+    if (!res.success) {
+      message.error(res.message || "Failed to add row");
+      return;
+    }
+    const saved = res.row
+      ? fromService(res.row, defaultCategory)
+      : { ...newItem };
+    setRows((prev) => [...prev, saved]);
+    setShowAddModal(false);
+    message.success("Row added");
   };
 
   const openEditModal = (row: EmissionFactorRow) => {
@@ -412,50 +453,55 @@ const CategorizedEmissionFactorsTable: React.FC<
 
   const handleSaveEdit = async () => {
     if (!editingRow) return;
-    if (!editItem.layer2.trim()) {
-      message.warning("Please enter Layer2");
+    if (!editItem.layer4.trim()) {
+      message.warning("Please enter Layer4");
       return;
     }
-    if (efGroup) {
-      setSaving(true);
-      try {
-        await updateCategorizedEfRow(efGroup, editItem);
-        await refresh();
-        message.success("Row updated");
-        setEditingRow(null);
-      } catch (err: any) {
-        message.error(err?.message || "Failed to update row");
-      } finally {
-        setSaving(false);
-      }
-    } else {
-      setRows((prev) =>
-        prev.map((r) => (r.id === editingRow.id ? { ...editItem } : r))
-      );
-      setEditingRow(null);
-      message.success("Row updated");
+    if (!editItem.region.trim()) {
+      message.warning("Please select a Region");
+      return;
     }
+    if (!editingRow.dbId) {
+      message.error("Internal id missing; please reload the page");
+      return;
+    }
+    setSavingEdit(true);
+    const res = await updateLayeredEF(entity, {
+      ...toService(editItem),
+      dbId: editingRow.dbId,
+    });
+    setSavingEdit(false);
+    if (!res.success) {
+      message.error(res.message || "Failed to update row");
+      return;
+    }
+    setRows((prev) =>
+      prev.map((r) =>
+        r.dbId === editingRow.dbId ? { ...editItem, dbId: editingRow.dbId } : r
+      )
+    );
+    setEditingRow(null);
+    message.success("Row updated");
   };
 
   const handleDelete = (row: EmissionFactorRow) => {
     modal.confirm({
       title: "Delete this row?",
-      content: `${row.id} — ${row.layer2} (${row.region}) will be removed.`,
+      content: `${row.id} — ${row.layer4} (${row.region}) will be removed.`,
       okText: "Delete",
       okButtonProps: { danger: true },
       onOk: async () => {
-        if (efGroup) {
-          try {
-            await deleteCategorizedEfRow(efGroup, row.id);
-            await refresh();
-            message.success("Row deleted");
-          } catch (err: any) {
-            message.error(err?.message || "Failed to delete row");
-          }
-        } else {
-          setRows((prev) => prev.filter((r) => r.id !== row.id));
-          message.success("Row deleted");
+        if (!row.dbId) {
+          message.error("Internal id missing; please reload the page");
+          return;
         }
+        const res = await deleteLayeredEF(entity, row.dbId);
+        if (!res.success) {
+          message.error(res.message || "Failed to delete row");
+          return;
+        }
+        setRows((prev) => prev.filter((r) => r.dbId !== row.dbId));
+        message.success("Row deleted");
       },
     });
   };
@@ -553,7 +599,7 @@ const CategorizedEmissionFactorsTable: React.FC<
     <div className="grid grid-cols-2 gap-4 mt-4">
       <div className="col-span-2">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          ID
+          ID <span className="text-red-500">*</span>
         </label>
         <Input
           value={item.id}
@@ -608,7 +654,7 @@ const CategorizedEmissionFactorsTable: React.FC<
       </div>
       <div className="col-span-2">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Layer2 <span className="text-red-500">*</span>
+          Layer2
         </label>
         <Input
           value={item.layer2}
@@ -618,7 +664,7 @@ const CategorizedEmissionFactorsTable: React.FC<
       </div>
       <div className="col-span-2">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Layer4
+          Layer4 <span className="text-red-500">*</span>
         </label>
         <Input
           value={item.layer4}
@@ -640,7 +686,7 @@ const CategorizedEmissionFactorsTable: React.FC<
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          EF Value
+          EF Value <span className="text-red-500">*</span>
         </label>
         <InputNumber
           className="w-full"
@@ -740,35 +786,37 @@ const CategorizedEmissionFactorsTable: React.FC<
           </div>
 
           <div className="px-6 pb-6">
-            <Table<EmissionFactorRow>
-              rowKey="id"
-              columns={columns}
-              dataSource={filteredRows}
-              size="middle"
-              scroll={{ x: 1700 }}
-              pagination={false}
-              loading={loading || saving}
-              locale={{
-                emptyText: (
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={
-                      <div className="py-4">
-                        <div className="text-gray-700 font-medium mb-1">
-                          No emission factors yet
+            <Spin spinning={loading}>
+              <Table<EmissionFactorRow>
+                rowKey={(record) => record.dbId || record.id}
+                columns={columns}
+                dataSource={filteredRows}
+                size="middle"
+                scroll={{ x: 1700 }}
+                pagination={false}
+                locale={{
+                  emptyText: (
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description={
+                        <div className="py-4">
+                          <div className="text-gray-700 font-medium mb-1">
+                            No emission factors yet
+                          </div>
+                          <div className="text-gray-500 text-sm">
+                            Click{" "}
+                            <span className="font-medium">Import CSV</span> to
+                            upload your data or{" "}
+                            <span className="font-medium">Add New</span> to
+                            create a row.
+                          </div>
                         </div>
-                        <div className="text-gray-500 text-sm">
-                          Click <span className="font-medium">Import CSV</span>{" "}
-                          to upload your data or{" "}
-                          <span className="font-medium">Add New</span> to create
-                          a row.
-                        </div>
-                      </div>
-                    }
-                  />
-                ),
-              }}
-            />
+                      }
+                    />
+                  ),
+                }}
+              />
+            </Spin>
           </div>
         </div>
       </div>
@@ -797,7 +845,12 @@ const CategorizedEmissionFactorsTable: React.FC<
           <Button key="cancel" onClick={() => setShowAddModal(false)}>
             Cancel
           </Button>,
-          <Button key="add" type="primary" loading={saving} onClick={handleAdd}>
+          <Button
+            key="add"
+            type="primary"
+            loading={adding}
+            onClick={handleAdd}
+          >
             Add
           </Button>,
         ]}
@@ -829,7 +882,12 @@ const CategorizedEmissionFactorsTable: React.FC<
           <Button key="cancel" onClick={() => setEditingRow(null)}>
             Cancel
           </Button>,
-          <Button key="save" type="primary" loading={saving} onClick={handleSaveEdit}>
+          <Button
+            key="save"
+            type="primary"
+            loading={savingEdit}
+            onClick={handleSaveEdit}
+          >
             Save
           </Button>,
         ]}

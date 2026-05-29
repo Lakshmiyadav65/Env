@@ -74,7 +74,7 @@ const MFAVerification: React.FC = () => {
   }, [mfaData?.manualCode, userEmail, isSetupDone]);
 
   const buildOtpAuthUri = (secret: string, email: string): string => {
-    const issuer = "Enviraan";
+    const issuer = "EnviGuide";
     // Use a simpler label format that Google Authenticator prefers
     const label = `${issuer}:${email}`;
 
@@ -350,7 +350,7 @@ const MFAVerification: React.FC = () => {
                     <p>3. Choose "Enter a setup key"</p>
                     <p>
                       4. Enter account name:{" "}
-                      <strong>Enviraan:{userEmail}</strong>
+                      <strong>EnviGuide:{userEmail}</strong>
                     </p>
                     <p>5. Enter the key above</p>
                     <p>6. Choose "Time based"</p>

@@ -403,7 +403,7 @@ Provide open text with dropdown options to select fuel types as below.
 * Others *(Open text)*
 
 **Table Format:** Material selected (default) with % material composition of total component weight.
-*Enviraan support available.*
+*Enviguide support available.*
 
 53. **Grade of Metal Used** *(Open text – DQR Required)*
 

@@ -17,9 +17,6 @@ import {
   Edit,
   Search,
   X,
-  CheckCircle,
-  Clock,
-  MinusCircle,
 } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
@@ -44,12 +41,6 @@ const AllProducts: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
   const [dateRange, setDateRange] = useState<[string | null, string | null] | null>(null);
-  const [apiStats, setApiStats] = useState<{
-    total_count?: string | number;
-    available_count?: string | number;
-    in_progress_count?: string | number;
-    not_available_count?: string | number;
-  } | null>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -135,9 +126,6 @@ const AllProducts: React.FC = () => {
         const pages = pagination.totalPages || data?.totalPages || Math.max(1, Math.ceil(total / pageSize));
         setTotalCount(total);
         setTotalPages(pages);
-        // Capture per-status stats if the backend supplies them
-        const stats = (response as any)?.stats || data?.stats || null;
-        setApiStats(stats);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -285,138 +273,25 @@ const AllProducts: React.FC = () => {
     <div className="p-6">
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
-          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-green-200/40 to-emerald-200/30 rounded-full blur-3xl" />
-          <div className="relative">
-            {/* Title Row */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20 flex-shrink-0">
-                <Package className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-                  All Products
-                </h1>
-                <p className="text-gray-500 text-sm">
-                  Manage your product catalog and PCF tracking
-                </p>
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex justify-between items-center flex-wrap gap-6">
+            {/* Left Section - Title and Description */}
+            <div className="flex-1 min-w-[300px]">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    All Products
+                  </h1>
+                  <p className="text-gray-500">
+                    Manage your product catalog and PCF tracking
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* KPI Grid: Hero Total + status tiles */}
-            {(() => {
-              // Fallback to current-page counts when backend doesn't supply per-status stats
-              const pageAvailable = products.filter(
-                (p: any) =>
-                  (p.pcf_status || "").toLowerCase() === "available" ||
-                  (p.pcf_status || "").toLowerCase() === "completed" ||
-                  (p.pcf_status || "").toLowerCase() === "approved",
-              ).length;
-              const pageInProgress = products.filter(
-                (p: any) =>
-                  (p.pcf_status || "").toLowerCase() === "in progress" ||
-                  (p.pcf_status || "").toLowerCase() === "in-progress",
-              ).length;
-              const pageNotAvailable = products.filter(
-                (p: any) =>
-                  !p.pcf_status ||
-                  (p.pcf_status || "").toLowerCase() === "not available" ||
-                  (p.pcf_status || "").toLowerCase() === "not-available",
-              ).length;
-
-              const counts = {
-                total: totalCount || products.length,
-                available: parseInt(String(apiStats?.available_count ?? pageAvailable), 10) || 0,
-                inProgress: parseInt(String(apiStats?.in_progress_count ?? pageInProgress), 10) || 0,
-                notAvailable: parseInt(String(apiStats?.not_available_count ?? pageNotAvailable), 10) || 0,
-              };
-
-              const safeTotal = Math.max(counts.total, 1);
-              const coveragePct = Math.round((counts.available / safeTotal) * 100);
-
-              const TILES = [
-                { key: "available", label: "PCF Available", value: counts.available, Icon: CheckCircle, bar: "bg-green-500", iconBg: "bg-green-50", iconText: "text-green-600", description: "Products with a published PCF report", filterValue: "available", hoverText: "group-hover:text-green-600" },
-                { key: "inProgress", label: "In Progress", value: counts.inProgress, Icon: Clock, bar: "bg-blue-500", iconBg: "bg-blue-50", iconText: "text-blue-600", description: "PCF calculation underway", filterValue: "in-progress", hoverText: "group-hover:text-blue-600" },
-                { key: "notAvailable", label: "Not Available", value: counts.notAvailable, Icon: MinusCircle, bar: "bg-slate-400", iconBg: "bg-slate-100", iconText: "text-slate-600", description: "Awaiting PCF submission", filterValue: "not-available", hoverText: "group-hover:text-slate-900" },
-              ];
-
-              return (
-                <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
-                  {/* Hero Total Card */}
-                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-5 shadow-lg shadow-slate-900/20">
-                    <div className="pointer-events-none absolute -top-8 -right-8 w-32 h-32 bg-green-500/20 rounded-full blur-2xl" />
-                    <div className="relative">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-semibold">
-                          Total Products
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
-                          <Package className="w-4 h-4 text-green-400" />
-                        </div>
-                      </div>
-                      <div className="text-5xl font-bold tracking-tight mb-4">{counts.total}</div>
-                      <div>
-                        <div className="flex items-center justify-between text-[11px] mb-1.5">
-                          <span className="text-slate-400 font-medium">PCF Coverage</span>
-                          <span className="text-green-400 font-bold">{coveragePct}%</span>
-                        </div>
-                        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-green-400 to-emerald-300 rounded-full transition-all duration-500"
-                            style={{ width: `${coveragePct}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Status Tiles Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {TILES.map((s) => {
-                      const pct = Math.round((s.value / safeTotal) * 100);
-                      return (
-                        <button
-                          key={s.key}
-                          type="button"
-                          onClick={() => setStatusFilter(s.filterValue)}
-                          className="group text-left w-full bg-white border border-gray-200 hover:border-gray-300 rounded-xl p-3.5 transition-all hover:shadow-md flex flex-col"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className={`w-7 h-7 rounded-lg ${s.iconBg} flex items-center justify-center flex-shrink-0`}>
-                                <s.Icon className={`w-3.5 h-3.5 ${s.iconText}`} />
-                              </div>
-                              <span className="text-xs font-medium text-gray-600 truncate">
-                                {s.label}
-                              </span>
-                            </div>
-                            <span className="text-[10px] font-semibold text-gray-400 tabular-nums">
-                              {pct}%
-                            </span>
-                          </div>
-                          <div className="text-2xl font-bold text-gray-900 tabular-nums leading-none">
-                            {s.value}
-                          </div>
-                          <div className="mt-2.5 h-1 bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${s.bar} rounded-full transition-all duration-500`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <p className="mt-3 text-[11px] text-gray-500 leading-snug">
-                            {s.description}
-                          </p>
-                          <div className="mt-auto pt-3 flex items-center justify-between text-[11px] font-semibold text-gray-400 group-hover:text-gray-700 transition-colors">
-                            <span>View products</span>
-                            <span className={`transition-all group-hover:translate-x-0.5 ${s.hoverText}`}>→</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
           </div>
         </div>
 

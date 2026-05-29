@@ -1313,15 +1313,29 @@ const DynamicQuestionnaireForm: React.FC<DynamicQuestionnaireFormProps> = ({
                                 (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
                               }
                               onChange={() => {
-                                // Clear all deeper layers in this row so stale
-                                // selections don't survive a parent change.
-                                for (let i = col.efLayer!; i < layerKeys.length; i++) {
-                                  form.setFieldValue(
-                                    [...fieldPath, fieldRecord.name, layerKeys[i]],
-                                    undefined
-                                  );
-                                }
-                                setDistanceTick((t) => t + 1);
+                                // Cascade rule: changing a layer invalidates every
+                                // deeper layer in this row. We replace the WHOLE
+                                // Form.List array (not just the touched fields)
+                                // because Ant Design's setFieldValue / setFields
+                                // doesn't always propagate cleared values to nested
+                                // Form.Item children inside Form.List. Defer with
+                                // setTimeout(0) so the Select's own value commits
+                                // first, then we wipe deeper layers in the next tick.
+                                setTimeout(() => {
+                                  const idx = fieldRecord.name as number;
+                                  const items: any[] = form.getFieldValue(fieldPath) || [];
+                                  if (!items[idx]) return;
+                                  const updatedItem = { ...items[idx] };
+                                  for (let i = col.efLayer!; i < layerKeys.length; i++) {
+                                    updatedItem[layerKeys[i]] = undefined;
+                                  }
+                                  // ef_code becomes stale when any layer changes.
+                                  updatedItem.ef_code = undefined;
+                                  const newItems = [...items];
+                                  newItems[idx] = updatedItem;
+                                  form.setFieldValue(fieldPath, newItems);
+                                  setDistanceTick((t) => t + 1);
+                                }, 0);
                               }}
                             >
                               {options.map((v) => (
