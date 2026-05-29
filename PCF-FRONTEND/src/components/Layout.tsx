@@ -2,7 +2,6 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import KnowledgeBasePanel from "./KnowledgeBasePanel";
 import { Menu, X } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -10,7 +9,6 @@ const Layout: React.FC = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarMinimized, setSidebarMinimized] = useState(false);
-  const [knowledgeBaseOpen, setKnowledgeBaseOpen] = useState(false);
 
   // Reset main scroll on route change so each page starts at the top.
   // Exception: when returning to /settings with a saved scroll position,
@@ -79,7 +77,6 @@ const Layout: React.FC = () => {
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
         onMinimizedChange={handleSidebarMinimized}
-        onOpenKnowledgeBase={() => setKnowledgeBaseOpen(true)}
       />
 
       <div
@@ -115,11 +112,6 @@ const Layout: React.FC = () => {
           <Outlet />
         </main>
       </div>
-
-      <KnowledgeBasePanel
-        open={knowledgeBaseOpen}
-        onClose={() => setKnowledgeBaseOpen(false)}
-      />
     </div>
   );
 };
