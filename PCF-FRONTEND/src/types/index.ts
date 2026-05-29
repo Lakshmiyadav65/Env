@@ -16,6 +16,8 @@ export interface MenuItem {
   children?: MenuItem[];
   // Permission key for access control - maps to module name in permissions API
   permissionKey?: string;
+  // When true, `path` is an absolute URL opened in a new browser tab instead of an in-app route
+  external?: boolean;
 }
 
 // Backend user structure

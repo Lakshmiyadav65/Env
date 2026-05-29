@@ -33,6 +33,7 @@ import {
   ChevronLeft,
   ClipboardList,
   Star,
+  BookOpen,
 } from "lucide-react";
 import { menuItems } from "../config/menu";
 import { cn } from "../lib/utils";
@@ -53,6 +54,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   BarChart3,
   ClipboardList,
   Star,
+  BookOpen,
   Settings,
   User,
   Users,
@@ -170,44 +172,44 @@ const Sidebar: React.FC<SidebarProps> = ({
     const IconComponent = iconMap[item.icon] || FileText;
 
     if (isMinimized) {
+      const minimizedClasses = cn(
+        "sidebar-menu-item flex items-center justify-center w-11 h-11 mx-auto mb-1.5 rounded-xl transition-all duration-200 group relative",
+        isActive ? "active text-white shadow-lg" : "text-slate-300"
+      );
+      const minimizedTooltip = (
+        <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-xl">
+          {item.title}
+          <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
+        </div>
+      );
+
       // Minimized view - only show icons
       return (
         <div key={item.id} className="relative">
-          {hasChildren ? (
+          {item.external ? (
+            <a
+              href={item.path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={minimizedClasses}
+              title={item.title}
+            >
+              <IconComponent className="h-5 w-5" />
+              {minimizedTooltip}
+            </a>
+          ) : hasChildren ? (
             <button
               onClick={() => toggleExpanded(item.id)}
-              className={cn(
-                "sidebar-menu-item flex items-center justify-center w-11 h-11 mx-auto mb-1.5 rounded-xl transition-all duration-200 group relative",
-                isActive
-                  ? "active text-white shadow-lg"
-                  : "text-slate-300"
-              )}
+              className={minimizedClasses}
               title={item.title}
             >
               <IconComponent className="h-5 w-5" />
-              {/* Tooltip for minimized state */}
-              <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-xl">
-                {item.title}
-                <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
-              </div>
+              {minimizedTooltip}
             </button>
           ) : (
-            <NavLink
-              to={item.path}
-              className={cn(
-                "sidebar-menu-item flex items-center justify-center w-11 h-11 mx-auto mb-1.5 rounded-xl transition-all duration-200 group relative",
-                isActive
-                  ? "active text-white shadow-lg"
-                  : "text-slate-300"
-              )}
-              title={item.title}
-            >
+            <NavLink to={item.path} className={minimizedClasses} title={item.title}>
               <IconComponent className="h-5 w-5" />
-              {/* Tooltip for minimized state */}
-              <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-xl">
-                {item.title}
-                <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
-              </div>
+              {minimizedTooltip}
             </NavLink>
           )}
         </div>
@@ -218,7 +220,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     return (
       <div key={item.id}>
         <div className="flex items-center">
-          {hasChildren ? (
+          {item.external ? (
+            <a
+              href={item.path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "sidebar-menu-item flex items-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-200 group"
+              )}
+            >
+              <IconComponent className="h-5 w-5 mr-3 text-slate-400 group-hover:text-white transition-colors duration-200" />
+              <span className="flex-1 text-left">{item.title}</span>
+            </a>
+          ) : hasChildren ? (
             <button
               onClick={() => toggleExpanded(item.id)}
               className={cn(
