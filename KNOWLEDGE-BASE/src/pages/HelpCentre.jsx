@@ -195,16 +195,6 @@ export default function HelpCentre() {
     return (
         <div className={styles.page}>
 
-            {/* ── Minimal Top Bar ── */}
-            <div className={styles.topBar}>
-                <button className={styles.backBtn} onClick={() => navigate('/')}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                        <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    Back to Dashboard
-                </button>
-            </div>
-
             {/* ── Hero ── */}
             <section className={styles.hero}>
                 <h1 className={styles.heroTitle}>

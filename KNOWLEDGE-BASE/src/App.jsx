@@ -1,6 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop'
-import Dashboard from './pages/Dashboard'
 import Support from './pages/Support'
 import HelpCentre from './pages/HelpCentre'
 import SupplierQuestionnaire from './pages/SupplierQuestionnaire'
@@ -33,7 +32,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Navigate to="/help-centre" replace />} />
         <Route path="/support" element={<Support />} />
         <Route path="/help-centre" element={<HelpCentre />} />
         <Route path="/supplier-questionnaire" element={<SupplierQuestionnaire />} />

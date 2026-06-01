@@ -75,11 +75,11 @@ export default function Support() {
 
             {/* Slim Top Bar */}
             <div className={styles.topBar}>
-                <button className={styles.backBtn} onClick={() => navigate('/')}>
+                <button className={styles.backBtn} onClick={() => navigate('/help-centre')}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    Back to Dashboard
+                    Back to Help Centre
                 </button>
                 <div className={styles.topBarBrand}>
                     <div className={styles.brandIcon}>
@@ -288,11 +288,11 @@ export default function Support() {
                                 <p className={styles.successDesc}>
                                     Thank you for reaching out. Our team will get back to you within 24 hours.
                                 </p>
-                                <button className={styles.successBackBtn} onClick={() => navigate('/')}>
+                                <button className={styles.successBackBtn} onClick={() => navigate('/help-centre')}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                         <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                    Back to Dashboard
+                                    Back to Help Centre
                                 </button>
                             </div>
                         )}
