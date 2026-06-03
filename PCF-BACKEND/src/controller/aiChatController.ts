@@ -1,13 +1,18 @@
 import Anthropic from "@anthropic-ai/sdk";
+import axios from "axios";
 import { generateResponse } from "../util/genRes.js";
 
 /**
  * EnviGuide Help Centre AI assistant.
  *
- * Proxies chat messages to the Claude API so the Anthropic API key never
- * reaches the browser. If ANTHROPIC_API_KEY is not configured, the endpoint
- * gracefully falls back to lightweight canned replies so the widget keeps
- * working at zero cost until a key is added.
+ * Provider-agnostic chat proxy. It auto-selects whichever provider key is
+ * configured, in priority order:
+ *   1. Google Gemini  (GEMINI_API_KEY)  — free tier via Google AI Studio
+ *   2. Groq           (GROQ_API_KEY)    — free tier, very fast (Llama)
+ *   3. Anthropic Claude (ANTHROPIC_API_KEY)
+ *   4. Canned fallback (no key needed)  — keeps the widget working at zero cost
+ *
+ * All API keys stay server-side; the browser only ever sees the reply text.
  */
 
 const SYSTEM_PROMPT = `You are "EnviGuide AI", the in-app assistant for EnviGuide — an environmental management platform for Product Carbon Footprints (PCF), supplier sustainability questionnaires, and data-quality ratings.
@@ -27,14 +32,12 @@ Boundaries:
 - Only advise on EnviGuide and general ESG/PCF topics. Politely decline unrelated requests.
 - Never invent specific figures, emission factors, customer data, or features you're unsure exist. If you don't know, say so and suggest the manuals or Support.`;
 
-let cachedClient: Anthropic | null = null;
+// Default models per provider (override via env if you like).
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-haiku-4-5";
 
-function getClient(): Anthropic | null {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey || !apiKey.trim()) return null;
-    if (!cachedClient) cachedClient = new Anthropic({ apiKey });
-    return cachedClient;
-}
+const MAX_TOKENS = 1024;
 
 type ChatRole = "user" | "assistant";
 interface ChatMessage {
@@ -42,7 +45,7 @@ interface ChatMessage {
     content: string;
 }
 
-/** Normalise the loosely-typed body the frontend sends into Anthropic message params. */
+/** Normalise the loosely-typed body the frontend sends. */
 function normaliseMessages(raw: unknown): ChatMessage[] {
     if (!Array.isArray(raw)) return [];
     const mapped: ChatMessage[] = raw
@@ -53,13 +56,67 @@ function normaliseMessages(raw: unknown): ChatMessage[] {
         })
         .filter((m) => m.content.length > 0);
 
-    // The Messages API requires the first turn to be from the user — drop the
-    // leading AI greeting (and any other leading assistant turns).
+    // Conversation must start with a user turn — drop the leading AI greeting.
     while (mapped.length && mapped[0].role !== "user") mapped.shift();
     return mapped;
 }
 
-/** Canned reply used when no API key is configured (mirrors the frontend fallback). */
+// ── Google Gemini (free tier) ────────────────────────────────────────────────
+async function callGemini(messages: ChatMessage[]): Promise<string> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+    const body = {
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: messages.map((m) => ({
+            role: m.role === "user" ? "user" : "model",
+            parts: [{ text: m.content }],
+        })),
+        generationConfig: { maxOutputTokens: MAX_TOKENS, temperature: 0.7 },
+    };
+    const { data } = await axios.post<any>(url, body, {
+        headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY as string },
+        timeout: 30000,
+    });
+    const parts = data?.candidates?.[0]?.content?.parts ?? [];
+    return parts.map((p: any) => p?.text ?? "").join("").trim();
+}
+
+// ── Groq (free tier, OpenAI-compatible) ───────────────────────────────────────
+async function callGroq(messages: ChatMessage[]): Promise<string> {
+    const { data } = await axios.post<any>(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+            model: GROQ_MODEL,
+            max_tokens: MAX_TOKENS,
+            temperature: 0.7,
+            messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+        },
+        {
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+            timeout: 30000,
+        }
+    );
+    return (data?.choices?.[0]?.message?.content ?? "").trim();
+}
+
+// ── Anthropic Claude ──────────────────────────────────────────────────────────
+let claudeClient: Anthropic | null = null;
+async function callClaude(messages: ChatMessage[]): Promise<string> {
+    if (!claudeClient) claudeClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY as string });
+    const response = await claudeClient.messages.create({
+        model: CLAUDE_MODEL,
+        max_tokens: MAX_TOKENS,
+        // Cacheable system prefix (activates once it exceeds the model minimum).
+        system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+        messages,
+    });
+    return response.content
+        .filter((b): b is Anthropic.TextBlock => b.type === "text")
+        .map((b) => b.text)
+        .join("")
+        .trim();
+}
+
+/** Canned reply used when no provider key is configured (mirrors the frontend fallback). */
 function fallbackReply(text: string): string {
     const t = text.toLowerCase();
     if (/\b(hi|hello|hey|hii|yo)\b/.test(t)) {
@@ -83,42 +140,34 @@ function fallbackReply(text: string): string {
     return "Got it! I can point you to the right place — pick a context below, or I can take you to our Support team for a detailed answer.";
 }
 
+/** Pick the first configured provider, in free-first priority order. */
+function pickProvider(): { name: string; run: (m: ChatMessage[]) => Promise<string> } | null {
+    if (process.env.GEMINI_API_KEY?.trim()) return { name: "gemini", run: callGemini };
+    if (process.env.GROQ_API_KEY?.trim()) return { name: "groq", run: callGroq };
+    if (process.env.ANTHROPIC_API_KEY?.trim()) return { name: "claude", run: callClaude };
+    return null;
+}
+
 export async function aiChat(req: any, res: any) {
-    try {
-        const messages = normaliseMessages(req.body?.messages);
-        if (!messages.length) {
-            return res.send(generateResponse(false, "No message provided", 400, null));
-        }
+    const messages = normaliseMessages(req.body?.messages);
+    if (!messages.length) {
+        return res.send(generateResponse(false, "No message provided", 400, null));
+    }
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
 
-        const client = getClient();
-
+    const provider = pickProvider();
+    if (!provider) {
         // No key configured → free canned fallback so the widget still responds.
-        if (!client) {
-            const lastUser = [...messages].reverse().find((m) => m.role === "user");
-            return res.send(
-                generateResponse(true, "ok", 200, { reply: fallbackReply(lastUser?.content ?? ""), source: "fallback" })
-            );
-        }
+        return res.send(generateResponse(true, "ok", 200, { reply: fallbackReply(lastUser?.content ?? ""), source: "fallback" }));
+    }
 
-        const response = await client.messages.create({
-            model: "claude-haiku-4-5",
-            max_tokens: 1024,
-            // cache_control marks the (stable) system prompt as cacheable. Caching
-            // only activates once the prefix exceeds the model minimum, so it costs
-            // nothing now and pays off automatically as the prompt grows.
-            system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-            messages,
-        });
-
-        const reply = response.content
-            .filter((b): b is Anthropic.TextBlock => b.type === "text")
-            .map((b) => b.text)
-            .join("")
-            .trim();
-
-        return res.send(generateResponse(true, "ok", 200, { reply, source: "claude" }));
+    try {
+        const reply = await provider.run(messages);
+        const finalReply = reply && reply.trim() ? reply : fallbackReply(lastUser?.content ?? "");
+        return res.send(generateResponse(true, "ok", 200, { reply: finalReply, source: provider.name }));
     } catch (err: any) {
-        console.error("aiChat error:", err?.message || err);
-        return res.send(generateResponse(false, "AI chat is temporarily unavailable", 500, null));
+        console.error(`aiChat (${provider.name}) error:`, err?.response?.data || err?.message || err);
+        // Provider failed → don't break the UX; serve the local fallback.
+        return res.send(generateResponse(true, "ok", 200, { reply: fallbackReply(lastUser?.content ?? ""), source: "fallback" }));
     }
 }
