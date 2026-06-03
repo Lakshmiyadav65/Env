@@ -2,15 +2,12 @@
   "name": "enviraan",
   "private": true,
   "version": "1.0.0",
-  "description": "Enviraan workspace - runs the main app (PCF-FRONTEND) and the Knowledge Base together",
+  "description": "Enviraan workspace - the PCF Supplier Intelligence Suite (includes the merged Knowledge Base)",
   "scripts": {
-    "dev": "concurrently -n app,kb -c green,cyan \"npm --prefix PCF-FRONTEND run dev\" \"npm --prefix KNOWLEDGE-BASE run dev\"",
-    "dev:all": "concurrently -n app,kb -c green,cyan \"npm --prefix PCF-FRONTEND run dev\" \"npm --prefix KNOWLEDGE-BASE run dev\"",
-    "dev:app": "npm --prefix PCF-FRONTEND run dev",
-    "dev:kb": "npm --prefix KNOWLEDGE-BASE run dev",
-    "install:all": "npm install && npm --prefix PCF-FRONTEND install && npm --prefix KNOWLEDGE-BASE install"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.0"
+    "dev": "npm --prefix PCF-FRONTEND run dev",
+    "build": "npm --prefix PCF-FRONTEND run build",
+    "lint": "npm --prefix PCF-FRONTEND run lint",
+    "preview": "npm --prefix PCF-FRONTEND run preview",
+    "install:all": "npm install && npm --prefix PCF-FRONTEND install"
   }
 }

@@ -10,6 +10,7 @@ import {
   masterDataSetupGroups,
   ecoInventSetupGroups,
 } from "../config/dataSetupGroups";
+import { knowledgeBaseRoute } from "../knowledge-base/routes";
 
 // Lazy-loaded page components for code splitting
 const DashboardRouter = lazy(() => import("../pages/DashboardRouter"));
@@ -159,6 +160,8 @@ export const router = createBrowserRouter([
     path: "/",
     element: <Navigate to="/dashboard" replace />,
   },
+  // Knowledge Base (merged from the former standalone app) — public routes
+  knowledgeBaseRoute,
   {
     path: "/login",
     element: <S><Login /></S>,

@@ -53,7 +53,7 @@ export default function SupplierManuals() {
                     </div>
 
                     {/* Card 2: Guidance */}
-                    <div className={styles.card} onClick={() => navigate('/supplier-questionnaire')}>
+                    <div className={styles.card} onClick={() => navigate('/supplier-questionnaire-guide')}>
                         <div className={styles.iconBox} style={{ background: '#ecfdf5', color: '#22c55e' }}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />

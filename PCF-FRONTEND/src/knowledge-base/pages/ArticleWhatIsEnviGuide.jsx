@@ -357,7 +357,7 @@ export default function ArticleWhatIsEnviguide() {
                                     tag: 'POPULAR',
                                     title: 'How to Fill Out a Supplier Questionnaire',
                                     desc: 'Detailed guidance for every section and question in the Supplier form.',
-                                    path: '/supplier-questionnaire',
+                                    path: '/supplier-questionnaire-guide',
                                     color: '#3b82f6',
                                 },
                                 {

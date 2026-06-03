@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import {
   ChevronDown,
   ChevronRight,
@@ -40,7 +40,6 @@ import { menuItems } from "../config/menu";
 import { cn } from "../lib/utils";
 import type { MenuItem } from "../types";
 import { usePermissions } from "../contexts/PermissionContext";
-import { getKnowledgeBaseUrl } from "../lib/knowledgeBaseUrl";
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -85,7 +84,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggle,
   onMinimizedChange,
 }) => {
-  const knowledgeBaseUrl = getKnowledgeBaseUrl();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = useState(false);
   const location = useLocation();
@@ -376,19 +374,17 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* Knowledge Base Card - flows directly below the menu (incl. Settings) */}
               {isMinimized ? (
                 <div className="pt-2">
-                  <a
-                    href={knowledgeBaseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to="/help-centre"
                     title="Knowledge Base"
-                    aria-label="Open Knowledge Base in a new tab"
+                    aria-label="Open the Knowledge Base"
                     className="group relative flex items-center justify-center w-11 h-11 mx-auto rounded-xl bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-all duration-200"
                   >
                     <BookOpen className="h-5 w-5" />
                     <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-xl">
                       Knowledge Base
                     </div>
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <div className="pt-3">
@@ -405,15 +401,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                       Unlock the full potential of Enviraan with our expert-led
                       documentation.
                     </p>
-                    <a
-                      href={knowledgeBaseUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      to="/help-centre"
                       className="group inline-flex items-center gap-1.5 text-sm font-semibold text-green-400 hover:text-green-300 transition-colors duration-200"
                     >
                       Browse Guides
                       <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}
