@@ -319,16 +319,16 @@
 }
 
 .humanAvatar {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     animation: avatarBob 3s ease-in-out infinite;
     transform-origin: bottom center;
 }
 
 @keyframes avatarBob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px); }
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-2px) rotate(-1.5deg); }
 }
 
 /* Waving arm — pivots from the shoulder */
@@ -339,10 +339,37 @@
 }
 
 @keyframes waveArm {
-    0%, 60%, 100% { transform: rotate(0deg); }
-    70% { transform: rotate(-16deg); }
-    80% { transform: rotate(8deg); }
-    90% { transform: rotate(-12deg); }
+    0%, 55%, 100% { transform: rotate(0deg); }
+    65% { transform: rotate(-18deg); }
+    75% { transform: rotate(10deg); }
+    85% { transform: rotate(-14deg); }
+    95% { transform: rotate(4deg); }
+}
+
+/* Blinking eyes */
+.avatarEyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: blink 4.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    96% { transform: scaleY(0.1); }
+}
+
+/* "Online" dot on the launcher */
+.launcherStatus {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2.5px solid #fff;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+    animation: ping 2s infinite;
 }
 
 /* Greeting speech bubble */

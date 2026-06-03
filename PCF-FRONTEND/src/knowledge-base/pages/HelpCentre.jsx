@@ -410,40 +410,64 @@ export default function HelpCentre() {
                         ) : (
                             /* Friendly waving support character */
                             <svg className={styles.humanAvatar} viewBox="0 0 64 64" fill="none" aria-hidden="true">
-                                {/* shoulders / torso */}
-                                <path d="M12 62c0-11 9-18 20-18s20 7 20 18Z" fill="#0f766e" />
-                                <path d="M12 62c0-11 9-18 20-18s20 7 20 18Z" fill="url(#torsoGrad)" />
-                                {/* neck */}
-                                <rect x="28" y="36" width="8" height="9" rx="3" fill="#f1c9a5" />
-                                {/* head */}
-                                <circle cx="32" cy="26" r="13" fill="#f8d5b0" />
-                                {/* hair */}
-                                <path d="M19 25c0-8 6-14 13-14s13 6 13 14c0-3-3-5-6-5-2-3-12-4-15 1-3 0-5 2-5 4Z" fill="#3f3f46" />
-                                {/* headset band */}
-                                <path d="M20 26a12 12 0 0 1 24 0" stroke="#10b981" strokeWidth="2.4" strokeLinecap="round" />
-                                <rect x="17.5" y="24" width="5" height="8" rx="2.5" fill="#10b981" />
-                                <rect x="41.5" y="24" width="5" height="8" rx="2.5" fill="#10b981" />
-                                {/* mic */}
-                                <path d="M44 30v3c0 3-3 5-7 5" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" />
-                                <circle cx="36" cy="38" r="1.6" fill="#10b981" />
-                                {/* eyes */}
-                                <circle cx="27" cy="25" r="1.7" fill="#1f2937" />
-                                <circle cx="37" cy="25" r="1.7" fill="#1f2937" />
-                                {/* smile */}
-                                <path d="M27 30c2 2.6 8 2.6 10 0" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
-                                {/* waving arm */}
-                                <g className={styles.wavingArm}>
-                                    <path d="M50 44c4-2 7-7 8-12" stroke="#f8d5b0" strokeWidth="6" strokeLinecap="round" />
-                                    <circle cx="58" cy="31" r="4.5" fill="#f8d5b0" />
-                                </g>
                                 <defs>
-                                    <linearGradient id="torsoGrad" x1="12" y1="44" x2="52" y2="62" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="torsoGrad" x1="14" y1="44" x2="50" y2="64" gradientUnits="userSpaceOnUse">
                                         <stop stopColor="#34d399" />
                                         <stop offset="1" stopColor="#059669" />
                                     </linearGradient>
+                                    <linearGradient id="skinGrad" x1="22" y1="16" x2="42" y2="40" gradientUnits="userSpaceOnUse">
+                                        <stop stopColor="#ffe0c2" />
+                                        <stop offset="1" stopColor="#f6c89a" />
+                                    </linearGradient>
+                                    <clipPath id="faceClip"><circle cx="32" cy="26" r="12.5" /></clipPath>
                                 </defs>
+
+                                {/* shoulders / torso */}
+                                <path d="M13 63c0-11 8.5-17 19-17s19 6 19 17Z" fill="url(#torsoGrad)" />
+                                {/* collar */}
+                                <path d="M26 47c2 3 10 3 12 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" opacity="0.85" />
+                                {/* neck */}
+                                <rect x="28.5" y="35" width="7" height="9" rx="3.5" fill="#f6c89a" />
+
+                                {/* head */}
+                                <circle cx="32" cy="26" r="12.5" fill="url(#skinGrad)" />
+                                {/* ears */}
+                                <circle cx="19.8" cy="27" r="2.4" fill="#f6c89a" />
+                                <circle cx="44.2" cy="27" r="2.4" fill="#f6c89a" />
+                                {/* hair */}
+                                <path d="M19.5 24c0-8 5.5-13.5 12.5-13.5S44.5 16 44.5 24c-1.2-2-3.5-3-6-3-2.4-2.6-11-3.4-14.5.6-2.2.1-4.3 1-4.5 2.4Z" fill="#374151" clipPath="url(#faceClip)" />
+                                <path d="M19.5 24c0-8 5.5-13.5 12.5-13.5S44.5 16 44.5 24c-1.2-2-3.5-3-6-3-2.4-2.6-11-3.4-14.5.6-2.2.1-4.3 1-4.5 2.4Z" fill="#374151" />
+
+                                {/* eyes (blink) */}
+                                <g className={styles.avatarEyes}>
+                                    <circle cx="27" cy="25.5" r="1.8" fill="#1f2937" />
+                                    <circle cx="37" cy="25.5" r="1.8" fill="#1f2937" />
+                                    <circle cx="27.7" cy="24.9" r="0.6" fill="#fff" />
+                                    <circle cx="37.7" cy="24.9" r="0.6" fill="#fff" />
+                                </g>
+                                {/* cheeks */}
+                                <circle cx="24.5" cy="30" r="2.2" fill="#fca5a5" opacity="0.55" />
+                                <circle cx="39.5" cy="30" r="2.2" fill="#fca5a5" opacity="0.55" />
+                                {/* smile */}
+                                <path d="M27.5 30.5c2 2.4 7 2.4 9 0" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
+
+                                {/* headset band + earcups + mic (drawn over hair) */}
+                                <path d="M20 26a12 12 0 0 1 24 0" stroke="#10b981" strokeWidth="2.6" strokeLinecap="round" />
+                                <rect x="17" y="23.5" width="5.5" height="9" rx="2.75" fill="#10b981" />
+                                <rect x="41.5" y="23.5" width="5.5" height="9" rx="2.75" fill="#10b981" />
+                                <path d="M45 30v2.5c0 3.2-3 5.5-7.5 5.5" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" />
+                                <circle cx="37" cy="38" r="1.7" fill="#10b981" />
+
+                                {/* waving hand raised beside the face */}
+                                <g className={styles.wavingArm}>
+                                    <path d="M48 50c5-1 8.5-5 10-11" stroke="url(#torsoGrad)" strokeWidth="6.5" strokeLinecap="round" />
+                                    <circle cx="58.5" cy="36" r="5" fill="#ffe0c2" />
+                                    {/* little fingers hint */}
+                                    <path d="M56 32.5l1-2M59 32l.4-2M61 33l1-1.6" stroke="#f6c89a" strokeWidth="1.6" strokeLinecap="round" />
+                                </g>
                             </svg>
                         )}
+                        {!isChatOpen && <span className={styles.launcherStatus} aria-hidden="true" />}
                     </button>
                 </div>
             </div>
