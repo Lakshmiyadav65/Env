@@ -540,10 +540,11 @@
     justify-content: center;
 }
 
-.chatAvatarImg {
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
+.chatAvatarHuman {
+    width: 38px;
+    height: 38px;
+    animation: avatarBob 3s ease-in-out infinite;
+    transform-origin: bottom center;
 }
 
 .statusDot {
@@ -667,10 +668,9 @@
     justify-content: center;
 }
 
-.msgAvatarImg {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
+.msgAvatarHuman {
+    width: 26px;
+    height: 26px;
 }
 
 .msgBubble {
