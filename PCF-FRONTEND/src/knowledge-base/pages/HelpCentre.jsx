@@ -154,7 +154,6 @@ export default function HelpCentre() {
     const [search, setSearch] = useState('')
     const [searchResults, setSearchResults] = useState([])
     const [showResults, setShowResults] = useState(false)
-    const [showRoles, setShowRoles] = useState(false)
     const [isChatOpen, setIsChatOpen] = useState(false)
 
     useEffect(() => {
@@ -164,7 +163,6 @@ export default function HelpCentre() {
             }
             if (chatRef.current && !chatRef.current.contains(event.target)) {
                 setIsChatOpen(false)
-                setShowRoles(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -302,20 +300,118 @@ export default function HelpCentre() {
             </section>
 
             {/* ── AI Floating Chat Widget ── */}
-            <div
-                ref={chatRef}
-                className={styles.chatWrapper}
-                onMouseEnter={() => setIsChatOpen(true)}
-                onMouseLeave={() => { setIsChatOpen(false); setShowRoles(false); }}
-            >
-                {!isChatOpen ? (
-                    <button
-                        type="button"
-                        className={styles.chatTrigger}
-                        title="Talk to AI ESG Guide"
-                        aria-label="Talk to AI ESG Guide"
-                        onClick={() => setIsChatOpen(true)}
-                    >
+            <div ref={chatRef} className={styles.chatWrapper}>
+                {isChatOpen && (
+                    <div className={styles.chatPanel} role="dialog" aria-label="EnviGuide AI assistant">
+                        {/* Header */}
+                        <div className={styles.chatHeader}>
+                            <div className={styles.chatAvatar}>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M12 8V4H8" />
+                                    <rect width="16" height="12" x="4" y="8" rx="2" />
+                                    <path d="M2 14h2" />
+                                    <path d="M20 14h2" />
+                                    <path d="M15 13v2" />
+                                    <path d="M9 13v2" />
+                                </svg>
+                                <span className={styles.statusDot} aria-hidden="true" />
+                            </div>
+                            <div className={styles.chatHeaderText}>
+                                <p className={styles.chatTitle}>EnviGuide AI</p>
+                                <p className={styles.chatStatus}>
+                                    <span className={styles.statusPing} aria-hidden="true" />
+                                    Online · ESG &amp; Carbon Guide
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                className={styles.chatClose}
+                                aria-label="Close chat"
+                                onClick={() => setIsChatOpen(false)}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M18 6 6 18M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Conversation */}
+                        <div className={styles.chatBody}>
+                            <div className={styles.msgRow}>
+                                <div className={styles.msgAvatar}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                        <path d="M12 8V4H8" />
+                                        <rect width="16" height="12" x="4" y="8" rx="2" />
+                                        <path d="M15 13v2" />
+                                        <path d="M9 13v2" />
+                                    </svg>
+                                </div>
+                                <div className={styles.msgBubble}>
+                                    <span className={styles.aiBadgeText}>ECO-ASSISTANT</span>
+                                    Hi there! 🌱 I'm your AI ESG Guide. Pick a context below and I'll connect you with the right help for your sustainability journey.
+                                </div>
+                            </div>
+
+                            <p className={styles.quickLabel}>Choose your context</p>
+                            <div className={styles.roleGrid}>
+                                <button className={styles.roleOption} onClick={() => navigate('/support')}>
+                                    <span className={styles.roleIcon}>🤝</span>
+                                    <div className={styles.roleInfo}>
+                                        <p className={styles.roleName}>Supplier Consultant</p>
+                                        <p className={styles.roleDesc}>Issues with questionnaires</p>
+                                    </div>
+                                    <svg className={styles.roleArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+                                </button>
+                                <button className={styles.roleOption} onClick={() => navigate('/support')}>
+                                    <span className={styles.roleIcon}>🏭</span>
+                                    <div className={styles.roleInfo}>
+                                        <p className={styles.roleName}>Manufacturer Consultant</p>
+                                        <p className={styles.roleDesc}>PCF guidance</p>
+                                    </div>
+                                    <svg className={styles.roleArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+                                </button>
+                                <button className={styles.roleOption} onClick={() => navigate('/support')}>
+                                    <span className={styles.roleIcon}>👤</span>
+                                    <div className={styles.roleInfo}>
+                                        <p className={styles.roleName}>Own Consultant</p>
+                                        <p className={styles.roleDesc}>Platform help</p>
+                                    </div>
+                                    <svg className={styles.roleArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Input bar */}
+                        <form className={styles.chatInputBar} onSubmit={(e) => { e.preventDefault(); navigate('/support'); }}>
+                            <input
+                                type="text"
+                                className={styles.chatInput}
+                                placeholder="Ask me anything…"
+                                aria-label="Message the AI ESG Guide"
+                            />
+                            <button type="submit" className={styles.chatSend} aria-label="Send message">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="m22 2-7 20-4-9-9-4Z" />
+                                    <path d="M22 2 11 13" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                <button
+                    type="button"
+                    className={`${styles.chatTrigger} ${isChatOpen ? styles.chatTriggerOpen : ''}`}
+                    title="Talk to EnviGuide AI"
+                    aria-label={isChatOpen ? 'Close AI assistant' : 'Talk to EnviGuide AI'}
+                    aria-expanded={isChatOpen}
+                    onClick={() => setIsChatOpen((o) => !o)}
+                >
+                    {isChatOpen ? (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M18 6 6 18M6 6l12 12" />
+                        </svg>
+                    ) : (
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M12 8V4H8" />
                             <rect width="16" height="12" x="4" y="8" rx="2" />
@@ -324,72 +420,8 @@ export default function HelpCentre() {
                             <path d="M15 13v2" />
                             <path d="M9 13v2" />
                         </svg>
-                    </button>
-                ) : (
-                    <div className={`${styles.floatingAiChat} ${showRoles ? styles.expanded : ''}`}>
-                        {!showRoles ? (
-                            <div className={styles.welcomeView}>
-                                <div className={styles.aiIconCircle}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M12 8V4H8" />
-                                        <rect width="16" height="12" x="4" y="8" rx="2" />
-                                        <path d="M2 14h2" />
-                                        <path d="M20 14h2" />
-                                        <path d="M15 13v2" />
-                                        <path d="M9 13v2" />
-                                    </svg>
-                                </div>
-                                <div className={styles.welcomeContent}>
-                                    <span className={styles.aiBadgeText}>ECO-ASSISTANT</span>
-                                    <h3 className={styles.aiMainText}>How can I help you today?</h3>
-                                    <p className={styles.aiSubText}>I'm your AI ESG Guide, ready to assist your sustainability journey.</p>
-                                    <button className={styles.aiStartBtn} onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowRoles(true);
-                                    }}>
-                                        Start a conversation
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className={styles.roleSelection}>
-                                <button className={styles.backToMain} onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowRoles(false);
-                                }}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M15 18l-6-6 6-6" />
-                                    </svg>
-                                </button>
-                                <span className={styles.selectLabel}>CHOOSE YOUR CONTEXT</span>
-                                <h3 className={styles.roleHeader}>How can we help?</h3>
-                                <div className={styles.roleGrid}>
-                                    <button className={styles.roleOption} onClick={() => navigate('/support')}>
-                                        <span className={styles.roleIcon}>🤝</span>
-                                        <div className={styles.roleInfo}>
-                                            <p className={styles.roleName}>Supplier Consultant</p>
-                                            <p className={styles.roleDesc}>Issues with questionnaires</p>
-                                        </div>
-                                    </button>
-                                    <button className={styles.roleOption} onClick={() => navigate('/support')}>
-                                        <span className={styles.roleIcon}>🏭</span>
-                                        <div className={styles.roleInfo}>
-                                            <p className={styles.roleName}>Manufacturer Consultant</p>
-                                            <p className={styles.roleDesc}>PCF guidance</p>
-                                        </div>
-                                    </button>
-                                    <button className={styles.roleOption} onClick={() => navigate('/support')}>
-                                        <span className={styles.roleIcon}>👤</span>
-                                        <div className={styles.roleInfo}>
-                                            <p className={styles.roleName}>Own Consultant</p>
-                                            <p className={styles.roleDesc}>Platform help</p>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
+                    )}
+                </button>
             </div>
 
             {/* ── Popular Articles + Fresh Insights ── */}
