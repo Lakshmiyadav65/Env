@@ -299,16 +299,23 @@
     position: relative;
     width: 58px;
     height: 58px;
-    background: linear-gradient(135deg, #34d399 0%, #22c55e 45%, #059669 100%);
-    border: none;
+    background: #ffffff;
+    border: 1px solid rgba(16, 185, 129, 0.18);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.6);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-    color: #fff;
+    color: #059669;
+}
+
+.chatTriggerImg {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .chatTrigger:hover {
@@ -412,13 +419,18 @@
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+}
+
+.chatAvatarImg {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
 }
 
 .statusDot {
@@ -534,11 +546,18 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #22c55e, #059669);
-    color: #fff;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.msgAvatarImg {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
 }
 
 .msgBubble {

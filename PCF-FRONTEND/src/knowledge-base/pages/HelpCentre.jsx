@@ -306,14 +306,7 @@ export default function HelpCentre() {
                         {/* Header */}
                         <div className={styles.chatHeader}>
                             <div className={styles.chatAvatar}>
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M12 8V4H8" />
-                                    <rect width="16" height="12" x="4" y="8" rx="2" />
-                                    <path d="M2 14h2" />
-                                    <path d="M20 14h2" />
-                                    <path d="M15 13v2" />
-                                    <path d="M9 13v2" />
-                                </svg>
+                                <img src="/logo.png" alt="EnviGuide" className={styles.chatAvatarImg} />
                                 <span className={styles.statusDot} aria-hidden="true" />
                             </div>
                             <div className={styles.chatHeaderText}>
@@ -339,12 +332,7 @@ export default function HelpCentre() {
                         <div className={styles.chatBody}>
                             <div className={styles.msgRow}>
                                 <div className={styles.msgAvatar}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                        <path d="M12 8V4H8" />
-                                        <rect width="16" height="12" x="4" y="8" rx="2" />
-                                        <path d="M15 13v2" />
-                                        <path d="M9 13v2" />
-                                    </svg>
+                                    <img src="/logo.png" alt="EnviGuide" className={styles.msgAvatarImg} />
                                 </div>
                                 <div className={styles.msgBubble}>
                                     <span className={styles.aiBadgeText}>ECO-ASSISTANT</span>
@@ -412,14 +400,7 @@ export default function HelpCentre() {
                             <path d="M18 6 6 18M6 6l12 12" />
                         </svg>
                     ) : (
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M12 8V4H8" />
-                            <rect width="16" height="12" x="4" y="8" rx="2" />
-                            <path d="M2 14h2" />
-                            <path d="M20 14h2" />
-                            <path d="M15 13v2" />
-                            <path d="M9 13v2" />
-                        </svg>
+                        <img src="/logo.png" alt="EnviGuide" className={styles.chatTriggerImg} />
                     )}
                 </button>
             </div>
