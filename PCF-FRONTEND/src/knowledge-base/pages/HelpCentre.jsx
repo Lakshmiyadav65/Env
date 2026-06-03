@@ -218,6 +218,13 @@ export default function HelpCentre() {
     const [searchResults, setSearchResults] = useState([])
     const [showResults, setShowResults] = useState(false)
     const [isChatOpen, setIsChatOpen] = useState(false)
+    const [chatInput, setChatInput] = useState('')
+    const [isTyping, setIsTyping] = useState(false)
+    const [messages, setMessages] = useState([
+        { role: 'ai', text: "Hi there! 🌱 I'm your AI ESG Guide. Ask me anything, or pick a context below and I'll connect you with the right help." },
+    ])
+    const chatBodyRef = useRef(null)
+    const replyTimer = useRef(null)
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -231,6 +238,53 @@ export default function HelpCentre() {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
+
+    // Auto-scroll the chat to the newest message
+    useEffect(() => {
+        if (chatBodyRef.current) {
+            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
+        }
+    }, [messages, isTyping])
+
+    // Clear any pending reply timer on unmount
+    useEffect(() => () => clearTimeout(replyTimer.current), [])
+
+    const buildReply = (text) => {
+        const t = text.toLowerCase()
+        if (/\b(hi|hello|hey|hii|yo)\b/.test(t)) {
+            return "Hey! 👋 Great to see you. What would you like help with today — PCF reports, supplier questionnaires, or something else?"
+        }
+        if (t.includes('pcf') || t.includes('carbon') || t.includes('footprint') || t.includes('emission')) {
+            return "For Product Carbon Footprints, the PCF Manuals walk you through every step. Want me to open the PCF guidance, or connect you with a Manufacturer Consultant?"
+        }
+        if (t.includes('questionnaire') || t.includes('supplier')) {
+            return "Supplier questionnaire trouble? A Supplier Consultant can help directly. Tap “Supplier Consultant” below and I'll route you there."
+        }
+        if (t.includes('api') || t.includes('key') || t.includes('token')) {
+            return "You'll find API key setup under the API documentation. Need a hand generating one?"
+        }
+        if (t.includes('contact') || t.includes('human') || t.includes('agent') || t.includes('support') || t.includes('email')) {
+            return "Of course — our team replies within 24 hours. I can take you to the Support form, or you can email info@enviguide.com."
+        }
+        if (t.includes('thank')) {
+            return "You're very welcome! 🌿 Happy to help anytime."
+        }
+        return "Got it! While I'm still learning, I can point you to the right place. Pick a context below, or I can take you to our Support team for a detailed answer."
+    }
+
+    const sendChat = (e) => {
+        e.preventDefault()
+        const text = chatInput.trim()
+        if (!text || isTyping) return
+        setMessages((prev) => [...prev, { role: 'user', text }])
+        setChatInput('')
+        setIsTyping(true)
+        clearTimeout(replyTimer.current)
+        replyTimer.current = setTimeout(() => {
+            setMessages((prev) => [...prev, { role: 'ai', text: buildReply(text) }])
+            setIsTyping(false)
+        }, 900)
+    }
 
     const handleSearch = (query) => {
         setSearch(query)
@@ -392,17 +446,39 @@ export default function HelpCentre() {
                         </div>
 
                         {/* Conversation */}
-                        <div className={styles.chatBody}>
-                            <div className={styles.msgRow}>
-                                <div className={styles.msgAvatar}>
-                                    <AiHuman className={styles.msgAvatarHuman} idPrefix="msg" />
-                                </div>
-                                <div className={styles.msgBubble}>
-                                    <span className={styles.aiBadgeText}>ECO-ASSISTANT</span>
-                                    Hi there! 🌱 I'm your AI ESG Guide. Pick a context below and I'll connect you with the right help for your sustainability journey.
-                                </div>
-                            </div>
+                        <div className={styles.chatBody} ref={chatBodyRef}>
+                            {messages.map((m, i) => (
+                                m.role === 'ai' ? (
+                                    <div key={i} className={styles.msgRow}>
+                                        <div className={styles.msgAvatar}>
+                                            <AiHuman className={styles.msgAvatarHuman} idPrefix={`msg${i}`} />
+                                        </div>
+                                        <div className={styles.msgBubble}>
+                                            {i === 0 && <span className={styles.aiBadgeText}>ECO-ASSISTANT</span>}
+                                            {m.text}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div key={i} className={`${styles.msgRow} ${styles.msgRowUser}`}>
+                                        <div className={styles.msgBubbleUser}>{m.text}</div>
+                                    </div>
+                                )
+                            ))}
 
+                            {isTyping && (
+                                <div className={styles.msgRow}>
+                                    <div className={styles.msgAvatar}>
+                                        <AiHuman className={styles.msgAvatarHuman} idPrefix="typing" />
+                                    </div>
+                                    <div className={`${styles.msgBubble} ${styles.typingBubble}`}>
+                                        <span className={styles.typingDot} />
+                                        <span className={styles.typingDot} />
+                                        <span className={styles.typingDot} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {messages.length <= 1 && !isTyping && (<>
                             <p className={styles.quickLabel}>Choose your context</p>
                             <div className={styles.roleGrid}>
                                 <button className={styles.roleOption} onClick={() => navigate('/support')}>
@@ -430,17 +506,20 @@ export default function HelpCentre() {
                                     <svg className={styles.roleArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
                                 </button>
                             </div>
+                            </>)}
                         </div>
 
                         {/* Input bar */}
-                        <form className={styles.chatInputBar} onSubmit={(e) => { e.preventDefault(); navigate('/support'); }}>
+                        <form className={styles.chatInputBar} onSubmit={sendChat}>
                             <input
                                 type="text"
                                 className={styles.chatInput}
                                 placeholder="Ask me anything…"
                                 aria-label="Message the AI ESG Guide"
+                                value={chatInput}
+                                onChange={(e) => setChatInput(e.target.value)}
                             />
-                            <button type="submit" className={styles.chatSend} aria-label="Send message">
+                            <button type="submit" className={styles.chatSend} aria-label="Send message" disabled={!chatInput.trim() || isTyping}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                     <path d="m22 2-7 20-4-9-9-4Z" />
                                     <path d="M22 2 11 13" />
