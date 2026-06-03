@@ -387,22 +387,65 @@ export default function HelpCentre() {
                     </div>
                 )}
 
-                <button
-                    type="button"
-                    className={`${styles.chatTrigger} ${isChatOpen ? styles.chatTriggerOpen : ''}`}
-                    title="Talk to EnviGuide AI"
-                    aria-label={isChatOpen ? 'Close AI assistant' : 'Talk to EnviGuide AI'}
-                    aria-expanded={isChatOpen}
-                    onClick={() => setIsChatOpen((o) => !o)}
-                >
-                    {isChatOpen ? (
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M18 6 6 18M6 6l12 12" />
-                        </svg>
-                    ) : (
-                        <img src="/logo.png" alt="EnviGuide" className={styles.chatTriggerImg} />
+                <div className={styles.launcherRow}>
+                    {!isChatOpen && (
+                        <div className={styles.greetingBubble}>
+                            <span className={styles.greetingWave}>👋</span>
+                            <span>Hi! How can I help you?</span>
+                        </div>
                     )}
-                </button>
+
+                    <button
+                        type="button"
+                        className={`${styles.chatTrigger} ${isChatOpen ? styles.chatTriggerOpen : ''}`}
+                        title="Talk to EnviGuide AI"
+                        aria-label={isChatOpen ? 'Close AI assistant' : 'Talk to EnviGuide AI'}
+                        aria-expanded={isChatOpen}
+                        onClick={() => setIsChatOpen((o) => !o)}
+                    >
+                        {isChatOpen ? (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M18 6 6 18M6 6l12 12" />
+                            </svg>
+                        ) : (
+                            /* Friendly waving support character */
+                            <svg className={styles.humanAvatar} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                                {/* shoulders / torso */}
+                                <path d="M12 62c0-11 9-18 20-18s20 7 20 18Z" fill="#0f766e" />
+                                <path d="M12 62c0-11 9-18 20-18s20 7 20 18Z" fill="url(#torsoGrad)" />
+                                {/* neck */}
+                                <rect x="28" y="36" width="8" height="9" rx="3" fill="#f1c9a5" />
+                                {/* head */}
+                                <circle cx="32" cy="26" r="13" fill="#f8d5b0" />
+                                {/* hair */}
+                                <path d="M19 25c0-8 6-14 13-14s13 6 13 14c0-3-3-5-6-5-2-3-12-4-15 1-3 0-5 2-5 4Z" fill="#3f3f46" />
+                                {/* headset band */}
+                                <path d="M20 26a12 12 0 0 1 24 0" stroke="#10b981" strokeWidth="2.4" strokeLinecap="round" />
+                                <rect x="17.5" y="24" width="5" height="8" rx="2.5" fill="#10b981" />
+                                <rect x="41.5" y="24" width="5" height="8" rx="2.5" fill="#10b981" />
+                                {/* mic */}
+                                <path d="M44 30v3c0 3-3 5-7 5" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" />
+                                <circle cx="36" cy="38" r="1.6" fill="#10b981" />
+                                {/* eyes */}
+                                <circle cx="27" cy="25" r="1.7" fill="#1f2937" />
+                                <circle cx="37" cy="25" r="1.7" fill="#1f2937" />
+                                {/* smile */}
+                                <path d="M27 30c2 2.6 8 2.6 10 0" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
+                                {/* waving arm */}
+                                <g className={styles.wavingArm}>
+                                    <path d="M50 44c4-2 7-7 8-12" stroke="#f8d5b0" strokeWidth="6" strokeLinecap="round" />
+                                    <circle cx="58" cy="31" r="4.5" fill="#f8d5b0" />
+                                </g>
+                                <defs>
+                                    <linearGradient id="torsoGrad" x1="12" y1="44" x2="52" y2="62" gradientUnits="userSpaceOnUse">
+                                        <stop stopColor="#34d399" />
+                                        <stop offset="1" stopColor="#059669" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* ── Popular Articles + Fresh Insights ── */}
