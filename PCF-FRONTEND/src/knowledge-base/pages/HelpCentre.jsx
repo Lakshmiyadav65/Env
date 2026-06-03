@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './HelpCentre.module.css'
+import { getApiBaseUrl } from '../../lib/apiBaseUrl'
 
 /* Friendly animated AI support character (blinking + waving) */
 function AiHuman({ className, idPrefix = 'ai', wave = true }) {
@@ -272,18 +273,32 @@ export default function HelpCentre() {
         return "Got it! While I'm still learning, I can point you to the right place. Pick a context below, or I can take you to our Support team for a detailed answer."
     }
 
-    const sendChat = (e) => {
+    const sendChat = async (e) => {
         e.preventDefault()
         const text = chatInput.trim()
         if (!text || isTyping) return
-        setMessages((prev) => [...prev, { role: 'user', text }])
+        const history = [...messages, { role: 'user', text }]
+        setMessages(history)
         setChatInput('')
         setIsTyping(true)
         clearTimeout(replyTimer.current)
-        replyTimer.current = setTimeout(() => {
+
+        try {
+            const res = await fetch(`${getApiBaseUrl()}/api/ai-chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // send recent context so the assistant can follow the thread
+                body: JSON.stringify({ messages: history.slice(-12) }),
+            })
+            const json = await res.json()
+            const reply = json?.data?.reply
+            setMessages((prev) => [...prev, { role: 'ai', text: reply && reply.trim() ? reply : buildReply(text) }])
+        } catch {
+            // network/server issue → graceful local fallback
             setMessages((prev) => [...prev, { role: 'ai', text: buildReply(text) }])
+        } finally {
             setIsTyping(false)
-        }, 900)
+        }
     }
 
     const handleSearch = (query) => {
