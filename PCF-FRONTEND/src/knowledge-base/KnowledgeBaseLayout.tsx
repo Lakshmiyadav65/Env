@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import ScrollToTop from "./ScrollToTop";
+import EcoChat from "./components/EcoChat";
 import "./kb.css";
 
 /**
@@ -17,6 +18,7 @@ export default function KnowledgeBaseLayout() {
       <Suspense fallback={<div className="kb-loading">Loading…</div>}>
         <Outlet />
       </Suspense>
+      <EcoChat />
     </div>
   );
 }

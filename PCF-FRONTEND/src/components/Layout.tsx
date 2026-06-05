@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Menu, X } from "lucide-react";
 import { cn } from "../lib/utils";
+import EcoChat from "../knowledge-base/components/EcoChat";
 
 const Layout: React.FC = () => {
   const location = useLocation();
@@ -112,6 +113,9 @@ const Layout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Global Eco AI assistant — available on every authenticated page */}
+      <EcoChat />
     </div>
   );
 };
