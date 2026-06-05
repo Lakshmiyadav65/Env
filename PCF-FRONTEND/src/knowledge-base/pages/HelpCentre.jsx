@@ -445,7 +445,7 @@ export default function HelpCentre() {
                                 <p className={styles.chatTitle}>Eco AI</p>
                                 <p className={styles.chatStatus}>
                                     <span className={styles.statusPing} aria-hidden="true" />
-                                    Online · PCF Supplier Intelligence
+                                    <span className={styles.statusText}>Online · PCF Supplier Intelligence</span>
                                 </p>
                             </div>
                             <button
