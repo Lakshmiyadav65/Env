@@ -736,6 +736,101 @@
     40% { transform: translateY(-4px); opacity: 1; }
 }
 
+/* ── Assistant state indicator bubble (thinking / searching / typing) ── */
+.statusBubble {
+    display: inline-flex;
+    align-items: center;
+    padding: 11px 14px;
+    min-height: 20px;
+}
+
+.typingBubbleInner {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.stateRow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stateLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+/* Thinking — pulsing thought + drifting dots */
+.thinkBrain {
+    font-size: 15px;
+    display: inline-block;
+    animation: thinkPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes thinkPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+    50% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+}
+
+.thinkDots {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.thinkDots i {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #22c55e;
+    display: inline-block;
+    animation: thinkDot 1.4s ease-in-out infinite;
+}
+
+.thinkDots i:nth-child(2) { animation-delay: 0.2s; }
+.thinkDots i:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes thinkDot {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* Searching — magnifier sweeps back and forth */
+.searchGlass {
+    display: inline-flex;
+    color: #059669;
+    animation: searchSweep 1.4s ease-in-out infinite;
+}
+
+@keyframes searchSweep {
+    0%, 100% { transform: translate(-2px, 0) rotate(-8deg); }
+    50% { transform: translate(3px, -2px) rotate(8deg); }
+}
+
+/* Away / sleeping status accent */
+.statusAway {
+    background: #f59e0b !important;
+    animation: none !important;
+    box-shadow: none !important;
+}
+
+/* Floating Zzz on the sleeping avatar */
+.sleepZ text {
+    opacity: 0;
+}
+
+.zA { animation: floatZ 3s ease-in-out infinite; }
+.zB { animation: floatZ 3s ease-in-out infinite 0.6s; }
+.zC { animation: floatZ 3s ease-in-out infinite 1.2s; }
+
+@keyframes floatZ {
+    0% { opacity: 0; transform: translate(0, 2px) scale(0.8); }
+    30% { opacity: 0.9; }
+    70% { opacity: 0.6; }
+    100% { opacity: 0; transform: translate(3px, -6px) scale(1.1); }
+}
+
 .aiBadgeText {
     display: block;
     font-size: 8px;

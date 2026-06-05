@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import styles from './HelpCentre.module.css'
 import { getApiBaseUrl } from '../../lib/apiBaseUrl'
 
-/* Friendly animated AI support character (blinking + waving) */
-function AiHuman({ className, idPrefix = 'ai', wave = true }) {
+/* Friendly animated AI support character (blinking + waving; sleeps when idle) */
+function AiHuman({ className, idPrefix = 'ai', wave = true, sleeping = false }) {
     const torso = `${idPrefix}-torso`
     const skin = `${idPrefix}-skin`
     const face = `${idPrefix}-face`
@@ -36,18 +36,29 @@ function AiHuman({ className, idPrefix = 'ai', wave = true }) {
             <path d="M19.5 24c0-8 5.5-13.5 12.5-13.5S44.5 16 44.5 24c-1.2-2-3.5-3-6-3-2.4-2.6-11-3.4-14.5.6-2.2.1-4.3 1-4.5 2.4Z" fill="#374151" clipPath={`url(#${face})`} />
             <path d="M19.5 24c0-8 5.5-13.5 12.5-13.5S44.5 16 44.5 24c-1.2-2-3.5-3-6-3-2.4-2.6-11-3.4-14.5.6-2.2.1-4.3 1-4.5 2.4Z" fill="#374151" />
 
-            {/* eyes (blink) */}
-            <g className={styles.avatarEyes}>
-                <circle cx="27" cy="25.5" r="1.8" fill="#1f2937" />
-                <circle cx="37" cy="25.5" r="1.8" fill="#1f2937" />
-                <circle cx="27.7" cy="24.9" r="0.6" fill="#fff" />
-                <circle cx="37.7" cy="24.9" r="0.6" fill="#fff" />
-            </g>
+            {/* eyes — open & blinking, or closed when sleeping */}
+            {sleeping ? (
+                <g stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" fill="none">
+                    <path d="M24.5 25.6c1.5 1.8 3.5 1.8 5 0" />
+                    <path d="M34.5 25.6c1.5 1.8 3.5 1.8 5 0" />
+                </g>
+            ) : (
+                <g className={styles.avatarEyes}>
+                    <circle cx="27" cy="25.5" r="1.8" fill="#1f2937" />
+                    <circle cx="37" cy="25.5" r="1.8" fill="#1f2937" />
+                    <circle cx="27.7" cy="24.9" r="0.6" fill="#fff" />
+                    <circle cx="37.7" cy="24.9" r="0.6" fill="#fff" />
+                </g>
+            )}
             {/* cheeks */}
             <circle cx="24.5" cy="30" r="2.2" fill="#fca5a5" opacity="0.55" />
             <circle cx="39.5" cy="30" r="2.2" fill="#fca5a5" opacity="0.55" />
-            {/* smile */}
-            <path d="M27.5 30.5c2 2.4 7 2.4 9 0" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
+            {/* mouth — gentle smile, or small "o" when sleeping */}
+            {sleeping ? (
+                <ellipse cx="32" cy="32" rx="1.6" ry="2.1" fill="#1f2937" opacity="0.8" />
+            ) : (
+                <path d="M27.5 30.5c2 2.4 7 2.4 9 0" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
+            )}
 
             {/* headset */}
             <path d="M20 26a12 12 0 0 1 24 0" stroke="#10b981" strokeWidth="2.6" strokeLinecap="round" />
@@ -56,12 +67,25 @@ function AiHuman({ className, idPrefix = 'ai', wave = true }) {
             <path d="M45 30v2.5c0 3.2-3 5.5-7.5 5.5" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" />
             <circle cx="37" cy="38" r="1.7" fill="#10b981" />
 
-            {/* waving hand */}
-            <g className={wave ? styles.wavingArm : undefined}>
-                <path d="M48 50c5-1 8.5-5 10-11" stroke={`url(#${torso})`} strokeWidth="6.5" strokeLinecap="round" />
-                <circle cx="58.5" cy="36" r="5" fill="#ffe0c2" />
-                <path d="M56 32.5l1-2M59 32l.4-2M61 33l1-1.6" stroke="#f6c89a" strokeWidth="1.6" strokeLinecap="round" />
-            </g>
+            {/* arm — waves when active, rests when sleeping */}
+            {sleeping ? (
+                <path d="M47 49c4 1 7 4 8 9" stroke={`url(#${torso})`} strokeWidth="6.5" strokeLinecap="round" />
+            ) : (
+                <g className={wave ? styles.wavingArm : undefined}>
+                    <path d="M48 50c5-1 8.5-5 10-11" stroke={`url(#${torso})`} strokeWidth="6.5" strokeLinecap="round" />
+                    <circle cx="58.5" cy="36" r="5" fill="#ffe0c2" />
+                    <path d="M56 32.5l1-2M59 32l.4-2M61 33l1-1.6" stroke="#f6c89a" strokeWidth="1.6" strokeLinecap="round" />
+                </g>
+            )}
+
+            {/* floating Zzz when sleeping */}
+            {sleeping && (
+                <g className={styles.sleepZ} fill="#0f766e" fontWeight="800" fontFamily="inherit">
+                    <text className={styles.zA} x="44" y="16" fontSize="7">z</text>
+                    <text className={styles.zB} x="49" y="11" fontSize="9">z</text>
+                    <text className={styles.zC} x="55" y="6" fontSize="11">Z</text>
+                </g>
+            )}
         </svg>
     )
 }
@@ -220,12 +244,26 @@ export default function HelpCentre() {
     const [showResults, setShowResults] = useState(false)
     const [isChatOpen, setIsChatOpen] = useState(false)
     const [chatInput, setChatInput] = useState('')
-    const [isTyping, setIsTyping] = useState(false)
+    // Assistant state machine: 'idle' | 'thinking' | 'searching' | 'typing' | 'sleeping'
+    const [mode, setMode] = useState('idle')
     const [messages, setMessages] = useState([
         { role: 'ai', text: "Hi there! 🌱 I'm Eco AI, your assistant for the PCF Supplier Intelligence Suite. Ask me anything, or pick a context below and I'll connect you with the right help." },
     ])
     const chatBodyRef = useRef(null)
-    const replyTimer = useRef(null)
+    const sleepTimer = useRef(null)
+
+    const busy = mode === 'thinking' || mode === 'searching' || mode === 'typing'
+
+    // Drop the assistant into 'sleeping' after a stretch of inactivity.
+    const scheduleSleep = () => {
+        clearTimeout(sleepTimer.current)
+        sleepTimer.current = setTimeout(() => setMode((m) => (m === 'idle' ? 'sleeping' : m)), 22000)
+    }
+    // Wake on any interaction.
+    const wake = () => {
+        setMode((m) => (m === 'sleeping' ? 'idle' : m))
+        scheduleSleep()
+    }
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -245,10 +283,19 @@ export default function HelpCentre() {
         if (chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
         }
-    }, [messages, isTyping])
+    }, [messages, mode])
 
-    // Clear any pending reply timer on unmount
-    useEffect(() => () => clearTimeout(replyTimer.current), [])
+    // Start/stop the idle-sleep timer with the chat panel
+    useEffect(() => {
+        if (isChatOpen) {
+            setMode('idle')
+            scheduleSleep()
+        } else {
+            clearTimeout(sleepTimer.current)
+        }
+        return () => clearTimeout(sleepTimer.current)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isChatOpen])
 
     const buildReply = (text) => {
         const t = text.toLowerCase()
@@ -273,32 +320,47 @@ export default function HelpCentre() {
         return "Got it! While I'm still learning, I can point you to the right place. Pick a context below, or I can take you to our Support team for a detailed answer."
     }
 
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
     const sendChat = async (e) => {
         e.preventDefault()
         const text = chatInput.trim()
-        if (!text || isTyping) return
+        if (!text || busy) return
         const history = [...messages, { role: 'user', text }]
         setMessages(history)
         setChatInput('')
-        setIsTyping(true)
-        clearTimeout(replyTimer.current)
+        clearTimeout(sleepTimer.current)
 
-        try {
-            const res = await fetch(`${getApiBaseUrl()}/api/ai-chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // send recent context so the assistant can follow the thread
-                body: JSON.stringify({ messages: history.slice(-12) }),
-            })
-            const json = await res.json()
-            const reply = json?.data?.reply
-            setMessages((prev) => [...prev, { role: 'ai', text: reply && reply.trim() ? reply : buildReply(text) }])
-        } catch {
-            // network/server issue → graceful local fallback
-            setMessages((prev) => [...prev, { role: 'ai', text: buildReply(text) }])
-        } finally {
-            setIsTyping(false)
+        // Kick off the request immediately…
+        const replyPromise = (async () => {
+            try {
+                const res = await fetch(`${getApiBaseUrl()}/api/ai-chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: history.slice(-12) }),
+                })
+                const json = await res.json()
+                const reply = json?.data?.reply
+                return reply && reply.trim() ? reply : buildReply(text)
+            } catch {
+                return buildReply(text) // network/server issue → graceful local fallback
+            }
+        })()
+
+        // …while we play through the visible states: thinking → (searching) → typing.
+        const needsSearch = /\b(find|search|where|link|manual|guide|doc|docs|list|how (do|to)|show|article)\b/.test(text.toLowerCase())
+        setMode('thinking')
+        await sleep(650)
+        if (needsSearch) {
+            setMode('searching')
+            await sleep(850)
         }
+        setMode('typing')
+
+        const [reply] = await Promise.all([replyPromise, sleep(550)])
+        setMessages((prev) => [...prev, { role: 'ai', text: reply }])
+        setMode('idle')
+        scheduleSleep()
     }
 
     const handleSearch = (query) => {
@@ -437,15 +499,21 @@ export default function HelpCentre() {
                     <div className={styles.chatPanel} role="dialog" aria-label="Eco AI assistant">
                         {/* Header */}
                         <div className={styles.chatHeader}>
-                            <div className={styles.chatAvatar}>
-                                <AiHuman className={styles.chatAvatarHuman} idPrefix="hdr" />
-                                <span className={styles.statusDot} aria-hidden="true" />
+                            <div className={styles.chatAvatar} onClick={wake}>
+                                <AiHuman className={styles.chatAvatarHuman} idPrefix="hdr" sleeping={mode === 'sleeping'} />
+                                <span className={`${styles.statusDot} ${mode === 'sleeping' ? styles.statusAway : ''}`} aria-hidden="true" />
                             </div>
                             <div className={styles.chatHeaderText}>
                                 <p className={styles.chatTitle}>Eco AI</p>
                                 <p className={styles.chatStatus}>
-                                    <span className={styles.statusPing} aria-hidden="true" />
-                                    <span className={styles.statusText}>Online · PCF Supplier Intelligence</span>
+                                    <span className={`${styles.statusPing} ${mode === 'sleeping' ? styles.statusAway : ''}`} aria-hidden="true" />
+                                    <span className={styles.statusText}>
+                                        {mode === 'sleeping' ? 'Away · tap to wake'
+                                            : mode === 'thinking' ? 'Thinking…'
+                                            : mode === 'searching' ? 'Searching resources…'
+                                            : mode === 'typing' ? 'Typing…'
+                                            : 'Online · PCF Supplier Intelligence'}
+                                    </span>
                                 </p>
                             </div>
                             <button
@@ -480,20 +548,42 @@ export default function HelpCentre() {
                                 )
                             ))}
 
-                            {isTyping && (
+                            {busy && (
                                 <div className={styles.msgRow}>
                                     <div className={styles.msgAvatar}>
-                                        <AiHuman className={styles.msgAvatarHuman} idPrefix="typing" />
+                                        <AiHuman className={styles.msgAvatarHuman} idPrefix="active" />
                                     </div>
-                                    <div className={`${styles.msgBubble} ${styles.typingBubble}`}>
-                                        <span className={styles.typingDot} />
-                                        <span className={styles.typingDot} />
-                                        <span className={styles.typingDot} />
+                                    <div className={`${styles.msgBubble} ${styles.statusBubble}`}>
+                                        {mode === 'thinking' && (
+                                            <span className={styles.stateRow}>
+                                                <span className={styles.thinkBrain}>💭</span>
+                                                <span className={styles.stateLabel}>Thinking</span>
+                                                <span className={styles.thinkDots}><i /><i /><i /></span>
+                                            </span>
+                                        )}
+                                        {mode === 'searching' && (
+                                            <span className={styles.stateRow}>
+                                                <span className={styles.searchGlass}>
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                                        <circle cx="11" cy="11" r="7" />
+                                                        <path d="M21 21l-4.3-4.3" />
+                                                    </svg>
+                                                </span>
+                                                <span className={styles.stateLabel}>Searching resources</span>
+                                            </span>
+                                        )}
+                                        {mode === 'typing' && (
+                                            <span className={styles.typingBubbleInner}>
+                                                <span className={styles.typingDot} />
+                                                <span className={styles.typingDot} />
+                                                <span className={styles.typingDot} />
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             )}
 
-                            {messages.length <= 1 && !isTyping && (<>
+                            {messages.length <= 1 && !busy && (<>
                             <p className={styles.quickLabel}>Choose your context</p>
                             <div className={styles.roleGrid}>
                                 <button className={styles.roleOption} onClick={() => navigate('/support')}>
@@ -530,11 +620,12 @@ export default function HelpCentre() {
                                 type="text"
                                 className={styles.chatInput}
                                 placeholder="Ask me anything…"
-                                aria-label="Message the AI ESG Guide"
+                                aria-label="Message Eco AI"
                                 value={chatInput}
-                                onChange={(e) => setChatInput(e.target.value)}
+                                onChange={(e) => { setChatInput(e.target.value); wake() }}
+                                onFocus={wake}
                             />
-                            <button type="submit" className={styles.chatSend} aria-label="Send message" disabled={!chatInput.trim() || isTyping}>
+                            <button type="submit" className={styles.chatSend} aria-label="Send message" disabled={!chatInput.trim() || busy}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                     <path d="m22 2-7 20-4-9-9-4Z" />
                                     <path d="M22 2 11 13" />
