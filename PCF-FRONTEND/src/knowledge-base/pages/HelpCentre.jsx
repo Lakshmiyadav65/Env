@@ -222,7 +222,7 @@ export default function HelpCentre() {
     const [chatInput, setChatInput] = useState('')
     const [isTyping, setIsTyping] = useState(false)
     const [messages, setMessages] = useState([
-        { role: 'ai', text: "Hi there! 🌱 I'm your AI ESG Guide. Ask me anything, or pick a context below and I'll connect you with the right help." },
+        { role: 'ai', text: "Hi there! 🌱 I'm Eco AI, your assistant for the PCF Supplier Intelligence Suite. Ask me anything, or pick a context below and I'll connect you with the right help." },
     ])
     const chatBodyRef = useRef(null)
     const replyTimer = useRef(null)
@@ -434,7 +434,7 @@ export default function HelpCentre() {
             {/* ── AI Floating Chat Widget ── */}
             <div ref={chatRef} className={styles.chatWrapper}>
                 {isChatOpen && (
-                    <div className={styles.chatPanel} role="dialog" aria-label="EnviGuide AI assistant">
+                    <div className={styles.chatPanel} role="dialog" aria-label="Eco AI assistant">
                         {/* Header */}
                         <div className={styles.chatHeader}>
                             <div className={styles.chatAvatar}>
@@ -442,10 +442,10 @@ export default function HelpCentre() {
                                 <span className={styles.statusDot} aria-hidden="true" />
                             </div>
                             <div className={styles.chatHeaderText}>
-                                <p className={styles.chatTitle}>EnviGuide AI</p>
+                                <p className={styles.chatTitle}>Eco AI</p>
                                 <p className={styles.chatStatus}>
                                     <span className={styles.statusPing} aria-hidden="true" />
-                                    Online · ESG &amp; Carbon Guide
+                                    Online · PCF Supplier Intelligence
                                 </p>
                             </div>
                             <button
@@ -555,8 +555,8 @@ export default function HelpCentre() {
                     <button
                         type="button"
                         className={`${styles.chatTrigger} ${isChatOpen ? styles.chatTriggerOpen : ''}`}
-                        title="Talk to EnviGuide AI"
-                        aria-label={isChatOpen ? 'Close AI assistant' : 'Talk to EnviGuide AI'}
+                        title="Talk to Eco AI"
+                        aria-label={isChatOpen ? 'Close Eco AI' : 'Talk to Eco AI'}
                         aria-expanded={isChatOpen}
                         onClick={() => setIsChatOpen((o) => !o)}
                     >
