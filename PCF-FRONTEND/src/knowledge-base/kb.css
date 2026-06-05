@@ -41,6 +41,15 @@
   box-sizing: border-box;
 }
 
+/* Margin/padding reset for the KB, scoped to .kb-root and kept at ZERO
+   specificity via :where() so it never overrides the page/component styles
+   regardless of CSS injection order (a plain `.kb-root *` would tie with
+   component classes and break the layout after client-side navigation). */
+:where(.kb-root) * {
+  margin: 0;
+  padding: 0;
+}
+
 .kb-root a {
   text-decoration: none;
 }

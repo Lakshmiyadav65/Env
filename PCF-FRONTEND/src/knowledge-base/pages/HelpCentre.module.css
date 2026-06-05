@@ -1,14 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* Scope the reset to the Knowledge Base only. A bare `*` selector in a CSS
-   module is NOT scoped — it leaks globally wherever this file is imported and
-   was breaking the main app's Recharts charts. `:global(.kb-root)` keeps the
-   reset confined to KB pages (and the Eco AI chat, which renders inside it). */
-:global(.kb-root) * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* The KB-scoped reset (box-sizing + margin/padding) lives in kb.css so it
+   stays at zero specificity and never leaks into the main app. */
 
 .page {
     min-height: 100vh;

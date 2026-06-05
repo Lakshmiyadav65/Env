@@ -1,11 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* Scope the reset to the Knowledge Base so it can't leak into the main app. */
-:global(.kb-root) * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* KB-scoped reset lives in kb.css (zero specificity, no app leak). */
 
 /* ── Image Styles ── */
 .imageContainer {
