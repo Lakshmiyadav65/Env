@@ -3,122 +3,35 @@ import { useNavigate } from 'react-router-dom'
 import styles from '../pages/HelpCentre.module.css'
 import { getApiBaseUrl } from '../../lib/apiBaseUrl'
 
-/* Friendly animated AI support character (blinking + waving; sleeps when idle) */
-function AiHuman({ className, idPrefix = 'ai', wave = true, sleeping = false }) {
-    const torso = `${idPrefix}-torso`
-    const skin = `${idPrefix}-skin`
-    const face = `${idPrefix}-face`
+/* Clean brand avatar glyph (leaf) — colour comes from the wrapper. */
+function EcoMark({ className }) {
     return (
-        <svg className={className} viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <defs>
-                <linearGradient id={torso} x1="14" y1="44" x2="50" y2="64" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#34d399" />
-                    <stop offset="1" stopColor="#059669" />
-                </linearGradient>
-                <linearGradient id={skin} x1="22" y1="16" x2="42" y2="40" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#ffe0c2" />
-                    <stop offset="1" stopColor="#f6c89a" />
-                </linearGradient>
-                <clipPath id={face}><circle cx="32" cy="26" r="12.5" /></clipPath>
-            </defs>
-
-            {/* shoulders / torso */}
-            <path d="M13 63c0-11 8.5-17 19-17s19 6 19 17Z" fill={`url(#${torso})`} />
-            <path d="M26 47c2 3 10 3 12 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" opacity="0.85" />
-            {/* neck */}
-            <rect x="28.5" y="35" width="7" height="9" rx="3.5" fill="#f6c89a" />
-
-            {/* head */}
-            <circle cx="32" cy="26" r="12.5" fill={`url(#${skin})`} />
-            <circle cx="19.8" cy="27" r="2.4" fill="#f6c89a" />
-            <circle cx="44.2" cy="27" r="2.4" fill="#f6c89a" />
-            {/* hair */}
-            <path d="M19.5 24c0-8 5.5-13.5 12.5-13.5S44.5 16 44.5 24c-1.2-2-3.5-3-6-3-2.4-2.6-11-3.4-14.5.6-2.2.1-4.3 1-4.5 2.4Z" fill="#374151" clipPath={`url(#${face})`} />
-            <path d="M19.5 24c0-8 5.5-13.5 12.5-13.5S44.5 16 44.5 24c-1.2-2-3.5-3-6-3-2.4-2.6-11-3.4-14.5.6-2.2.1-4.3 1-4.5 2.4Z" fill="#374151" />
-
-            {/* eyes — open & blinking, or closed when sleeping */}
-            {sleeping ? (
-                <g stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" fill="none">
-                    <path d="M24.5 25.6c1.5 1.8 3.5 1.8 5 0" />
-                    <path d="M34.5 25.6c1.5 1.8 3.5 1.8 5 0" />
-                </g>
-            ) : (
-                <g className={styles.avatarEyes}>
-                    <circle cx="27" cy="25.5" r="1.8" fill="#1f2937" />
-                    <circle cx="37" cy="25.5" r="1.8" fill="#1f2937" />
-                    <circle cx="27.7" cy="24.9" r="0.6" fill="#fff" />
-                    <circle cx="37.7" cy="24.9" r="0.6" fill="#fff" />
-                </g>
-            )}
-            {/* cheeks */}
-            <circle cx="24.5" cy="30" r="2.2" fill="#fca5a5" opacity="0.55" />
-            <circle cx="39.5" cy="30" r="2.2" fill="#fca5a5" opacity="0.55" />
-            {/* mouth — gentle smile, or small "o" when sleeping */}
-            {sleeping ? (
-                <ellipse cx="32" cy="32" rx="1.6" ry="2.1" fill="#1f2937" opacity="0.8" />
-            ) : (
-                <path d="M27.5 30.5c2 2.4 7 2.4 9 0" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
-            )}
-
-            {/* headset */}
-            <path d="M20 26a12 12 0 0 1 24 0" stroke="#10b981" strokeWidth="2.6" strokeLinecap="round" />
-            <rect x="17" y="23.5" width="5.5" height="9" rx="2.75" fill="#10b981" />
-            <rect x="41.5" y="23.5" width="5.5" height="9" rx="2.75" fill="#10b981" />
-            <path d="M45 30v2.5c0 3.2-3 5.5-7.5 5.5" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" />
-            <circle cx="37" cy="38" r="1.7" fill="#10b981" />
-
-            {/* arm — waves when active, rests when sleeping */}
-            {sleeping ? (
-                <path d="M47 49c4 1 7 4 8 9" stroke={`url(#${torso})`} strokeWidth="6.5" strokeLinecap="round" />
-            ) : (
-                <g className={wave ? styles.wavingArm : undefined}>
-                    <path d="M48 50c5-1 8.5-5 10-11" stroke={`url(#${torso})`} strokeWidth="6.5" strokeLinecap="round" />
-                    <circle cx="58.5" cy="36" r="5" fill="#ffe0c2" />
-                    <path d="M56 32.5l1-2M59 32l.4-2M61 33l1-1.6" stroke="#f6c89a" strokeWidth="1.6" strokeLinecap="round" />
-                </g>
-            )}
-
-            {/* floating Zzz when sleeping */}
-            {sleeping && (
-                <g className={styles.sleepZ} fill="#0f766e" fontWeight="800" fontFamily="inherit">
-                    <text className={styles.zA} x="44" y="16" fontSize="7">z</text>
-                    <text className={styles.zB} x="49" y="11" fontSize="9">z</text>
-                    <text className={styles.zC} x="55" y="6" fontSize="11">Z</text>
-                </g>
-            )}
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+            <path d="M2 21c0-3 1.85-5.36 5.08-6" />
         </svg>
     )
 }
 
 /**
- * Global floating Eco AI chat widget. Mounted once per layout so it is
- * available on every page. Self-contained: own state machine, API call,
- * and outside-click handling.
+ * Floating Eco AI support chat — clean, HubSpot-style UI. Mounted once per
+ * layout so it is available on every Knowledge Base page. Self-contained:
+ * own state machine, API call, and outside-click handling.
  */
 export default function EcoChat() {
     const navigate = useNavigate()
     const chatRef = useRef(null)
     const chatBodyRef = useRef(null)
-    const sleepTimer = useRef(null)
 
     const [isChatOpen, setIsChatOpen] = useState(false)
     const [chatInput, setChatInput] = useState('')
-    // Assistant state machine: 'idle' | 'thinking' | 'searching' | 'typing' | 'sleeping'
+    // Assistant state machine: 'idle' | 'thinking' | 'searching' | 'typing'
     const [mode, setMode] = useState('idle')
     const [messages, setMessages] = useState([
         { role: 'ai', text: "Hi there! 🌱 I'm Eco AI, your assistant for the PCF Supplier Intelligence Suite. Ask me anything, or pick a context below and I'll connect you with the right help." },
     ])
 
     const busy = mode === 'thinking' || mode === 'searching' || mode === 'typing'
-
-    const scheduleSleep = () => {
-        clearTimeout(sleepTimer.current)
-        sleepTimer.current = setTimeout(() => setMode((m) => (m === 'idle' ? 'sleeping' : m)), 22000)
-    }
-    const wake = () => {
-        setMode((m) => (m === 'sleeping' ? 'idle' : m))
-        scheduleSleep()
-    }
 
     // Close on outside click
     useEffect(() => {
@@ -137,18 +50,6 @@ export default function EcoChat() {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
         }
     }, [messages, mode])
-
-    // Start/stop the idle-sleep timer with the chat panel
-    useEffect(() => {
-        if (isChatOpen) {
-            setMode('idle')
-            scheduleSleep()
-        } else {
-            clearTimeout(sleepTimer.current)
-        }
-        return () => clearTimeout(sleepTimer.current)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isChatOpen])
 
     const buildReply = (text) => {
         const t = text.toLowerCase()
@@ -182,7 +83,6 @@ export default function EcoChat() {
         const history = [...messages, { role: 'user', text }]
         setMessages(history)
         setChatInput('')
-        clearTimeout(sleepTimer.current)
 
         const replyPromise = (async () => {
             try {
@@ -211,7 +111,6 @@ export default function EcoChat() {
         const [reply] = await Promise.all([replyPromise, sleep(550)])
         setMessages((prev) => [...prev, { role: 'ai', text: reply }])
         setMode('idle')
-        scheduleSleep()
     }
 
     return (
@@ -220,20 +119,19 @@ export default function EcoChat() {
                 <div className={styles.chatPanel} role="dialog" aria-label="Eco AI assistant">
                     {/* Header */}
                     <div className={styles.chatHeader}>
-                        <div className={styles.chatAvatar} onClick={wake}>
-                            <AiHuman className={styles.chatAvatarHuman} idPrefix="hdr" sleeping={mode === 'sleeping'} />
-                            <span className={`${styles.statusDot} ${mode === 'sleeping' ? styles.statusAway : ''}`} aria-hidden="true" />
+                        <div className={styles.chatAvatar}>
+                            <EcoMark className={styles.avatarGlyph} />
+                            <span className={styles.statusDot} aria-hidden="true" />
                         </div>
                         <div className={styles.chatHeaderText}>
                             <p className={styles.chatTitle}>Eco AI</p>
                             <p className={styles.chatStatus}>
-                                <span className={`${styles.statusPing} ${mode === 'sleeping' ? styles.statusAway : ''}`} aria-hidden="true" />
+                                <span className={styles.statusPing} aria-hidden="true" />
                                 <span className={styles.statusText}>
-                                    {mode === 'sleeping' ? 'Away · tap to wake'
-                                        : mode === 'thinking' ? 'Thinking…'
+                                    {mode === 'thinking' ? 'Thinking…'
                                         : mode === 'searching' ? 'Searching resources…'
                                         : mode === 'typing' ? 'Typing…'
-                                        : 'Online · PCF Supplier Intelligence'}
+                                        : 'Online · typically replies instantly'}
                                 </span>
                             </p>
                         </div>
@@ -243,8 +141,8 @@ export default function EcoChat() {
                             aria-label="Close chat"
                             onClick={() => setIsChatOpen(false)}
                         >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M18 6 6 18M6 6l12 12" />
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="m6 9 6 6 6-6" />
                             </svg>
                         </button>
                     </div>
@@ -255,12 +153,9 @@ export default function EcoChat() {
                             m.role === 'ai' ? (
                                 <div key={i} className={styles.msgRow}>
                                     <div className={styles.msgAvatar}>
-                                        <AiHuman className={styles.msgAvatarHuman} idPrefix={`msg${i}`} />
+                                        <EcoMark className={styles.msgGlyph} />
                                     </div>
-                                    <div className={styles.msgBubble}>
-                                        {i === 0 && <span className={styles.aiBadgeText}>ECO-ASSISTANT</span>}
-                                        {m.text}
-                                    </div>
+                                    <div className={styles.msgBubble}>{m.text}</div>
                                 </div>
                             ) : (
                                 <div key={i} className={`${styles.msgRow} ${styles.msgRowUser}`}>
@@ -272,7 +167,7 @@ export default function EcoChat() {
                         {busy && (
                             <div className={styles.msgRow}>
                                 <div className={styles.msgAvatar}>
-                                    <AiHuman className={styles.msgAvatarHuman} idPrefix="active" />
+                                    <EcoMark className={styles.msgGlyph} />
                                 </div>
                                 <div className={`${styles.msgBubble} ${styles.statusBubble}`}>
                                     {mode === 'thinking' && (
@@ -340,11 +235,10 @@ export default function EcoChat() {
                         <input
                             type="text"
                             className={styles.chatInput}
-                            placeholder="Ask me anything…"
+                            placeholder="Enter your message…"
                             aria-label="Message Eco AI"
                             value={chatInput}
-                            onChange={(e) => { setChatInput(e.target.value); wake() }}
-                            onFocus={wake}
+                            onChange={(e) => setChatInput(e.target.value)}
                         />
                         <button type="submit" className={styles.chatSend} aria-label="Send message" disabled={!chatInput.trim() || busy}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -353,6 +247,7 @@ export default function EcoChat() {
                             </svg>
                         </button>
                     </form>
+                    <div className={styles.poweredBy}>Powered by <strong>Enviraan</strong></div>
                 </div>
             )}
 
@@ -366,18 +261,20 @@ export default function EcoChat() {
 
                 <button
                     type="button"
-                    className={`${styles.chatTrigger} ${isChatOpen ? styles.chatTriggerOpen : ''}`}
-                    title="Talk to Eco AI"
-                    aria-label={isChatOpen ? 'Close Eco AI' : 'Talk to Eco AI'}
+                    className={styles.chatTrigger}
+                    title="Chat with Eco AI"
+                    aria-label={isChatOpen ? 'Close Eco AI' : 'Chat with Eco AI'}
                     aria-expanded={isChatOpen}
                     onClick={() => setIsChatOpen((o) => !o)}
                 >
                     {isChatOpen ? (
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M18 6 6 18M6 6l12 12" />
+                            <path d="m6 9 6 6 6-6" />
                         </svg>
                     ) : (
-                        <AiHuman className={styles.humanAvatar} idPrefix="launch" />
+                        <svg className={styles.launcherIcon} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 3C6.48 3 2 6.94 2 11.8c0 2.18.89 4.17 2.36 5.7L3.4 21l3.86-1.2c1.42.6 3.01.94 4.74.94 5.52 0 10-3.94 10-8.8S17.52 3 12 3Z" />
+                        </svg>
                     )}
                     {!isChatOpen && <span className={styles.launcherStatus} aria-hidden="true" />}
                 </button>

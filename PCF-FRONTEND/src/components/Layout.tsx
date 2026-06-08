@@ -2,7 +2,6 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import HubSpotChat from "./HubSpotChat";
 import { Menu, X } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -113,9 +112,6 @@ const Layout: React.FC = () => {
           <Outlet />
         </main>
       </div>
-
-      {/* HubSpot chat — scoped to the main app; the Knowledge Base uses Eco AI */}
-      <HubSpotChat />
     </div>
   );
 };
