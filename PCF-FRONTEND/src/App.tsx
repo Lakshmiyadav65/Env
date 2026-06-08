@@ -3,7 +3,6 @@ import { ConfigProvider, App as AntApp } from 'antd';
 import { router } from './routes';
 import { AuthProvider } from './contexts/AuthContext';
 import { PermissionProvider } from './contexts/PermissionContext';
-import HubSpotChat from './components/HubSpotChat';
 
 // Green accent theme configuration for Ant Design
 const themeConfig = {
@@ -102,7 +101,6 @@ function App() {
         <AuthProvider>
           <PermissionProvider>
             <RouterProvider router={router} />
-            <HubSpotChat />
           </PermissionProvider>
         </AuthProvider>
       </AntApp>
